@@ -42,7 +42,7 @@ suspend fun AwaitPointerEventScope.awaitForUpOrCancellationEvent(): PointerEvent
         // Check for cancel by position consumption. We can look on the Final pass of the
         // existing pointer event because it comes after the Main pass we checked above.
         val consumeCheck = awaitPointerEvent(PointerEventPass.Final)
-        if (consumeCheck.changes.first().positionChangeConsumed()) {
+        if (consumeCheck.changes.first().isConsumed) {
             return null
         }
     }

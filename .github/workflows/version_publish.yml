@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Increment Patch Version
-      run: gradle incrementPatch
+      run: ./gradlew incrementPatch
 
       # Fetch SemVer for tagging
     - name: Read Properties
