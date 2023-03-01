@@ -9,7 +9,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set Run ID
       run: |
         echo "OSD_DEVELOPER=${{ secrets.OSD_DEVELOPER }}" >> $GITHUB_ENV
