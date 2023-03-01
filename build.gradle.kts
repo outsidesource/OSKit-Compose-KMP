@@ -103,8 +103,8 @@ kotlin {
                         name = "GitHubPackages"
                         url = uri("https://maven.pkg.github.com/$repoName")
                         credentials {
-                            username = getenv("OSD_DEVELOPER")
-                            password = getenv("OSD_TOKEN")
+                            username = getenv("OS_DEVELOPER")
+                            password = getenv("OS_TOKEN")
                         }
                     }
                 }
