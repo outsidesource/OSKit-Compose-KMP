@@ -2,15 +2,13 @@ package com.outsidesource.oskitcompose.canvas
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.useResource
 import com.outsidesource.oskitcompose.resources.KMPResource
-import org.jetbrains.skia.Data
-import org.jetbrains.skia.Font
-import org.jetbrains.skia.TextLine
-import org.jetbrains.skia.Typeface
+import org.jetbrains.skia.*
 
 internal data class DesktopKMPTypeface(val font: Font) : KMPTypeface
 
@@ -59,4 +57,17 @@ actual interface KMPTextLine {
 
 actual fun Canvas.drawKmpTextLine(textLine: KMPTextLine, x: Float, y: Float, paint: Paint) {
     nativeCanvas.drawTextLine((textLine as DesktopKMPTextLine).textLine, x, y, paint.asFrameworkPaint())
+}
+
+actual fun Paint.kmpBlur(radius: Float, mode: KMPBlurMode) {
+    val frameworkPaint = asFrameworkPaint()
+    frameworkPaint.maskFilter = MaskFilter.makeBlur(
+        sigma = radius,
+        mode = when (mode) {
+            KMPBlurMode.Inner -> FilterBlurMode.INNER
+            KMPBlurMode.Outer -> FilterBlurMode.OUTER
+            KMPBlurMode.Normal -> FilterBlurMode.NORMAL
+            KMPBlurMode.Solid -> FilterBlurMode.SOLID
+        },
+    )
 }

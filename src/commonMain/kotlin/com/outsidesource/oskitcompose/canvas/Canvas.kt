@@ -27,3 +27,12 @@ expect fun rememberKmpCanvasTypeface(resource: KMPResource): KMPTypeface
 expect val KMPTypeface.Companion.Default: KMPTypeface
 
 expect fun Canvas.drawKmpTextLine(textLine: KMPTextLine, x: Float, y: Float, paint: Paint)
+
+expect fun Paint.kmpBlur(radius: Float, mode: KMPBlurMode = KMPBlurMode.Normal)
+
+enum class KMPBlurMode {
+    Normal,
+    Solid,
+    Inner,
+    Outer,
+}

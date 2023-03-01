@@ -22,6 +22,12 @@ import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.modifier.consumePointerInput
 import com.outsidesource.oskitcompose.modifier.disablePointerInput
 
+@Immutable
+data class ModalStyles(
+    val transitionDuration: Int = 200,
+    val backdropColor: Color = Color(0x55000000),
+)
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BaseModal(
@@ -30,23 +36,24 @@ fun BaseModal(
     isDismissibleOnExternalClick: Boolean = false,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
+    styles: ModalStyles = remember { ModalStyles() },
     content: @Composable BoxScope.() -> Unit,
 ) {
     val density = LocalDensity.current
     val modalPositionProvider = remember { ModalPositionProvider() }
     val transition = updateTransition(isVisible)
     val alpha by transition.animateFloat(
-        transitionSpec = { tween(200) },
+        transitionSpec = { tween(styles.transitionDuration) },
         targetValueByState = { if (it) 1f else 0f },
         label = "AlphaAnimation"
     )
     val scale by transition.animateFloat(
-        transitionSpec = { tween(200) },
+        transitionSpec = { tween(styles.transitionDuration) },
         targetValueByState = { if (it) 1f else .95f },
         label = "ScaleAnimation"
     )
     val translate by transition.animateFloat(
-        transitionSpec = { tween(200) },
+        transitionSpec = { tween(styles.transitionDuration) },
         targetValueByState = { if (it) 0f else -10f * density.density },
         label = "TranslateAnimation"
     )
@@ -70,7 +77,7 @@ fun BaseModal(
                     }
                     .fillMaxSize()
                     .graphicsLayer { this.alpha = alpha }
-                    .background(Color(0x55000000)),
+                    .background(styles.backdropColor),
                 contentAlignment = Alignment.Center,
             ) {
                 Box(
