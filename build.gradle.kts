@@ -62,7 +62,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("com.outsidesource:oskit-kmp:2.0.0")
+                api("com.outsidesource:oskit-kmp:2.1.0")
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
