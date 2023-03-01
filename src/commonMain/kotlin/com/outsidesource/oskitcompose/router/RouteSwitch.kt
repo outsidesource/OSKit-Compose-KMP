@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import com.outsidesource.oskitcompose.lib.KMPBackHandler
 import com.outsidesource.oskitkmp.coordinator.*
 import com.outsidesource.oskitkmp.router.IRoute
 import com.outsidesource.oskitkmp.router.RouteTransitionStatus

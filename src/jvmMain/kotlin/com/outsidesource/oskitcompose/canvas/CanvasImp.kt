@@ -7,7 +7,10 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.useResource
 import com.outsidesource.oskitcompose.resources.KMPResource
-import org.jetbrains.skia.*
+import org.jetbrains.skia.Data
+import org.jetbrains.skia.Font
+import org.jetbrains.skia.TextLine
+import org.jetbrains.skia.Typeface
 
 internal data class DesktopKMPTypeface(val font: Font) : KMPTypeface
 

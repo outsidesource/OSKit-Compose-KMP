@@ -14,4 +14,5 @@ actual fun kmpLoadImageBitmap(input: InputStream): ImageBitmap = loadImageBitmap
 actual fun kmpLoadSvgPainter(input: InputStream, density: Density): Painter = loadSvgPainter(input, density)
 
 @Composable
-actual fun rememberKmpPainterResource(resource: KMPResource): Painter = painterResource((resource as KMPResource.Desktop).path)
+actual fun rememberKmpPainterResource(resource: KMPResource): Painter =
+    painterResource((resource as KMPResource.Desktop).pathForDensity())

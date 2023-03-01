@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.outsidesource.oskitcompose.lib.snapTo
+import com.outsidesource.oskitkmp.lib.snapTo
 import kotlin.math.roundToInt
 
 fun Offset.toDpOffset(density: Density): DpOffset {

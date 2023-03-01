@@ -1,4 +1,4 @@
-package com.outsidesource.oskitcompose.lib
+package com.outsidesource.oskitcompose.router
 
 import androidx.compose.runtime.Composable
 

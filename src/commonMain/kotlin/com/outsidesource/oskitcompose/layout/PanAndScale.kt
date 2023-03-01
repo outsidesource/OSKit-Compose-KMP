@@ -132,7 +132,7 @@ fun PanAndScale(
     gridSize: Dp = 20.dp,
     background: Color,
     gridColor: Color,
-    subcomposeLayoutState: SubcomposeLayoutState = remember { SubcomposeLayoutState(0) },
+    subcomposeLayoutState: SubcomposeLayoutState = remember { SubcomposeLayoutState(SubcomposeSlotReusePolicy(0)) },
     content: PanAndScaleScope.() -> Unit,
 ) = SubcomposeLayout(
     modifier = modifier
