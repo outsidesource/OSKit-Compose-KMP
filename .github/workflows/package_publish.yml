@@ -24,7 +24,7 @@ jobs:
         architecture: x64
 
     - name: Publish Package
-      run: ./gradlew publish --no-daemon
+      run: gradle publish --no-daemon
 
   create_release:
     needs: build
