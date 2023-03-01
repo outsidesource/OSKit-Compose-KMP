@@ -50,7 +50,7 @@ fun Modifier.kmpClickableEvent(vararg keys: Any, onClick: (down: PointerEvent, u
     pointerInput(keys) {
         forEachGesture {
             awaitPointerEventScope {
-                val down = awaitFirstDownEvent().also { it.changes.forEach { change -> change.consumeDownChange() } }
+                val down = awaitFirstDownEvent().also { it.changes.forEach { change -> if (change.pressed != change.previousPressed) change.consume() } }
                 val up = awaitForUpOrCancellationEvent() ?: return@awaitPointerEventScope
                 onClick(down, up)
             }

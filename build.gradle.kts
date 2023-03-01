@@ -3,6 +3,15 @@ import java.io.FileInputStream
 import java.lang.System.getenv
 import java.util.*
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath(kotlin("gradle-plugin", "1.8.0"))
+    }
+}
+
 plugins {
     kotlin("multiplatform") version "1.8.0"
     id("com.android.library")
