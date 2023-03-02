@@ -23,32 +23,32 @@ expect fun rememberKmpScrollbarAdapter(
 ): ScrollbarAdapter
 
 @Composable
-expect fun KmpVerticalScrollbar(
+expect fun KMPVerticalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter
 )
 
 @Composable
-expect fun KmpVerticalScrollbar(
+expect fun KMPVerticalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter,
-    style: KmpScrollbarStyle,
+    style: KMPScrollbarStyle,
 )
 
 @Composable
-expect fun KmpHorizontalScrollbar(
+expect fun KMPHorizontalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter
 )
 
 @Composable
-expect fun KmpHorizontalScrollbar(
+expect fun KMPHorizontalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter,
-    style: KmpScrollbarStyle,
+    style: KMPScrollbarStyle,
 )
 
-data class KmpScrollbarStyle(
+data class KMPScrollbarStyle(
     val minimalHeight: Dp = 16.dp,
     val thickness: Dp = 8.dp,
     val shape: Shape = RoundedCornerShape(4.dp),
