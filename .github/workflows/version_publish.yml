@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Set Run ID
       run: |
         echo "OS_DEVELOPER=${{ secrets.OS_DEVELOPER }}" >> $GITHUB_ENV
         echo "OS_TOKEN=${{ secrets.OS_TOKEN }}" >> $GITHUB_ENV
