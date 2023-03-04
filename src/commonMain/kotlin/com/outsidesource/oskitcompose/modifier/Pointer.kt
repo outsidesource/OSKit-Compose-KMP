@@ -26,6 +26,16 @@ fun Modifier.consumePointerInput(pass: PointerEventPass = PointerEventPass.Main)
     }
 }
 
+fun Modifier.preventClickPropagationToParent() = pointerInput(Unit) {
+    awaitPointerEventScope {
+        while (true) {
+            awaitPointerEvent(PointerEventPass.Main).changes.forEach {
+                if (it.changedToUp()) it.consume()
+            }
+        }
+    }
+}
+
 expect fun Modifier.kmpPointerMoveFilter(
     onMove: (Offset) -> Boolean = { false },
     onEnter: () -> Boolean = { false },
