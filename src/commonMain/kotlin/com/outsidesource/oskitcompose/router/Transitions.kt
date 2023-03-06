@@ -59,19 +59,19 @@ val PushFromTopRouteTransition = ComposeRouteTransition(
 val PushFromRightRouteTransition = ComposeRouteTransition(
     enter = {
         val offsetX = with(it) { 40.dp.toPx() }.toInt()
-        fadeIn(tween(500, easing = CubicBezierEaseOutCirc)) + slideIn(tween(500, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
+        fadeIn(tween(400, easing = CubicBezierEaseOutCirc)) + slideIn(tween(400, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
     },
     exit = {
         val offsetX = with(it) { -40.dp.toPx() }.toInt()
-        slideOut(tween(500, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
+        slideOut(tween(400, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
     },
     popEnter = {
         val offsetX = with(it) { -40.dp.toPx() }.toInt()
-        fadeIn(tween(500, easing = CubicBezierEaseOutCirc)) + slideIn(tween(500, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
+        fadeIn(tween(400, easing = CubicBezierEaseOutCirc)) + slideIn(tween(400, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
     },
     popExit = {
         val offsetX = with(it) { 40.dp.toPx() }.toInt()
-        slideOut(tween(500, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
+        slideOut(tween(400, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
     },
 )
 
