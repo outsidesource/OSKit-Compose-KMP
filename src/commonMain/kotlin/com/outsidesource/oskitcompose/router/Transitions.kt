@@ -1,11 +1,11 @@
 package com.outsidesource.oskitcompose.router
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.outsidesource.oskitcompose.animation.CubicBezierEaseOutCirc
 import com.outsidesource.oskitkmp.router.IAnimatedRoute
 import com.outsidesource.oskitkmp.router.IRouteTransition
 import com.outsidesource.oskitkmp.router.RouteStackEntry
@@ -41,10 +41,8 @@ data class ComposeRouteTransition(
     val popExit: AnimatedContentScope<RouteStackEntry>.(density: Density) -> ExitTransition,
 ) : IRouteTransition
 
-private val easeIn = CubicBezierEasing(.17f, .67f, .83f, .67f)
-
 @ExperimentalAnimationApi
-val DefaultRouteTransition = ComposeRouteTransition(
+val PushFromTopRouteTransition = ComposeRouteTransition(
     enter = {
         val offsetY = with(it) { -25.dp.toPx() }.toInt()
         fadeIn(tween(300), 0f) + slideIn(tween(300)) { IntOffset(0, offsetY) }
@@ -58,11 +56,23 @@ val DefaultRouteTransition = ComposeRouteTransition(
 )
 
 @ExperimentalAnimationApi
-val HorizontalSlideRouteTransition = ComposeRouteTransition(
-    enter = { slideInHorizontally(tween(300)) { it } },
-    exit = { fadeOut(tween(300), targetAlpha = .5f) },
-    popEnter = { fadeIn(tween(300)) },
-    popExit = { slideOutHorizontally(tween(300, easing = easeIn)) { it } + fadeOut(tween(300), targetAlpha = .5f) },
+val PushFromRightRouteTransition = ComposeRouteTransition(
+    enter = {
+        val offsetX = with(it) { 40.dp.toPx() }.toInt()
+        fadeIn(tween(400, easing = CubicBezierEaseOutCirc)) + slideIn(tween(400, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
+    },
+    exit = {
+        val offsetX = with(it) { -40.dp.toPx() }.toInt()
+        slideOut(tween(400, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
+    },
+    popEnter = {
+        val offsetX = with(it) { -40.dp.toPx() }.toInt()
+        fadeIn(tween(400, easing = CubicBezierEaseOutCirc)) + slideIn(tween(400, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
+    },
+    popExit = {
+        val offsetX = with(it) { 40.dp.toPx() }.toInt()
+        slideOut(tween(400, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
+    },
 )
 
 @ExperimentalAnimationApi

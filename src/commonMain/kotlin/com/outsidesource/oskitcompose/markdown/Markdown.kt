@@ -45,8 +45,8 @@ import org.intellij.markdown.ast.getTextInNode
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.parser.MarkdownParser
 import com.outsidesource.oskitcompose.scrollbars.rememberKmpScrollbarAdapter
-import com.outsidesource.oskitcompose.scrollbars.KmpHorizontalScrollbar
-import com.outsidesource.oskitcompose.scrollbars.KmpScrollbarStyle
+import com.outsidesource.oskitcompose.scrollbars.KMPHorizontalScrollbar
+import com.outsidesource.oskitcompose.scrollbars.KMPScrollbarStyle
 
 private const val TAG_URL = "URL"
 private const val TAG_CODE_SPAN = "CODE_SPAN"
@@ -443,12 +443,12 @@ private fun MarkdownCodeBlock(codeBlock: MarkdownBlock.Code) {
             style = styles.codeTextStyle
         )
         if (allowHScroll) {
-            KmpHorizontalScrollbar(
+            KMPHorizontalScrollbar(
                 modifier = Modifier
                     .padding(2.dp)
                     .align(Alignment.BottomStart),
                 adapter = adapter,
-                style = KmpScrollbarStyle(thickness = 4.dp),
+                style = KMPScrollbarStyle(thickness = 4.dp),
             )
         }
     }

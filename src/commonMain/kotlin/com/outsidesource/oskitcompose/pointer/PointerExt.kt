@@ -33,9 +33,7 @@ suspend fun AwaitPointerEventScope.awaitForUpOrCancellationEvent(): PointerEvent
             return event
         }
 
-        if (event.changes.first().consumed.downChange ||
-            event.changes.first().isOutOfBounds(size, extendedTouchPadding)
-        ) {
+        if (event.changes.first().isConsumed || event.changes.first().isOutOfBounds(size, extendedTouchPadding)) {
             return null // Canceled
         }
 
