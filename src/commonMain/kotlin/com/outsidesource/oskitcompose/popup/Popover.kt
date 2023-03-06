@@ -61,10 +61,6 @@ data class PopoverAnchors(
 
 typealias PopoverState = MutableTransitionState<Boolean>
 
-var PopoverState.isVisible
-    get() = targetState || currentState
-    set(value) { targetState = value }
-
 @Composable
 fun rememberPopoverState(isOpen: Boolean = false) = remember { MutableTransitionState(isOpen) }
 
