@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -19,21 +20,25 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.*
-import com.outsidesource.oskitcompose.modifier.consumePointerInput
 import com.outsidesource.oskitcompose.modifier.disablePointerInput
+import com.outsidesource.oskitcompose.modifier.outerShadow
+import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
+import com.outsidesource.oskitcompose.router.KMPBackHandler
 
 @Immutable
 data class ModalStyles(
     val transitionDuration: Int = 200,
-    val backdropColor: Color = Color(0x55000000),
+    val backdropColor: Color = Color.Black.copy(alpha = .5f),
 )
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun BaseModal(
+fun Modal(
     isVisible: Boolean,
+    modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
-    isDismissibleOnExternalClick: Boolean = false,
+    shouldDismissOnExternalClick: Boolean = true,
+    shouldDismissOnEscapeKey: Boolean = true,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
     styles: ModalStyles = remember { ModalStyles() },
@@ -65,7 +70,7 @@ fun BaseModal(
             onDismissRequest = onDismissRequest,
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = {
-                if (it.key == Key.Escape) onDismissRequest?.invoke()
+                if (it.key == Key.Escape && shouldDismissOnEscapeKey) onDismissRequest?.invoke()
                 return@Popup onKeyEvent(it)
             }
         ) {
@@ -73,7 +78,7 @@ fun BaseModal(
                 modifier = Modifier
                     .disablePointerInput(!LocalWindowInfo.current.isWindowFocused)
                     .clickable(remember { MutableInteractionSource() }, indication = null) {
-                        if (isDismissibleOnExternalClick) onDismissRequest?.invoke()
+                        if (shouldDismissOnExternalClick) onDismissRequest?.invoke()
                     }
                     .fillMaxSize()
                     .graphicsLayer { this.alpha = alpha }
@@ -82,12 +87,13 @@ fun BaseModal(
             ) {
                 Box(
                     modifier = Modifier
-                        .consumePointerInput()
+                        .preventClickPropagationToParent()
                         .graphicsLayer {
                             this.scaleX = scale
                             this.scaleY = scale
                             this.translationY = translate
                         }
+                        .then(modifier)
                 ) {
                     content()
                 }
@@ -104,3 +110,17 @@ private class ModalPositionProvider : PopupPositionProvider {
         popupContentSize: IntSize,
     ): IntOffset = IntOffset.Zero
 }
+
+val defaultModalModifier = Modifier
+    .widthIn(300.dp, 600.dp)
+    .heightIn(200.dp, 600.dp)
+    .outerShadow(
+        blur = 11.dp,
+        color = Color.Black.copy(alpha = .25f),
+        shape = RoundedCornerShape(8.dp)
+    )
+    .background(
+        color = Color.White,
+        shape = RoundedCornerShape(8.dp)
+    )
+    .padding(16.dp)

@@ -46,7 +46,8 @@ private enum class DatePickerViewType {
 
 @Composable
 fun DatePicker(
-    state: PopoverState,
+    isVisible: Boolean,
+    onDismissRequest: (() -> Unit)? = null,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     centerInWindow: Boolean = false,
     onChange: (date: LocalDate) -> Unit,
@@ -56,38 +57,41 @@ fun DatePicker(
     val selectedDate = remember(date) { mutableStateOf(date) }
 
     if (centerInWindow) {
-        DatePickerModal(state, date, onChange, viewType, currentDate, selectedDate)
+        DatePickerModal(isVisible, onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
     } else {
-        DatePickerPopover(state, date, onChange, viewType, currentDate, selectedDate)
+        DatePickerPopover(isVisible, onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun DatePickerModal(
-    state: PopoverState,
+    isVisible: Boolean,
+    onDismissRequest: (() -> Unit)? = null,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     onChange: (date: LocalDate) -> Unit,
     viewType: MutableState<DatePickerViewType>,
     currentDate: MutableState<LocalDate>,
     selectedDate: MutableState<LocalDate>,
 ) {
-    BaseModal(
-        isVisible = state.isVisible,
-        isDismissibleOnExternalClick = true,
-        onDismissRequest = { state.isVisible = false },
+    Modal(
+        isVisible = isVisible,
+        shouldDismissOnExternalClick = true,
+        onDismissRequest = onDismissRequest,
         onKeyEvent = {
-            if (it.key == Key.Escape) state.isVisible = false
+            if (it.key == Key.Escape) onDismissRequest?.invoke()
             false
         },
     ) {
-        DatePickerContent(state, date, onChange, viewType, currentDate, selectedDate)
+        DatePickerContent(onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun DatePickerPopover(
-    state: PopoverState,
+    isVisible: Boolean,
+    onDismissRequest: (() -> Unit)? = null,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     onChange: (date: LocalDate) -> Unit,
     viewType: MutableState<DatePickerViewType>,
@@ -95,23 +99,23 @@ private fun DatePickerPopover(
     selectedDate: MutableState<LocalDate>,
 ) {
     Popover(
-        popoverState = state,
+        isVisible = isVisible,
         anchors = PopoverAnchors.ExternalBottomAlignCenter,
-        onDismissRequest = { state.isVisible = false },
+        onDismissRequest = onDismissRequest,
         onKeyEvent = {
-            if (it.key == Key.Escape) state.isVisible = false
+            if (it.key == Key.Escape) onDismissRequest?.invoke()
             false
         },
         focusable = true,
         offset = DpOffset(0.dp, (-16f).dp),
     ) {
-        DatePickerContent(state, date, onChange, viewType, currentDate, selectedDate)
+        DatePickerContent(onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
     }
 }
 
 @Composable
 private fun DatePickerContent(
-    state: PopoverState,
+    onDismissRequest: (() -> Unit)? = null,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     onChange: (date: LocalDate) -> Unit,
     viewType: MutableState<DatePickerViewType>,
@@ -177,12 +181,12 @@ private fun DatePickerContent(
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             TextButton({
-                state.isVisible = false
+                onDismissRequest?.invoke()
             }) {
                 Text("CANCEL", style = MaterialTheme.typography.button)
             }
             TextButton({
-                state.isVisible = false
+                onDismissRequest?.invoke()
                 onChange(selectedDate.value)
             }) {
                 Text("OK", style = MaterialTheme.typography.button)

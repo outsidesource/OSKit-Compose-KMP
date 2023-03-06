@@ -1,6 +1,5 @@
 package com.outsidesource.oskitcompose.popup
 
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -59,19 +58,10 @@ data class PopoverAnchors(
     }
 }
 
-typealias PopoverState = MutableTransitionState<Boolean>
-
-var PopoverState.isVisible
-    get() = targetState || currentState
-    set(value) { targetState = value }
-
-@Composable
-fun rememberPopoverState(isOpen: Boolean = false) = remember { MutableTransitionState(isOpen) }
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Popover(
-    popoverState: PopoverState,
+    isVisible: Boolean,
     anchors: PopoverAnchors = PopoverAnchors.ExternalBottomAlignStart,
     offset: DpOffset = DpOffset(0f.dp, 0f.dp),
     popupPositionProvider: PopupPositionProvider? = null,
@@ -86,7 +76,7 @@ fun Popover(
     val popoverPositionProvider = popupPositionProvider ?: remember(anchors, offset, density) {
         PopoverPositionProvider(anchors, offset, density)
     }
-    val transition = updateTransition(popoverState)
+    val transition = updateTransition(isVisible)
     val alpha by transition.animateFloat(
         transitionSpec = { tween(popoverAnimDuration) },
         targetValueByState = { if (it) 1f else 0f },
