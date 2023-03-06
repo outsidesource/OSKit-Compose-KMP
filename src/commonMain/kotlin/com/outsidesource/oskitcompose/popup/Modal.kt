@@ -38,7 +38,6 @@ fun Modal(
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
     shouldDismissOnExternalClick: Boolean = true,
-    shouldDismissOnBackPress: Boolean = true,
     shouldDismissOnEscapeKey: Boolean = true,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
@@ -75,8 +74,6 @@ fun Modal(
                 return@Popup onKeyEvent(it)
             }
         ) {
-            KMPBackHandler(enabled = shouldDismissOnBackPress, onBack = { onDismissRequest?.invoke() })
-
             Box(
                 modifier = Modifier
                     .disablePointerInput(!LocalWindowInfo.current.isWindowFocused)
