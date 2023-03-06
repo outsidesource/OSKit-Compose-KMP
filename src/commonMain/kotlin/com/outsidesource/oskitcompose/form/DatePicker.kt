@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.unit.*
-import com.outsidesource.oskitcompose.animation.isVisible
 import com.outsidesource.oskitcompose.popup.*
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
@@ -64,6 +63,7 @@ fun DatePicker(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun DatePickerModal(
     isVisible: Boolean,

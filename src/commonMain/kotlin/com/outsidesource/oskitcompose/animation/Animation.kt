@@ -4,7 +4,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.unit.DpOffset
-import com.outsidesource.oskitcompose.popup.PopoverState
 
 @Composable
 fun animateDpOffsetAsState(
@@ -16,7 +15,3 @@ fun animateDpOffsetAsState(
         targetValue, DpOffset.VectorConverter, animationSpec, finishedListener = finishedListener
     )
 }
-
-var MutableTransitionState<Boolean>.isVisible
-    get() = targetState || currentState
-    set(value) { targetState = value }
