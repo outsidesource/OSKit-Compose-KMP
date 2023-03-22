@@ -70,6 +70,7 @@ kotlin {
                 api("androidx.compose.ui:ui:1.3.3")
                 api("androidx.core:core-ktx:1.9.0")
                 api("androidx.activity:activity-compose:1.6.1")
+                implementation("io.insert-koin:koin-core:3.3.3")
                 implementation("org.jetbrains:markdown:0.2.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
             }
