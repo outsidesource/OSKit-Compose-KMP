@@ -20,37 +20,38 @@ fun Modifier.innerShadow(
     shape: Shape = RectangleShape,
     offset: DpOffset = DpOffset.Zero,
     drawOverContent: Boolean = false,
-) = drawWithContent {
-    if (drawOverContent) drawContent()
+) = graphicsLayer { alpha = .99f }
+    .drawWithContent {
+        if (drawOverContent) drawContent()
 
-    val rect = Rect(Offset.Zero, size)
-    val paint = Paint()
+        val rect = Rect(Offset.Zero, size)
+        val paint = Paint()
 
-    drawIntoCanvas {
-        paint.color = color
-        paint.isAntiAlias = true
+        drawIntoCanvas {
+            paint.color = color
+            paint.isAntiAlias = true
 
-        it.saveLayer(rect, paint)
+            if (drawOverContent) it.saveLayer(rect, paint)
 
-        val fillOutline = shape.createOutline(size, layoutDirection, this)
-        it.drawOutline(paint = paint, outline = fillOutline)
+            val fillOutline = shape.createOutline(size, layoutDirection, this)
+            it.drawOutline(paint = paint, outline = fillOutline)
 
-        paint.blendMode = BlendMode.DstOut
+            paint.blendMode = BlendMode.DstOut
 
-        if (blur.toPx() > 0) paint.kmpBlur(blur.toPx() / 2)
+            if (blur.toPx() > 0) paint.kmpBlur(blur.toPx() / 2)
 
-        translate(
-            left = spread.toPx() + offset.x.toPx(),
-            top = spread.toPx() + offset.y.toPx()
-        ) {
-            val shadowSize = size.copy(width = size.width - (spread.toPx() * 2), size.height - (spread.toPx() * 2))
-            val shadowOutline = shape.createOutline(shadowSize, layoutDirection, this)
-            it.drawOutline(paint = paint, outline = shadowOutline)
+            translate(
+                left = spread.toPx() + offset.x.toPx(),
+                top = spread.toPx() + offset.y.toPx()
+            ) {
+                val shadowSize = size.copy(width = size.width - (spread.toPx() * 2), size.height - (spread.toPx() * 2))
+                val shadowOutline = shape.createOutline(shadowSize, layoutDirection, this)
+                it.drawOutline(paint = paint, outline = shadowOutline)
+            }
         }
-    }
 
-    if (!drawOverContent) drawContent()
-}
+        if (!drawOverContent) drawContent()
+    }
 
 fun Modifier.outerShadow(
     blur: Dp,
