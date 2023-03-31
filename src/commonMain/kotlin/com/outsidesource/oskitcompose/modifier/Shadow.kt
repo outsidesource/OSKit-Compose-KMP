@@ -20,7 +20,7 @@ fun Modifier.innerShadow(
     shape: Shape = RectangleShape,
     offset: DpOffset = DpOffset.Zero,
     drawOverContent: Boolean = false,
-) = graphicsLayer { alpha = .99f }
+) = (if (!drawOverContent) graphicsLayer { alpha = .99f } else this) // This forces Android to use alpha compositing
     .drawWithContent {
         if (drawOverContent) drawContent()
 
