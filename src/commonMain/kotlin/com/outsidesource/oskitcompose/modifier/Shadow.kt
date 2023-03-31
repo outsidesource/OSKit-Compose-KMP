@@ -19,8 +19,9 @@ fun Modifier.innerShadow(
     color: Color = Color.Black,
     shape: Shape = RectangleShape,
     offset: DpOffset = DpOffset.Zero,
+    drawOverContent: Boolean = false,
 ) = drawWithContent {
-    drawContent()
+    if (drawOverContent) drawContent()
 
     val rect = Rect(Offset.Zero, size)
     val paint = Paint()
@@ -47,6 +48,8 @@ fun Modifier.innerShadow(
             it.drawOutline(paint = paint, outline = shadowOutline)
         }
     }
+
+    if (!drawOverContent) drawContent()
 }
 
 fun Modifier.outerShadow(
