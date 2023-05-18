@@ -74,6 +74,7 @@ fun RouteDestroyedEffect(effectId: String, effect: () -> Unit) {
 /**
  * [rememberForRoute] Remembers a given object for the lifetime of the route. There may only be one instance of
  * a given class for a given route. Additional instances may be created if a constant and unique [key] is provided.
+ * Nullable types have undefined behaviour.
  */
 @Composable
 inline fun <reified T : Any> rememberForRoute(key: String? = null, noinline factory: () -> T): T =
@@ -82,6 +83,7 @@ inline fun <reified T : Any> rememberForRoute(key: String? = null, noinline fact
 /**
  * [rememberForRoute] Remembers a given object for the lifetime of the route. There may only be one instance of
  * a given class for a given route. Additional instances may be created if a constant and unique [key] is provided.
+ * Nullable types have undefined behaviour.
  */
 @Composable
 @Suppress("UNCHECKED_CAST")
@@ -92,7 +94,7 @@ fun <T : Any> rememberForRoute(objectType: Class<T>, key: String? = null, factor
 
     val storedObject = objectStore[route.id, key, objectType]
 
-    return if (storedObject != null && storedObject::class.java == objectType) storedObject as T else factory().apply {
+    return if (storedObject != null) storedObject as T else factory().apply {
         objectStore[route.id, key, objectType] = this
         router.addRouteDestroyedListener {
             objectStore.remove(route.id, key, objectType)
