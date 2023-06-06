@@ -53,6 +53,15 @@ fun Modifier.innerShadow(
         if (!drawOverContent) drawContent()
     }
 
+data class InnerShadow(
+    val blur: Dp,
+    val spread: Dp = 0.dp,
+    val color: Color = Color.Black,
+    val shape: Shape = RectangleShape,
+    val offset: DpOffset = DpOffset.Zero,
+    val drawOverContent: Boolean = false,
+)
+
 fun Modifier.outerShadow(
     blur: Dp,
     spread: Dp = 0.dp,
@@ -78,3 +87,11 @@ fun Modifier.outerShadow(
         }
     }
 }
+
+data class OuterShadow(
+    val blur: Dp,
+    val spread: Dp = 0.dp,
+    val color: Color = Color.Black,
+    val shape: Shape = RectangleShape,
+    val offset: DpOffset = DpOffset.Zero,
+)
