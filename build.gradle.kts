@@ -8,14 +8,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath(kotlin("gradle-plugin", "1.8.0"))
+        classpath(kotlin("gradle-plugin", "1.8.20"))
     }
 }
 
 plugins {
-    kotlin("multiplatform") version "1.8.0"
+    kotlin("multiplatform") version "1.8.20"
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.3.0"
+    id("org.jetbrains.compose") version "1.4.0"
     id("maven-publish")
 }
 
@@ -62,14 +62,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("com.outsidesource:oskit-kmp:2.1.0")
+                api("com.outsidesource:oskit-kmp:3.0.0")
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                api("androidx.compose.foundation:foundation:1.3.1")
-                api("androidx.compose.ui:ui:1.3.3")
-                api("androidx.core:core-ktx:1.9.0")
-                api("androidx.activity:activity-compose:1.6.1")
+                api("androidx.compose.foundation:foundation:1.4.3")
+                api("androidx.compose.ui:ui:1.4.3")
+                api("androidx.core:core-ktx:1.10.1")
+                api("androidx.activity:activity-compose:1.7.2")
                 implementation("io.insert-koin:koin-core:3.3.3")
                 implementation("org.jetbrains:markdown:0.2.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
