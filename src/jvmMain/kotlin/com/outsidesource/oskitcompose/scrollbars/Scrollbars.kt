@@ -5,7 +5,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
-actual typealias ScrollbarAdapter = androidx.compose.foundation.ScrollbarAdapter
+actual typealias ScrollbarAdapter = androidx.compose.foundation.v2.ScrollbarAdapter
 
 @Composable
 actual fun rememberKmpScrollbarAdapter(

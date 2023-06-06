@@ -5,8 +5,8 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -18,7 +18,10 @@ import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
-import androidx.compose.ui.layout.*
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.SubcomposeLayoutState
+import androidx.compose.ui.layout.SubcomposeSlotReusePolicy
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.geometry.*
 import com.outsidesource.oskitcompose.modifier.kmpMouseScrollFilter
@@ -239,41 +242,37 @@ private fun Modifier.panAndScalable(
     .pointerInput(state) {
         val allowableClickSlop = 1.dp
 
-        forEachGesture {
-            awaitPointerEventScope {
-                awaitFirstDown()
-                val start = System.currentTimeMillis()
-                var slop = DpOffset.Zero
+        awaitEachGesture {
+            awaitFirstDown()
+            val start = System.currentTimeMillis()
+            var slop = DpOffset.Zero
 
-                while (true) {
-                    val event = awaitPointerEvent().changes.first()
-                    if (event.changedToUp()) {
-                        if (slop.x <= allowableClickSlop && slop.y <= allowableClickSlop &&
-                            System.currentTimeMillis() - start < 200
-                        ) {
-                            onClick?.invoke(
-                                (event.position.toDpOffset(density) - state.pan) / state.scale,
-                                event.position.toDpOffset(density)
-                            )
-                        }
-                        break
-                    } else if (event.positionChanged()) {
-                        if (state.isAnimatingPan || state.isAnimatingScale) return@awaitPointerEventScope
-                        val posChange = event.positionChange().toDpOffset(density)
-                        slop += posChange
-                        state.pan += posChange
-                        onPan(state.pan)
+            while (true) {
+                val event = awaitPointerEvent().changes.first()
+                if (event.changedToUp()) {
+                    if (slop.x <= allowableClickSlop && slop.y <= allowableClickSlop &&
+                        System.currentTimeMillis() - start < 200
+                    ) {
+                        onClick?.invoke(
+                            (event.position.toDpOffset(density) - state.pan) / state.scale,
+                            event.position.toDpOffset(density)
+                        )
                     }
+                    break
+                } else if (event.positionChanged()) {
+                    if (state.isAnimatingPan || state.isAnimatingScale) return@awaitEachGesture
+                    val posChange = event.positionChange().toDpOffset(density)
+                    slop += posChange
+                    state.pan += posChange
+                    onPan(state.pan)
                 }
             }
         }
     }
     .pointerInput(state) {
-        forEachGesture {
-            awaitPointerEventScope {
-                val event = awaitPointerEvent().changes.first()
-                state.mousePos = event.position.toDpOffset(density)
-            }
+        awaitEachGesture {
+            val event = awaitPointerEvent().changes.first()
+            state.mousePos = event.position.toDpOffset(density)
         }
     }
     .kmpMouseScrollFilter { _, delta ->
