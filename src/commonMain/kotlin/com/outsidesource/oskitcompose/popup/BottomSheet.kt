@@ -65,11 +65,11 @@ data class BottomSheetStyles(
 
 /**
  * Composes a BottomSheet that can be placed anywhere in the composable tree.
- * Note: [BottomSheet] does not support full screen content and will not draw behind system bars. Use [InlineBottomSheet] for
+ * Note: [BottomSheetPopup] does not support full screen content and will not draw behind system bars. Use [BottomSheet] for
  * full screen content
  */
 @Composable
-fun BottomSheet(
+fun BottomSheetPopup(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
@@ -93,12 +93,12 @@ fun BottomSheet(
 }
 
 /**
- * Composes a BottomSheet inline with the composable tree. Placement matters with [InlineBottomSheet] and will not render properly
+ * Composes a BottomSheet inline with the composable tree. Placement matters with [BottomSheet] and will not render properly
  * if used in the incorrect place in the composable tree.
- * Note: [InlineBottomSheet] supports full screen content and will draw behind system bars.
+ * Note: [BottomSheet] supports full screen content and will draw behind system bars.
  */
 @Composable
-fun InlineBottomSheet(
+fun BottomSheet(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,

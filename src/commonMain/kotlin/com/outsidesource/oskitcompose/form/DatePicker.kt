@@ -74,7 +74,7 @@ private fun DatePickerModal(
     currentDate: MutableState<LocalDate>,
     selectedDate: MutableState<LocalDate>,
 ) {
-    Modal(
+    ModalPopup(
         isVisible = isVisible,
         shouldDismissOnExternalClick = true,
         onDismissRequest = onDismissRequest,

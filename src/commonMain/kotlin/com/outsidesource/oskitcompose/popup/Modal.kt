@@ -15,7 +15,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -62,11 +61,11 @@ data class ModalStyles(
 
 /**
  * Composes a Modal that can be placed anywhere in the composable tree.
- * Note: [Modal] does not support full screen content and will not draw behind system bars. Use [InlineModal] for
+ * Note: [ModalPopup] does not support full screen content and will not draw behind system bars. Use [Modal] for
  * full screen content
  */
 @Composable
-fun Modal(
+fun ModalPopup(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
@@ -92,12 +91,12 @@ fun Modal(
 }
 
 /**
- * Composes a Modal inline with the composable tree. Placement matters with [InlineModal] and will not render properly
+ * Composes a Modal inline with the composable tree. Placement matters with [Modal] and will not render properly
  * if used in the incorrect place in the composable tree.
- * Note: [InlineModal] supports full screen content and will draw behind system bars.
+ * Note: [Modal] supports full screen content and will draw behind system bars.
  */
 @Composable
-fun InlineModal(
+fun Modal(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,

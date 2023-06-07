@@ -67,11 +67,11 @@ data class DrawerStyles(
 
 /**
  * Composes a Drawer that can be placed anywhere in the composable tree.
- * Note: [Drawer] does not support full screen content and will not draw behind system bars. Use [InlineDrawer] for
+ * Note: [DrawerPopup] does not support full screen content and will not draw behind system bars. Use [Drawer] for
  * full screen content
  */
 @Composable
-fun Drawer(
+fun DrawerPopup(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
@@ -95,12 +95,12 @@ fun Drawer(
 }
 
 /**
- * Composes a Drawer inline with the composable tree. Placement matters with [InlineDrawer] and will not render properly
+ * Composes a Drawer inline with the composable tree. Placement matters with [Drawer] and will not render properly
  * if used in the incorrect place in the composable tree.
- * Note: [InlineDrawer] supports full screen content and will draw behind system bars.
+ * Note: [Drawer] supports full screen content and will draw behind system bars.
  */
 @Composable
-fun InlineDrawer(
+fun Drawer(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
