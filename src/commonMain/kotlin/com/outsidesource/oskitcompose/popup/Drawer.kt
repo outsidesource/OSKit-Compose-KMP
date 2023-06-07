@@ -1,20 +1,20 @@
 package com.outsidesource.oskitcompose.popup
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.core.*
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -25,12 +25,19 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
-import com.outsidesource.oskitcompose.geometry.Constraint
+import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitcompose.modifier.OuterShadow
 import com.outsidesource.oskitcompose.modifier.outerShadow
 import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
+import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
 @Immutable
 data class DrawerStyles(
@@ -70,6 +77,7 @@ fun Drawer(
     onDismissRequest: (() -> Unit)? = null,
     shouldDismissOnExternalClick: Boolean = true,
     shouldDismissOnEscapeKey: Boolean = true,
+    shouldDismissOnSwipe: Boolean = true,
     styles: DrawerStyles = remember { DrawerStyles() },
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -79,6 +87,7 @@ fun Drawer(
         onDismissRequest = onDismissRequest,
         shouldDismissOnExternalClick = shouldDismissOnExternalClick,
         shouldDismissOnEscapeKey = shouldDismissOnEscapeKey,
+        shouldDismissOnSwipe = shouldDismissOnSwipe,
         styles = styles,
         content = content,
         isInline = false,
@@ -97,6 +106,7 @@ fun InlineDrawer(
     onDismissRequest: (() -> Unit)? = null,
     shouldDismissOnExternalClick: Boolean = true,
     shouldDismissOnEscapeKey: Boolean = true,
+    shouldDismissOnSwipe: Boolean = true,
     styles: DrawerStyles = remember { DrawerStyles() },
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -106,6 +116,7 @@ fun InlineDrawer(
         onDismissRequest = onDismissRequest,
         shouldDismissOnExternalClick = shouldDismissOnExternalClick,
         shouldDismissOnEscapeKey = shouldDismissOnEscapeKey,
+        shouldDismissOnSwipe = shouldDismissOnSwipe,
         styles = styles,
         content = content,
         isInline = true,
@@ -121,6 +132,7 @@ private fun InternalDrawer(
     onDismissRequest: (() -> Unit)? = null,
     shouldDismissOnExternalClick: Boolean = true,
     shouldDismissOnEscapeKey: Boolean = true,
+    shouldDismissOnSwipe: Boolean = true,
     styles: DrawerStyles = remember { DrawerStyles() },
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -180,23 +192,38 @@ private fun InternalDrawer(
                         enter = slideInHorizontally(tween(styles.transitionDuration)) { -it },
                         exit = slideOutHorizontally(tween(styles.transitionDuration)) { -it }
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .width(styles.width)
-                                .fillMaxHeight()
-                                .outerShadow(
-                                    blur = styles.shadow.blur,
-                                    color = styles.shadow.color,
-                                    shape = styles.shadow.shape,
-                                )
-                                .background(
-                                    styles.backgroundColor,
-                                    styles.backgroundShape
-                                )
-                                .padding(styles.contentPadding)
-                                .then(modifier)
-                        ) {
-                            content()
+                        val density = LocalDensity.current
+                        val handleData = remember(onDismissRequest, styles.transitionDuration) {
+                            DrawerSwipeHandleData(
+                                onDismissRequest = onDismissRequest,
+                                transitionDuration = styles.transitionDuration)
+                        }
+                        val isDragging by handleData.isDragging
+                        val offset by handleData.offset
+                        val offsetAnim = handleData.offsetAnim
+
+                        CompositionLocalProvider(LocalDrawerSwipeHandleData provides handleData) {
+                            Box(
+                                modifier = Modifier
+                                    .onGloballyPositioned { handleData.size.value = it.size }
+                                    .then(if (shouldDismissOnSwipe) Modifier.drawerSwipeToDismiss() else Modifier)
+                                    .offset(x = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
+                                    .width(styles.width)
+                                    .fillMaxHeight()
+                                    .outerShadow(
+                                        blur = styles.shadow.blur,
+                                        color = styles.shadow.color,
+                                        shape = styles.shadow.shape,
+                                    )
+                                    .background(
+                                        styles.backgroundColor,
+                                        styles.backgroundShape
+                                    )
+                                    .padding(styles.contentPadding)
+                                    .then(modifier)
+                            ) {
+                                content()
+                            }
                         }
                     }
                 }
@@ -234,6 +261,55 @@ private fun PopupOrInline(
         )
     }
 }
+
+private fun Modifier.drawerSwipeToDismiss() = composed {
+    val handleData = LocalDrawerSwipeHandleData.current
+    var isDragging by handleData.isDragging
+    var offset by handleData.offset
+    val offsetAnim = handleData.offsetAnim
+    val scope = rememberCoroutineScope()
+    val velocityTracker = remember { VelocityTracker() }
+
+    pointerInput(Unit) {
+        detectDragGestures(
+            onDragStart = {
+                isDragging = true
+                velocityTracker.resetTracking()
+            },
+            onDrag = { change, delta ->
+                velocityTracker.addPointerInputChange(change)
+                offset = (offset + delta.x).coerceAtMost(0f)
+            },
+            onDragEnd = {
+                scope.launch {
+                    isDragging = false
+                    offsetAnim.snapTo(offset)
+
+                    val velocity = velocityTracker.calculateVelocity().y
+                    if (velocity > 3250 || offset.absoluteValue > handleData.size.value.width / 2) {
+                        handleData.onDismissRequest?.invoke()
+                        offsetAnim.animateTo(-handleData.size.value.width.toFloat(), initialVelocity = velocity)
+                        return@launch
+                    }
+
+                    offset = 0f
+                    offsetAnim.animateTo(0f, tween(handleData.transitionDuration))
+                }
+            }
+        )
+    }
+}
+
+private val LocalDrawerSwipeHandleData = staticCompositionLocalOf { DrawerSwipeHandleData() }
+
+private data class DrawerSwipeHandleData(
+    val offset: MutableState<Float> = mutableStateOf(0f),
+    val offsetAnim: Animatable<Float, AnimationVector1D> = Animatable(0f),
+    val isDragging: MutableState<Boolean> = mutableStateOf(false),
+    val size: VarRef<IntSize> = VarRef(IntSize.Zero),
+    val onDismissRequest: (() -> Unit)? = null,
+    val transitionDuration: Int = 300,
+)
 
 private val DrawerPositionProvider = object : PopupPositionProvider {
     override fun calculatePosition(
