@@ -1,6 +1,6 @@
 package com.outsidesource.oskitcompose.modifier
 
-import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -58,11 +58,10 @@ inline fun Modifier.kmpMouseScrollFilter(
 
 fun Modifier.kmpClickableEvent(vararg keys: Any, onClick: (down: PointerEvent, up: PointerEvent) -> Unit): Modifier =
     pointerInput(keys) {
-        forEachGesture {
-            awaitPointerEventScope {
-                val down = awaitFirstDownEvent().also { it.changes.forEach { change -> if (change.pressed != change.previousPressed) change.consume() } }
-                val up = awaitForUpOrCancellationEvent() ?: return@awaitPointerEventScope
-                onClick(down, up)
-            }
+        awaitEachGesture {
+            val down =
+                awaitFirstDownEvent().also { it.changes.forEach { change -> if (change.pressed != change.previousPressed) change.consume() } }
+            val up = awaitForUpOrCancellationEvent() ?: return@awaitEachGesture
+            onClick(down, up)
         }
     }

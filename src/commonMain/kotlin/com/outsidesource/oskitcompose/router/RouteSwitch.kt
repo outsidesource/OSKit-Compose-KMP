@@ -24,7 +24,7 @@ fun RouteSwitch(
     content: @Composable (route: IRoute) -> Unit,
 ) {
     val saveableStateHolder = rememberSaveableStateHolder()
-    val coordinatorObserver = remember(coordinator) { createCoordinatorObserver(coordinator) }
+    val coordinatorObserver = remember(coordinator) { Coordinator.createObserver(coordinator) }
     val currentRoute by coordinatorObserver.routeFlow.collectAsState()
 
     KMPBackHandler(enabled = coordinatorObserver.hasBackStack()) { coordinatorObserver.pop() }

@@ -76,6 +76,22 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
 )
 
 @ExperimentalAnimationApi
+val SlideFromBottomRouteTransition = ComposeRouteTransition(
+    enter = {
+        slideIn(tween(400)) { IntOffset(0, it.height) }
+    },
+    exit = {
+        fadeOut(tween(400), .99f) + scaleOut(tween(400), targetScale = .9f)
+    },
+    popEnter = {
+        fadeIn(tween(400), 0f) + scaleIn(tween(400), initialScale = .9f)
+    },
+    popExit = {
+        slideOut(tween(400)) { IntOffset(0, (it.height * .5).toInt()) }
+    },
+)
+
+@ExperimentalAnimationApi
 val ScaleRouteTransition = ComposeRouteTransition(
     enter = { fadeIn(tween(300), 0f) + scaleIn(tween(300), initialScale = .9f) },
     exit = { fadeOut(tween(300), 0f) },
