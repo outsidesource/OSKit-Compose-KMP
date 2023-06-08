@@ -52,7 +52,7 @@ data class DrawerStyles(
     ),
     val backgroundColor: Color = Color.White,
     val backgroundShape: Shape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),
-    val contentPadding: Dp = 16.dp,
+    val contentPadding: PaddingValues = PaddingValues(16.dp),
 ) {
     companion object {
         val None = DrawerStyles(
@@ -60,7 +60,7 @@ data class DrawerStyles(
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,
-            contentPadding = 0.dp,
+            contentPadding = PaddingValues(0.dp),
         )
     }
 }
@@ -196,7 +196,8 @@ private fun InternalDrawer(
                         val handleData = remember(onDismissRequest, styles.transitionDuration) {
                             DrawerSwipeHandleData(
                                 onDismissRequest = onDismissRequest,
-                                transitionDuration = styles.transitionDuration)
+                                transitionDuration = styles.transitionDuration
+                            )
                         }
                         val isDragging by handleData.isDragging
                         val offset by handleData.offset

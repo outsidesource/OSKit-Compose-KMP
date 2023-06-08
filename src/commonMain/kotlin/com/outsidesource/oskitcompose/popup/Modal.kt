@@ -45,7 +45,7 @@ data class ModalStyles(
     ),
     val backgroundColor: Color = Color.White,
     val backgroundShape: Shape = RoundedCornerShape(8.dp),
-    val contentPadding: Dp = 16.dp,
+    val contentPadding: PaddingValues = PaddingValues(16.dp),
 ) {
     companion object {
         val None = ModalStyles(
@@ -54,7 +54,7 @@ data class ModalStyles(
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,
-            contentPadding = 0.dp,
+            contentPadding = PaddingValues(0.dp),
         )
     }
 }

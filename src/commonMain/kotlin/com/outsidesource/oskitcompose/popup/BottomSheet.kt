@@ -50,7 +50,7 @@ data class BottomSheetStyles(
     ),
     val backgroundColor: Color = Color.White,
     val backgroundShape: Shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-    val contentPadding: Dp = 16.dp,
+    val contentPadding: PaddingValues = PaddingValues(16.dp),
 ) {
     companion object {
         val None = BottomSheetStyles(
@@ -58,7 +58,7 @@ data class BottomSheetStyles(
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,
-            contentPadding = 0.dp,
+            contentPadding = PaddingValues(0.dp),
         )
     }
 }
