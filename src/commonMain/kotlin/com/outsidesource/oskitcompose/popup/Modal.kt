@@ -36,8 +36,6 @@ import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 data class ModalStyles(
     val transitionDuration: Int = 200,
     val scrimColor: Color = Color.Black.copy(alpha = .5f),
-    val width: Constraint = Constraint(min = 300.dp, max = 600.dp),
-    val height: Constraint = Constraint(min = 200.dp, max = 600.dp),
     val shadow: OuterShadow = OuterShadow(
         blur = 11.dp,
         color = Color.Black.copy(alpha = .25f),
@@ -45,15 +43,15 @@ data class ModalStyles(
     ),
     val backgroundColor: Color = Color.White,
     val backgroundShape: Shape = RoundedCornerShape(8.dp),
+    val windowPadding: PaddingValues = PaddingValues(20.dp),
     val contentPadding: PaddingValues = PaddingValues(16.dp),
 ) {
     companion object {
         val None = ModalStyles(
-            width = Constraint(),
-            height = Constraint(),
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,
+            windowPadding = PaddingValues(0.dp),
             contentPadding = PaddingValues(0.dp),
         )
     }
@@ -186,13 +184,12 @@ private fun InternalModal(
                             this.scaleY = scale
                             this.translationY = translate
                         }
-                        .widthIn(styles.width.min, styles.width.max)
-                        .heightIn(styles.height.min, styles.height.max)
                         .outerShadow(
                             blur = styles.shadow.blur,
                             color = styles.shadow.color,
                             shape = styles.shadow.shape,
                         )
+                        .padding(styles.windowPadding)
                         .background(
                             styles.backgroundColor,
                             styles.backgroundShape
