@@ -2,7 +2,6 @@ package com.outsidesource.oskitcompose.composableslot
 
 import androidx.compose.runtime.*
 
-
 typealias ComposableSlotState = MutableState<(@Composable () -> Unit)?>
 
 /**
@@ -10,7 +9,6 @@ typealias ComposableSlotState = MutableState<(@Composable () -> Unit)?>
  */
 @Composable
 fun rememberComposableSlotState(): ComposableSlotState = remember { mutableStateOf(null) }
-
 
 /**
  * Renders a [ComposableSlotState] populated by [ComposableSlot]
