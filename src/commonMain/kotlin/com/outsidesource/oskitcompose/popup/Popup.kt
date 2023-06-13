@@ -31,7 +31,8 @@ expect interface PopupPositionProvider {
  * events and key presses, such as when the back button is pressed.
  * @param onPreviewKeyEvent Handles the onPreviewKey event
  * @param onKeyEvent Handles the onKeyEvent
- * @param isFullScreen Only utilized in Android. Specifies whether to draw behind the system bars or not
+ * @param isFullScreen Only utilized in Android. Specifies whether to draw behind the system bars or not. Setting
+ * [isFullScreen] to true will ignore [alignment] and [offset] parameters
  * @param content The content to be displayed inside the popup.
  */
 @Composable
@@ -55,7 +56,8 @@ expect fun Popup(
  * events and key presses, such as when the back button is pressed.
  * @param onPreviewKeyEvent Handles the onPreviewKey event
  * @param onKeyEvent Handles the onKeyEvent
- * @param isFullScreen Only utilized in Android. Specifies whether to draw behind the system bars or not
+ * @param isFullScreen Only utilized in Android. Specifies whether to draw behind the system bars or not. Setting
+ * [isFullScreen] to true will ignore [popupPositionProvider]
  * @param content The content to be displayed inside the popup.
  */
 @Composable

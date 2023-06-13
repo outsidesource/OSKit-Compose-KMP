@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.geometry.toIntOffset
 import com.outsidesource.oskitcompose.modifier.disablePointerInput
+import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 
 const val popoverAnimDuration = 150
 
@@ -67,7 +68,6 @@ fun Popover(
     popupPositionProvider: PopupPositionProvider? = null,
     onDismissRequest: (() -> Unit)? = null,
     dismissOnEscapeKey: Boolean = true,
-    focusable: Boolean = false,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
     content: @Composable BoxScope.() -> Unit
@@ -96,11 +96,12 @@ fun Popover(
     if (transition.currentState || transition.targetState) {
         Popup(
             popupPositionProvider = popoverPositionProvider,
-            focusable = focusable,
+            focusable = true,
             onDismissRequest = onDismissRequest,
             onPreviewKeyEvent = onPreviewKeyEvent,
+            isFullScreen = false,
             onKeyEvent = {
-                if (dismissOnEscapeKey) { if (it.key == Key.Escape) onDismissRequest?.invoke() }
+                if (dismissOnEscapeKey) { if (it.key == Key.Escape || it.key == Key.Back) onDismissRequest?.invoke() }
                 onKeyEvent(it)
             }
         ) {

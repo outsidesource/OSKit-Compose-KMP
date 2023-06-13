@@ -109,7 +109,6 @@ private fun DatePickerPopover(
             if (it.key == Key.Escape) onDismissRequest?.invoke()
             false
         },
-        focusable = true,
         offset = DpOffset(0.dp, (-16f).dp),
     ) {
         DatePickerContent(onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
