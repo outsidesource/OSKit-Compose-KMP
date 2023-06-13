@@ -64,39 +64,18 @@ data class BottomSheetStyles(
 }
 
 /**
- * Composes a BottomSheet that can be placed anywhere in the composable tree.
- * Note: [BottomSheetPopup] does not support full screen content and will not draw behind system bars. Use [BottomSheet] for
- * full screen content
+ * Creates a fully customizable [BottomSheet]
+ *
+ * @param isVisible Whether the modal is visible or not
+ * @param onDismissRequest Executes when the user performs an action to dismiss the [BottomSheet]
+ * @param shouldDismissOnExternalClick calls [onDismissRequest] when clicking on the scrim
+ * @param shouldDismissOnEscapeKey call [onDismissRequest] when pressing escape or back key
+ * @param shouldDismissOnSwipe calls [onDismissRequest] when swiping the bottom sheet away
+ * @param isFullScreen Only utilized in Android. Specifies whether to draw behind the system bars or not
+ * @param styles Styles to modify the look of the [BottomSheet]
+ * @param content The content to be displayed inside the popup.
  */
-@Composable
-fun BottomSheetPopup(
-    isVisible: Boolean,
-    modifier: Modifier = Modifier,
-    onDismissRequest: (() -> Unit)? = null,
-    shouldDismissOnExternalClick: Boolean = true,
-    shouldDismissOnEscapeKey: Boolean = true,
-    shouldDismissOnSwipe: Boolean = true,
-    styles: BottomSheetStyles = remember { BottomSheetStyles() },
-    content: @Composable BoxScope.() -> Unit,
-) {
-    InternalBottomSheet(
-        modifier = modifier,
-        isInline = false,
-        isVisible = isVisible,
-        onDismissRequest = onDismissRequest,
-        shouldDismissOnExternalClick = shouldDismissOnExternalClick,
-        shouldDismissOnEscapeKey = shouldDismissOnEscapeKey,
-        shouldDismissOnSwipe = shouldDismissOnSwipe,
-        styles = styles,
-        content = content,
-    )
-}
-
-/**
- * Composes a BottomSheet inline with the composable tree. Placement matters with [BottomSheet] and will not render properly
- * if used in the incorrect place in the composable tree.
- * Note: [BottomSheet] supports full screen content and will draw behind system bars.
- */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BottomSheet(
     isVisible: Boolean,
@@ -105,32 +84,7 @@ fun BottomSheet(
     shouldDismissOnExternalClick: Boolean = true,
     shouldDismissOnEscapeKey: Boolean = true,
     shouldDismissOnSwipe: Boolean = true,
-    styles: BottomSheetStyles = remember { BottomSheetStyles() },
-    content: @Composable BoxScope.() -> Unit,
-) {
-    InternalBottomSheet(
-        modifier = modifier,
-        isInline = true,
-        isVisible = isVisible,
-        onDismissRequest = onDismissRequest,
-        shouldDismissOnExternalClick = shouldDismissOnExternalClick,
-        shouldDismissOnEscapeKey = shouldDismissOnEscapeKey,
-        shouldDismissOnSwipe = shouldDismissOnSwipe,
-        styles = styles,
-        content = content,
-    )
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun InternalBottomSheet(
-    isInline: Boolean,
-    isVisible: Boolean,
-    modifier: Modifier = Modifier,
-    onDismissRequest: (() -> Unit)? = null,
-    shouldDismissOnExternalClick: Boolean = true,
-    shouldDismissOnEscapeKey: Boolean = true,
-    shouldDismissOnSwipe: Boolean = true,
+    isFullScreen: Boolean = true,
     styles: BottomSheetStyles = remember { BottomSheetStyles() },
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -149,13 +103,14 @@ private fun InternalBottomSheet(
         }
 
         if (transition.currentState || transition.targetState) {
-            PopupOrInline(
-                isInline = isInline,
+            Popup(
+                popupPositionProvider = BottomSheetPositionProvider,
+                isFullScreen = isFullScreen,
                 onDismissRequest = onDismissRequest,
+                focusable = true,
                 onKeyEvent = {
                     if ((it.key == Key.Escape || it.key == Key.Back) && shouldDismissOnEscapeKey) {
                         onDismissRequest?.invoke()
-                        if (isInline) return@PopupOrInline true
                     }
                     false
                 },
@@ -200,6 +155,8 @@ private fun InternalBottomSheet(
                                         blur = styles.shadow.blur,
                                         color = styles.shadow.color,
                                         shape = styles.shadow.shape,
+                                        spread = styles.shadow.spread,
+                                        offset = styles.shadow.offset,
                                     )
                                     .background(
                                         styles.backgroundColor,
@@ -218,36 +175,10 @@ private fun InternalBottomSheet(
     }
 }
 
-@Composable
-private fun PopupOrInline(
-    isInline: Boolean,
-    onDismissRequest: (() -> Unit)?,
-    onKeyEvent: (KeyEvent) -> Boolean = { false },
-    content: @Composable () -> Unit,
-) {
-    if (isInline) {
-        val focusRequester = remember { FocusRequester() }
-        LaunchedEffect(Unit) { focusRequester.requestFocus() }
-
-        Box(
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .focusable()
-                .onKeyEvent(onKeyEvent)
-        ) {
-            content()
-        }
-    } else {
-        Popup(
-            popupPositionProvider = BottomSheetPositionProvider,
-            focusable = true,
-            onDismissRequest = onDismissRequest,
-            onKeyEvent = onKeyEvent,
-            content = content,
-        )
-    }
-}
-
+/**
+ * Use to allow a bottom sheet to be swiped to dismiss. This can be used in place of [shouldDismissOnSwipe] to provide
+ * a specific swipe handle to the user.
+ */
 fun Modifier.bottomSheetSwipeToDismiss() = composed {
     val handleData = LocalBottomSheetSwipeHandleData.current
     var isDragging by handleData.isDragging

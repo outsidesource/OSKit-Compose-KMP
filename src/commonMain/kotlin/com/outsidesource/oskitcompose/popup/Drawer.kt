@@ -66,39 +66,18 @@ data class DrawerStyles(
 }
 
 /**
- * Composes a Drawer that can be placed anywhere in the composable tree.
- * Note: [DrawerPopup] does not support full screen content and will not draw behind system bars. Use [Drawer] for
- * full screen content
+ * Creates a fully customizable [Drawer]
+ *
+ * @param isVisible Whether the modal is visible or not
+ * @param onDismissRequest Executes when the user performs an action to dismiss the [Drawer]
+ * @param shouldDismissOnExternalClick calls [onDismissRequest] when clicking on the scrim
+ * @param shouldDismissOnEscapeKey call [onDismissRequest] when pressing escape or back key
+ * @param shouldDismissOnSwipe calls [onDismissRequest] when swiping the bottom sheet away
+ * @param isFullScreen Only utilized in Android. Specifies whether to draw behind the system bars or not
+ * @param styles Styles to modify the look of the [Drawer]
+ * @param content The content to be displayed inside the popup.
  */
-@Composable
-fun DrawerPopup(
-    isVisible: Boolean,
-    modifier: Modifier = Modifier,
-    onDismissRequest: (() -> Unit)? = null,
-    shouldDismissOnExternalClick: Boolean = true,
-    shouldDismissOnEscapeKey: Boolean = true,
-    shouldDismissOnSwipe: Boolean = true,
-    styles: DrawerStyles = remember { DrawerStyles() },
-    content: @Composable BoxScope.() -> Unit
-) {
-    InternalDrawer(
-        modifier = modifier,
-        isVisible = isVisible,
-        onDismissRequest = onDismissRequest,
-        shouldDismissOnExternalClick = shouldDismissOnExternalClick,
-        shouldDismissOnEscapeKey = shouldDismissOnEscapeKey,
-        shouldDismissOnSwipe = shouldDismissOnSwipe,
-        styles = styles,
-        content = content,
-        isInline = false,
-    )
-}
-
-/**
- * Composes a Drawer inline with the composable tree. Placement matters with [Drawer] and will not render properly
- * if used in the incorrect place in the composable tree.
- * Note: [Drawer] supports full screen content and will draw behind system bars.
- */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Drawer(
     isVisible: Boolean,
@@ -107,34 +86,9 @@ fun Drawer(
     shouldDismissOnExternalClick: Boolean = true,
     shouldDismissOnEscapeKey: Boolean = true,
     shouldDismissOnSwipe: Boolean = true,
+    isFullScreen: Boolean = true,
     styles: DrawerStyles = remember { DrawerStyles() },
     content: @Composable BoxScope.() -> Unit
-) {
-    InternalDrawer(
-        modifier = modifier,
-        isVisible = isVisible,
-        onDismissRequest = onDismissRequest,
-        shouldDismissOnExternalClick = shouldDismissOnExternalClick,
-        shouldDismissOnEscapeKey = shouldDismissOnEscapeKey,
-        shouldDismissOnSwipe = shouldDismissOnSwipe,
-        styles = styles,
-        content = content,
-        isInline = true,
-    )
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun InternalDrawer(
-    isInline: Boolean,
-    isVisible: Boolean,
-    modifier: Modifier = Modifier,
-    onDismissRequest: (() -> Unit)? = null,
-    shouldDismissOnExternalClick: Boolean = true,
-    shouldDismissOnEscapeKey: Boolean = true,
-    shouldDismissOnSwipe: Boolean = true,
-    styles: DrawerStyles = remember { DrawerStyles() },
-    content: @Composable BoxScope.() -> Unit,
 ) {
     var drawerSheetVisible by remember { mutableStateOf(false) }
 
@@ -151,13 +105,14 @@ private fun InternalDrawer(
         }
 
         if (transition.currentState || transition.targetState) {
-            PopupOrInline(
-                isInline = isInline,
+            Popup(
+                popupPositionProvider = DrawerPositionProvider,
+                focusable = true,
                 onDismissRequest = onDismissRequest,
+                isFullScreen = isFullScreen,
                 onKeyEvent = {
                     if ((it.key == Key.Escape || it.key == Key.Back) && shouldDismissOnEscapeKey) {
                         onDismissRequest?.invoke()
-                        if (isInline) return@PopupOrInline true
                     }
                     false
                 },
@@ -215,6 +170,8 @@ private fun InternalDrawer(
                                         blur = styles.shadow.blur,
                                         color = styles.shadow.color,
                                         shape = styles.shadow.shape,
+                                        spread = styles.shadow.spread,
+                                        offset = styles.shadow.offset,
                                     )
                                     .background(
                                         styles.backgroundColor,
@@ -230,36 +187,6 @@ private fun InternalDrawer(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun PopupOrInline(
-    isInline: Boolean,
-    onDismissRequest: (() -> Unit)?,
-    onKeyEvent: (KeyEvent) -> Boolean = { false },
-    content: @Composable () -> Unit,
-) {
-    if (isInline) {
-        val focusRequester = remember { FocusRequester() }
-        LaunchedEffect(Unit) { focusRequester.requestFocus() }
-
-        Box(
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .focusable()
-                .onKeyEvent(onKeyEvent)
-        ) {
-            content()
-        }
-    } else {
-        Popup(
-            popupPositionProvider = DrawerPositionProvider,
-            focusable = true,
-            onDismissRequest = onDismissRequest,
-            onKeyEvent = onKeyEvent,
-            content = content
-        )
     }
 }
 

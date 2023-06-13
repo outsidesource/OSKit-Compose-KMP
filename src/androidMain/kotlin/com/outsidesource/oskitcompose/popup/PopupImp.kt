@@ -16,13 +16,27 @@ actual fun Popup(
     focusable: Boolean,
     onPreviewKeyEvent: (KeyEvent) -> Boolean,
     onKeyEvent: (KeyEvent) -> Boolean,
+    isFullScreen: Boolean,
     content: @Composable () -> Unit,
-) = androidx.compose.ui.window.Popup(
-    alignment = alignment,
-    offset = offset,
-    onDismissRequest = onDismissRequest,
-    content = content,
-)
+) {
+    if (!isFullScreen) {
+        androidx.compose.ui.window.Popup(
+            alignment = alignment,
+            offset = offset,
+            onDismissRequest = onDismissRequest,
+            properties = PopupProperties(focusable = focusable, excludeFromSystemGesture = false),
+            content = content,
+        )
+    } else {
+        AndroidFullScreenPopup(
+            onDismissRequest = onDismissRequest,
+            properties = AndroidFullScreenPopupProperties(focusable = focusable),
+            onPreviewKeyEvent = onPreviewKeyEvent,
+            onKeyEvent = onKeyEvent,
+            content = content,
+        )
+    }
+}
 
 @Composable
 actual fun Popup(
@@ -31,10 +45,23 @@ actual fun Popup(
     onPreviewKeyEvent: (KeyEvent) -> Boolean,
     onKeyEvent: (KeyEvent) -> Boolean,
     focusable: Boolean,
+    isFullScreen: Boolean,
     content: @Composable () -> Unit,
-) = androidx.compose.ui.window.Popup(
-    popupPositionProvider = popupPositionProvider,
-    onDismissRequest = onDismissRequest,
-    content = content,
-    properties = PopupProperties(focusable = focusable, excludeFromSystemGesture = false)
-)
+) {
+    if (!isFullScreen) {
+        androidx.compose.ui.window.Popup(
+            popupPositionProvider = popupPositionProvider,
+            onDismissRequest = onDismissRequest,
+            properties = PopupProperties(focusable = focusable, excludeFromSystemGesture = false),
+            content = content,
+        )
+    } else {
+        AndroidFullScreenPopup(
+            onDismissRequest = onDismissRequest,
+            properties = AndroidFullScreenPopupProperties(focusable = focusable),
+            onPreviewKeyEvent = onPreviewKeyEvent,
+            onKeyEvent = onKeyEvent,
+            content = content,
+        )
+    }
+}

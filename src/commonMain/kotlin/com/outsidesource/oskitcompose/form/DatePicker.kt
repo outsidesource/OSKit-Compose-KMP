@@ -50,6 +50,7 @@ fun DatePicker(
     onDismissRequest: (() -> Unit)? = null,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     centerInWindow: Boolean = false,
+    isFullScreen: Boolean = true,
     onChange: (date: LocalDate) -> Unit,
 ) {
     val viewType = remember { mutableStateOf(DatePickerViewType.Month) }
@@ -57,7 +58,7 @@ fun DatePicker(
     val selectedDate = remember(date) { mutableStateOf(date) }
 
     if (centerInWindow) {
-        DatePickerModal(isVisible, onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
+        DatePickerModal(isVisible, onDismissRequest, isFullScreen, date, onChange, viewType, currentDate, selectedDate)
     } else {
         DatePickerPopover(isVisible, onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
     }
@@ -68,18 +69,20 @@ fun DatePicker(
 private fun DatePickerModal(
     isVisible: Boolean,
     onDismissRequest: (() -> Unit)? = null,
+    isFullScreen: Boolean = true,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     onChange: (date: LocalDate) -> Unit,
     viewType: MutableState<DatePickerViewType>,
     currentDate: MutableState<LocalDate>,
     selectedDate: MutableState<LocalDate>,
 ) {
-    ModalPopup(
+    Modal(
         isVisible = isVisible,
         shouldDismissOnExternalClick = true,
         onDismissRequest = onDismissRequest,
+        isFullScreen = isFullScreen,
         onKeyEvent = {
-            if (it.key == Key.Escape) onDismissRequest?.invoke()
+            if (it.key == Key.Escape || it.key == Key.Back) onDismissRequest?.invoke()
             false
         },
     ) {

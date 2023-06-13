@@ -15,6 +15,7 @@ actual fun Popup(
     focusable: Boolean,
     onPreviewKeyEvent: (KeyEvent) -> Boolean,
     onKeyEvent: (KeyEvent) -> Boolean,
+    isFullScreen: Boolean,
     content: @Composable () -> Unit,
 ) = androidx.compose.ui.window.Popup(
     alignment = alignment,
@@ -33,6 +34,7 @@ actual fun Popup(
     onPreviewKeyEvent: (KeyEvent) -> Boolean,
     onKeyEvent: (KeyEvent) -> Boolean,
     focusable: Boolean,
+    isFullScreen: Boolean,
     content: @Composable () -> Unit,
 ) = androidx.compose.ui.window.Popup(
     popupPositionProvider = popupPositionProvider,

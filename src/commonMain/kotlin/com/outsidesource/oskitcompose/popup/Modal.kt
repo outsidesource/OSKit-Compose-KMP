@@ -5,16 +5,16 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -22,11 +22,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.*
-import com.outsidesource.oskitcompose.geometry.Constraint
 import com.outsidesource.oskitcompose.modifier.OuterShadow
 import com.outsidesource.oskitcompose.modifier.disablePointerInput
 import com.outsidesource.oskitcompose.modifier.outerShadow
@@ -57,42 +55,21 @@ data class ModalStyles(
     }
 }
 
-/**
- * Composes a Modal that can be placed anywhere in the composable tree.
- * Note: [ModalPopup] does not support full screen content and will not draw behind system bars. Use [Modal] for
- * full screen content
- */
-@Composable
-fun ModalPopup(
-    isVisible: Boolean,
-    modifier: Modifier = Modifier,
-    onDismissRequest: (() -> Unit)? = null,
-    shouldDismissOnExternalClick: Boolean = true,
-    shouldDismissOnEscapeKey: Boolean = true,
-    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
-    onKeyEvent: ((KeyEvent) -> Boolean)? = null,
-    styles: ModalStyles = remember { ModalStyles() },
-    content: @Composable BoxScope.() -> Unit,
-) {
-    InternalModal(
-        modifier = modifier,
-        isVisible = isVisible,
-        onDismissRequest = onDismissRequest,
-        shouldDismissOnExternalClick = shouldDismissOnExternalClick,
-        shouldDismissOnEscapeKey = shouldDismissOnEscapeKey,
-        onPreviewKeyEvent = onPreviewKeyEvent,
-        onKeyEvent = onKeyEvent,
-        styles = styles,
-        isInline = false,
-        content = content,
-    )
-}
 
 /**
- * Composes a Modal inline with the composable tree. Placement matters with [Modal] and will not render properly
- * if used in the incorrect place in the composable tree.
- * Note: [Modal] supports full screen content and will draw behind system bars.
+ * Creates a fully customizable [Modal]
+ *
+ * @param isVisible Whether the modal is visible or not
+ * @param onDismissRequest Executes when the user performs an action to dismiss the [Modal]
+ * @param shouldDismissOnExternalClick calls [onDismissRequest] when clicking on the scrim
+ * @param shouldDismissOnEscapeKey call [onDismissRequest] when pressing escape or back key
+ * @param onPreviewKeyEvent Handles the onPreviewKey event
+ * @param onKeyEvent Handles the onKeyEvent
+ * @param isFullScreen Only utilized in Android. Specifies whether to draw behind the system bars or not
+ * @param styles Styles to modify the look of the [Modal]
+ * @param content The content to be displayed inside the popup.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Modal(
     isVisible: Boolean,
@@ -102,34 +79,7 @@ fun Modal(
     shouldDismissOnEscapeKey: Boolean = true,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: ((KeyEvent) -> Boolean)? = null,
-    styles: ModalStyles = remember { ModalStyles() },
-    content: @Composable BoxScope.() -> Unit,
-) {
-    InternalModal(
-        modifier = modifier,
-        isVisible = isVisible,
-        onDismissRequest = onDismissRequest,
-        shouldDismissOnExternalClick = shouldDismissOnExternalClick,
-        shouldDismissOnEscapeKey = shouldDismissOnEscapeKey,
-        onPreviewKeyEvent = onPreviewKeyEvent,
-        onKeyEvent = onKeyEvent,
-        styles = styles,
-        isInline = true,
-        content = content,
-    )
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun InternalModal(
-    isInline: Boolean,
-    isVisible: Boolean,
-    modifier: Modifier = Modifier,
-    onDismissRequest: (() -> Unit)? = null,
-    shouldDismissOnExternalClick: Boolean = true,
-    shouldDismissOnEscapeKey: Boolean = true,
-    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
-    onKeyEvent: ((KeyEvent) -> Boolean)? = null,
+    isFullScreen: Boolean = true,
     styles: ModalStyles = remember { ModalStyles() },
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -152,16 +102,15 @@ private fun InternalModal(
     )
 
     if (transition.currentState || transition.targetState) {
-        PopupOrInline(
-            isInline = isInline,
+        Popup(
+            popupPositionProvider = ModalPositionProvider,
             onDismissRequest = onDismissRequest,
             onPreviewKeyEvent = onPreviewKeyEvent,
+            focusable = true,
+            isFullScreen = isFullScreen,
             onKeyEvent = {
-                if ((it.key == Key.Escape || it.key == Key.Back) && shouldDismissOnEscapeKey) {
-                    onDismissRequest?.invoke()
-                    if (isInline) return@PopupOrInline true
-                }
-                if (onKeyEvent != null) return@PopupOrInline onKeyEvent(it)
+                if ((it.key == Key.Escape || it.key == Key.Back) && shouldDismissOnEscapeKey) onDismissRequest?.invoke()
+                if (onKeyEvent != null) return@Popup onKeyEvent(it)
                 false
             }
         ) {
@@ -184,12 +133,14 @@ private fun InternalModal(
                             this.scaleY = scale
                             this.translationY = translate
                         }
+                        .padding(styles.windowPadding)
                         .outerShadow(
                             blur = styles.shadow.blur,
                             color = styles.shadow.color,
                             shape = styles.shadow.shape,
+                            spread = styles.shadow.spread,
+                            offset = styles.shadow.offset,
                         )
-                        .padding(styles.windowPadding)
                         .background(
                             styles.backgroundColor,
                             styles.backgroundShape
@@ -201,38 +152,6 @@ private fun InternalModal(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun PopupOrInline(
-    isInline: Boolean,
-    onDismissRequest: (() -> Unit)?,
-    onPreviewKeyEvent: (KeyEvent) -> Boolean,
-    onKeyEvent: (KeyEvent) -> Boolean = { false },
-    content: @Composable () -> Unit,
-) {
-    if (isInline) {
-        val focusRequester = remember { FocusRequester() }
-        LaunchedEffect(Unit) { focusRequester.requestFocus() }
-
-        Box(
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .focusable()
-                .onKeyEvent(onKeyEvent)
-        ) {
-            content()
-        }
-    } else {
-        Popup(
-            popupPositionProvider = ModalPositionProvider,
-            focusable = true,
-            onDismissRequest = onDismissRequest,
-            onPreviewKeyEvent = onPreviewKeyEvent,
-            onKeyEvent = onKeyEvent,
-            content = content
-        )
     }
 }
 
