@@ -1,5 +1,6 @@
 package com.outsidesource.oskitcompose.modifier
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
@@ -88,6 +89,7 @@ fun Modifier.outerShadow(
     }
 }
 
+@Immutable
 data class OuterShadow(
     val blur: Dp,
     val spread: Dp = 0.dp,
