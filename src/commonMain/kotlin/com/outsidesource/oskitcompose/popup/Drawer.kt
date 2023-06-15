@@ -85,8 +85,6 @@ fun Drawer(
     styles: DrawerStyles = remember { DrawerStyles() },
     content: @Composable BoxScope.() -> Unit
 ) {
-    var drawerSheetVisible by remember { mutableStateOf(false) }
-
     Box {
         val transition = updateTransition(isVisible, label = "background")
         val alpha by transition.animateFloat(
@@ -94,10 +92,6 @@ fun Drawer(
             targetValueByState = { if (it) 1f else 0f },
             label = "AlphaAnimation"
         )
-
-        LaunchedEffect(isVisible) {
-            drawerSheetVisible = isVisible
-        }
 
         if (transition.currentState || transition.targetState) {
             Popup(
@@ -136,51 +130,56 @@ fun Drawer(
                         )
                         .background(color = styles.scrimColor.copy(styles.scrimColor.alpha * alpha)),
                 ) {
-                    AnimatedVisibility(
-                        modifier = Modifier.preventClickPropagationToParent(),
-                        visible = drawerSheetVisible,
-                        enter = slideInHorizontally(tween(styles.transitionDuration)) { -it },
-                        exit = slideOutHorizontally(tween(styles.transitionDuration)) { -it }
-                    ) {
-                        val density = LocalDensity.current
-                        val swipeData = remember { DrawerSwipeData() }
-                        val dismissData = remember(onDismissRequest, styles.transitionDuration) {
-                            DrawerDismissData(
-                                onDismissRequest = onDismissRequest,
-                                transitionDuration = styles.transitionDuration,
+                    val density = LocalDensity.current
+                    val swipeData = remember { DrawerSwipeData() }
+                    val dismissData = remember(onDismissRequest, styles.transitionDuration) {
+                        DrawerDismissData(
+                            onDismissRequest = onDismissRequest,
+                            transitionDuration = styles.transitionDuration,
+                        )
+                    }
+                    val isDragging by swipeData.isDragging
+                    val offset by swipeData.offset
+                    val offsetAnim = swipeData.offsetAnim
+
+                    LaunchedEffect(isVisible) {
+                        if (isVisible) {
+                            offsetAnim.snapTo(-swipeData.size.value.width.toFloat())
+                            offsetAnim.animateTo(0f, tween(styles.transitionDuration))
+                        } else if (!offsetAnim.isRunning) {
+                            offsetAnim.animateTo(
+                                -swipeData.size.value.width.toFloat(),
+                                tween(styles.transitionDuration)
                             )
                         }
-                        val isDragging by swipeData.isDragging
-                        val offset by swipeData.offset
-                        val offsetAnim = swipeData.offsetAnim
+                    }
 
-                        CompositionLocalProvider(
-                            LocalDrawerSwipeData provides swipeData,
-                            LocalDrawerDismissData provides dismissData,
+                    CompositionLocalProvider(
+                        LocalDrawerSwipeData provides swipeData,
+                        LocalDrawerDismissData provides dismissData,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .onGloballyPositioned { swipeData.size.value = it.size }
+                                .then(if (shouldDismissOnSwipe) Modifier.drawerSwipeToDismiss() else Modifier)
+                                .offset(x = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
+                                .width(styles.width)
+                                .fillMaxHeight()
+                                .outerShadow(
+                                    blur = styles.shadow.blur,
+                                    color = styles.shadow.color,
+                                    shape = styles.shadow.shape,
+                                    spread = styles.shadow.spread,
+                                    offset = styles.shadow.offset,
+                                )
+                                .background(
+                                    styles.backgroundColor,
+                                    styles.backgroundShape
+                                )
+                                .padding(styles.contentPadding)
+                                .then(modifier)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .onGloballyPositioned { swipeData.size.value = it.size }
-                                    .then(if (shouldDismissOnSwipe) Modifier.drawerSwipeToDismiss() else Modifier)
-                                    .offset(x = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
-                                    .width(styles.width)
-                                    .fillMaxHeight()
-                                    .outerShadow(
-                                        blur = styles.shadow.blur,
-                                        color = styles.shadow.color,
-                                        shape = styles.shadow.shape,
-                                        spread = styles.shadow.spread,
-                                        offset = styles.shadow.offset,
-                                    )
-                                    .background(
-                                        styles.backgroundColor,
-                                        styles.backgroundShape
-                                    )
-                                    .padding(styles.contentPadding)
-                                    .then(modifier)
-                            ) {
-                                content()
-                            }
+                            content()
                         }
                     }
                 }
@@ -214,9 +213,13 @@ private fun Modifier.drawerSwipeToDismiss() = composed {
                     offsetAnim.snapTo(offset)
 
                     val velocity = velocityTracker.calculateVelocity().x
-                    if (velocity < -3250 || offset.absoluteValue > swipeData.size.value.width / 2) {
-                        offsetAnim.animateTo(-swipeData.size.value.width.toFloat(), initialVelocity = velocity)
+                    if (velocity < -3250) {
                         dismissData.onDismissRequest?.invoke()
+                        offsetAnim.animateTo(-swipeData.size.value.width.toFloat(), initialVelocity = velocity)
+                        return@launch
+                    } else if (offset.absoluteValue > swipeData.size.value.width / 2) {
+                        dismissData.onDismissRequest?.invoke()
+                        offsetAnim.animateTo(-swipeData.size.value.width.toFloat(), tween(dismissData.transitionDuration))
                         return@launch
                     }
 
@@ -233,7 +236,7 @@ private val LocalDrawerDismissData = staticCompositionLocalOf { DrawerDismissDat
 
 private data class DrawerSwipeData(
     val offset: MutableState<Float> = mutableStateOf(0f),
-    val offsetAnim: Animatable<Float, AnimationVector1D> = Animatable(0f),
+    val offsetAnim: Animatable<Float, AnimationVector1D> = Animatable(-Float.MAX_VALUE),
     val isDragging: MutableState<Boolean> = mutableStateOf(false),
     val size: VarRef<IntSize> = VarRef(IntSize.Zero),
 )
