@@ -10,10 +10,11 @@ import com.outsidesource.oskitkmp.tuples.Tup3
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+
 internal val localRouteObjectStore = staticCompositionLocalOf { RouteObjectStore() }
 internal val localCoordinatorObserver = staticCompositionLocalOf<ICoordinatorObserver> {
     object : ICoordinatorObserver {
-        override val routeFlow: StateFlow<RouteStackEntry> = MutableStateFlow(RouteStackEntry(object: IRoute{}))
+        override val routeFlow: StateFlow<RouteStackEntry> = MutableStateFlow(RouteStackEntry(object : IRoute {}))
         override fun addRouteDestroyedListener(block: () -> Unit) {}
         override fun hasBackStack() = false
         override fun markTransitionStatus(status: RouteTransitionStatus) {}
@@ -33,7 +34,7 @@ internal fun createComposeRouteTransition(): AnimatedContentScope<RouteStackEntr
         val transition = (route.transition as? ComposeRouteTransition) ?: NoRouteTransition
 
         (if (isPopping) transition.popEnter else transition.enter)(density) with
-            (if (isPopping) transition.popExit else transition.exit)(density)
+                (if (isPopping) transition.popExit else transition.exit)(density)
     }
 }
 

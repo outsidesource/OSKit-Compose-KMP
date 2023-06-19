@@ -6,7 +6,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -16,15 +15,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
@@ -90,8 +85,6 @@ fun Drawer(
     styles: DrawerStyles = remember { DrawerStyles() },
     content: @Composable BoxScope.() -> Unit
 ) {
-    var drawerSheetVisible by remember { mutableStateOf(false) }
-
     Box {
         val transition = updateTransition(isVisible, label = "background")
         val alpha by transition.animateFloat(
@@ -99,10 +92,6 @@ fun Drawer(
             targetValueByState = { if (it) 1f else 0f },
             label = "AlphaAnimation"
         )
-
-        LaunchedEffect(isVisible) {
-            drawerSheetVisible = isVisible
-        }
 
         if (transition.currentState || transition.targetState) {
             Popup(
@@ -141,47 +130,56 @@ fun Drawer(
                         )
                         .background(color = styles.scrimColor.copy(styles.scrimColor.alpha * alpha)),
                 ) {
-                    AnimatedVisibility(
-                        modifier = Modifier.preventClickPropagationToParent(),
-                        visible = drawerSheetVisible,
-                        enter = slideInHorizontally(tween(styles.transitionDuration)) { -it },
-                        exit = slideOutHorizontally(tween(styles.transitionDuration)) { -it }
-                    ) {
-                        val density = LocalDensity.current
-                        val handleData = remember(onDismissRequest, styles.transitionDuration) {
-                            DrawerSwipeHandleData(
-                                onDismissRequest = onDismissRequest,
-                                transitionDuration = styles.transitionDuration
+                    val density = LocalDensity.current
+                    val swipeData = remember { DrawerSwipeData() }
+                    val dismissData = remember(onDismissRequest, styles.transitionDuration) {
+                        DrawerDismissData(
+                            onDismissRequest = onDismissRequest,
+                            transitionDuration = styles.transitionDuration,
+                        )
+                    }
+                    val isDragging by swipeData.isDragging
+                    val offset by swipeData.offset
+                    val offsetAnim = swipeData.offsetAnim
+
+                    LaunchedEffect(isVisible) {
+                        if (isVisible) {
+                            offsetAnim.snapTo(-swipeData.size.value.width.toFloat())
+                            offsetAnim.animateTo(0f, tween(styles.transitionDuration))
+                        } else if (!offsetAnim.isRunning) {
+                            offsetAnim.animateTo(
+                                -swipeData.size.value.width.toFloat(),
+                                tween(styles.transitionDuration)
                             )
                         }
-                        val isDragging by handleData.isDragging
-                        val offset by handleData.offset
-                        val offsetAnim = handleData.offsetAnim
+                    }
 
-                        CompositionLocalProvider(LocalDrawerSwipeHandleData provides handleData) {
-                            Box(
-                                modifier = Modifier
-                                    .onGloballyPositioned { handleData.size.value = it.size }
-                                    .then(if (shouldDismissOnSwipe) Modifier.drawerSwipeToDismiss() else Modifier)
-                                    .offset(x = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
-                                    .width(styles.width)
-                                    .fillMaxHeight()
-                                    .outerShadow(
-                                        blur = styles.shadow.blur,
-                                        color = styles.shadow.color,
-                                        shape = styles.shadow.shape,
-                                        spread = styles.shadow.spread,
-                                        offset = styles.shadow.offset,
-                                    )
-                                    .background(
-                                        styles.backgroundColor,
-                                        styles.backgroundShape
-                                    )
-                                    .padding(styles.contentPadding)
-                                    .then(modifier)
-                            ) {
-                                content()
-                            }
+                    CompositionLocalProvider(
+                        LocalDrawerSwipeData provides swipeData,
+                        LocalDrawerDismissData provides dismissData,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .onGloballyPositioned { swipeData.size.value = it.size }
+                                .then(if (shouldDismissOnSwipe) Modifier.drawerSwipeToDismiss() else Modifier)
+                                .offset(x = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
+                                .width(styles.width)
+                                .fillMaxHeight()
+                                .outerShadow(
+                                    blur = styles.shadow.blur,
+                                    color = styles.shadow.color,
+                                    shape = styles.shadow.shape,
+                                    spread = styles.shadow.spread,
+                                    offset = styles.shadow.offset,
+                                )
+                                .background(
+                                    styles.backgroundColor,
+                                    styles.backgroundShape
+                                )
+                                .padding(styles.contentPadding)
+                                .then(modifier)
+                        ) {
+                            content()
                         }
                     }
                 }
@@ -191,10 +189,11 @@ fun Drawer(
 }
 
 private fun Modifier.drawerSwipeToDismiss() = composed {
-    val handleData = LocalDrawerSwipeHandleData.current
-    var isDragging by handleData.isDragging
-    var offset by handleData.offset
-    val offsetAnim = handleData.offsetAnim
+    val swipeData = LocalDrawerSwipeData.current
+    val dismissData = LocalDrawerDismissData.current
+    var isDragging by swipeData.isDragging
+    var offset by swipeData.offset
+    val offsetAnim = swipeData.offsetAnim
     val scope = rememberCoroutineScope()
     val velocityTracker = remember { VelocityTracker() }
 
@@ -213,28 +212,36 @@ private fun Modifier.drawerSwipeToDismiss() = composed {
                     isDragging = false
                     offsetAnim.snapTo(offset)
 
-                    val velocity = velocityTracker.calculateVelocity().y
-                    if (velocity > 3250 || offset.absoluteValue > handleData.size.value.width / 2) {
-                        handleData.onDismissRequest?.invoke()
-                        offsetAnim.animateTo(-handleData.size.value.width.toFloat(), initialVelocity = velocity)
+                    val velocity = velocityTracker.calculateVelocity().x
+                    if (velocity < -3250) {
+                        dismissData.onDismissRequest?.invoke()
+                        offsetAnim.animateTo(-swipeData.size.value.width.toFloat(), initialVelocity = velocity)
+                        return@launch
+                    } else if (offset.absoluteValue > swipeData.size.value.width / 2) {
+                        dismissData.onDismissRequest?.invoke()
+                        offsetAnim.animateTo(-swipeData.size.value.width.toFloat(), tween(dismissData.transitionDuration))
                         return@launch
                     }
 
                     offset = 0f
-                    offsetAnim.animateTo(0f, tween(handleData.transitionDuration))
+                    offsetAnim.animateTo(0f, tween(dismissData.transitionDuration))
                 }
             }
         )
     }
 }
 
-private val LocalDrawerSwipeHandleData = staticCompositionLocalOf { DrawerSwipeHandleData() }
+private val LocalDrawerSwipeData = staticCompositionLocalOf { DrawerSwipeData() }
+private val LocalDrawerDismissData = staticCompositionLocalOf { DrawerDismissData() }
 
-private data class DrawerSwipeHandleData(
+private data class DrawerSwipeData(
     val offset: MutableState<Float> = mutableStateOf(0f),
-    val offsetAnim: Animatable<Float, AnimationVector1D> = Animatable(0f),
+    val offsetAnim: Animatable<Float, AnimationVector1D> = Animatable(-Float.MAX_VALUE),
     val isDragging: MutableState<Boolean> = mutableStateOf(false),
     val size: VarRef<IntSize> = VarRef(IntSize.Zero),
+)
+
+private data class DrawerDismissData(
     val onDismissRequest: (() -> Unit)? = null,
     val transitionDuration: Int = 300,
 )

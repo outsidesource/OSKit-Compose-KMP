@@ -87,7 +87,9 @@ kotlin {
         val jvmTest by getting
 
         val androidMain by getting {
-            dependencies {}
+            dependencies {
+                implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+            }
         }
         val androidInstrumentedTest by getting {
             dependencies {

@@ -1,12 +1,10 @@
 package com.outsidesource.oskitcompose.popup
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.Spring.StiffnessMediumLow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -17,15 +15,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
@@ -88,8 +82,6 @@ fun BottomSheet(
     styles: BottomSheetStyles = remember { BottomSheetStyles() },
     content: @Composable BoxScope.() -> Unit,
 ) {
-    var bottomSheetVisible by remember { mutableStateOf(false) }
-
     Box {
         val transition = updateTransition(isVisible, label = "background")
         val alpha by transition.animateFloat(
@@ -97,10 +89,6 @@ fun BottomSheet(
             targetValueByState = { if (it) 1f else 0f },
             label = "AlphaAnimation"
         )
-
-        LaunchedEffect(isVisible) {
-            bottomSheetVisible = isVisible
-        }
 
         if (transition.currentState || transition.targetState) {
             Popup(
@@ -127,46 +115,57 @@ fun BottomSheet(
                         .background(color = styles.scrimColor.copy(styles.scrimColor.alpha * alpha)),
                     contentAlignment = Alignment.BottomCenter,
                 ) {
-                    AnimatedVisibility(
-                        modifier = Modifier.preventClickPropagationToParent(),
-                        visible = bottomSheetVisible,
-                        enter = slideInVertically(tween(styles.transitionDuration)) { it },
-                        exit = slideOutVertically(tween(styles.transitionDuration)) { it }
-                    ) {
-                        val density = LocalDensity.current
-                        val handleData = remember(onDismissRequest, styles.transitionDuration) {
-                            BottomSheetSwipeHandleData(
-                                onDismissRequest = onDismissRequest,
-                                transitionDuration = styles.transitionDuration)
-                        }
-                        val isDragging by handleData.isDragging
-                        val offset by handleData.offset
-                        val offsetAnim = handleData.offsetAnim
+                    val density = LocalDensity.current
+                    val swipeData = remember { BottomSheetSwipeData() }
+                    val dismissData = remember(onDismissRequest, styles.transitionDuration) {
+                        BottomSheetDismissData(
+                            onDismissRequest = onDismissRequest,
+                            transitionDuration = styles.transitionDuration,
+                        )
+                    }
+                    val isDragging by swipeData.isDragging
+                    val offset by swipeData.offset
+                    val offsetAnim = swipeData.offsetAnim
 
-                        CompositionLocalProvider(LocalBottomSheetSwipeHandleData provides handleData) {
-                            Box(
-                                modifier = Modifier
-                                    .onGloballyPositioned { handleData.size.value = it.size }
-                                    .then(if (shouldDismissOnSwipe) Modifier.bottomSheetSwipeToDismiss() else Modifier)
-                                    .offset(y = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
-                                    .widthIn(max = styles.maxWidth)
-                                    .fillMaxWidth()
-                                    .outerShadow(
-                                        blur = styles.shadow.blur,
-                                        color = styles.shadow.color,
-                                        shape = styles.shadow.shape,
-                                        spread = styles.shadow.spread,
-                                        offset = styles.shadow.offset,
-                                    )
-                                    .background(
-                                        styles.backgroundColor,
-                                        styles.backgroundShape
-                                    )
-                                    .padding(styles.contentPadding)
-                                    .then(modifier)
-                            ) {
-                                content()
-                            }
+                    LaunchedEffect(isVisible) {
+                        if (isVisible) {
+                            offsetAnim.snapTo(swipeData.size.value.height.toFloat())
+                            offsetAnim.animateTo(0f, tween(styles.transitionDuration))
+                        } else if (!offsetAnim.isRunning) {
+                            offsetAnim.animateTo(
+                                swipeData.size.value.height.toFloat(),
+                                tween(styles.transitionDuration)
+                            )
+                        }
+                    }
+
+                    CompositionLocalProvider(
+                        LocalBottomSheetSwipeData provides swipeData,
+                        LocalBottomSheetDismissData provides dismissData,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .preventClickPropagationToParent()
+                                .onGloballyPositioned { swipeData.size.value = it.size }
+                                .then(if (shouldDismissOnSwipe) Modifier.bottomSheetSwipeToDismiss() else Modifier)
+                                .offset(y = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
+                                .widthIn(max = styles.maxWidth)
+                                .fillMaxWidth()
+                                .outerShadow(
+                                    blur = styles.shadow.blur,
+                                    color = styles.shadow.color,
+                                    shape = styles.shadow.shape,
+                                    spread = styles.shadow.spread,
+                                    offset = styles.shadow.offset,
+                                )
+                                .background(
+                                    styles.backgroundColor,
+                                    styles.backgroundShape
+                                )
+                                .padding(styles.contentPadding)
+                                .then(modifier)
+                        ) {
+                            content()
                         }
                     }
                 }
@@ -180,10 +179,11 @@ fun BottomSheet(
  * a specific swipe handle to the user.
  */
 fun Modifier.bottomSheetSwipeToDismiss() = composed {
-    val handleData = LocalBottomSheetSwipeHandleData.current
-    var isDragging by handleData.isDragging
-    var offset by handleData.offset
-    val offsetAnim = handleData.offsetAnim
+    val swipeData = LocalBottomSheetSwipeData.current
+    val dismissData = LocalBottomSheetDismissData.current
+    var isDragging by swipeData.isDragging
+    var offset by swipeData.offset
+    val offsetAnim = swipeData.offsetAnim
     val scope = rememberCoroutineScope()
     val velocityTracker = remember { VelocityTracker() }
 
@@ -203,27 +203,41 @@ fun Modifier.bottomSheetSwipeToDismiss() = composed {
                     offsetAnim.snapTo(offset)
 
                     val velocity = velocityTracker.calculateVelocity().y
-                    if (velocity > 3250 || offset > handleData.size.value.height / 2) {
-                        handleData.onDismissRequest?.invoke()
-                        offsetAnim.animateTo(handleData.size.value.height.toFloat(), initialVelocity = velocity)
+                    if (velocity > 3250) {
+                        dismissData.onDismissRequest?.invoke()
+                        offsetAnim.animateTo(
+                            targetValue = swipeData.size.value.height.toFloat(),
+                            initialVelocity = velocity,
+                        )
+                        return@launch
+                    } else if (offset > swipeData.size.value.height / 2) {
+                        dismissData.onDismissRequest?.invoke()
+                        offsetAnim.animateTo(
+                            targetValue = swipeData.size.value.height.toFloat(),
+                            animationSpec = tween(dismissData.transitionDuration)
+                        )
                         return@launch
                     }
 
                     offset = 0f
-                    offsetAnim.animateTo(0f, tween(handleData.transitionDuration))
+                    offsetAnim.animateTo(0f, tween(dismissData.transitionDuration))
                 }
             }
         )
     }
 }
 
-private val LocalBottomSheetSwipeHandleData = staticCompositionLocalOf { BottomSheetSwipeHandleData() }
+private val LocalBottomSheetSwipeData = staticCompositionLocalOf { BottomSheetSwipeData() }
+private val LocalBottomSheetDismissData = staticCompositionLocalOf { BottomSheetDismissData() }
 
-private data class BottomSheetSwipeHandleData(
+private data class BottomSheetSwipeData(
     val offset: MutableState<Float> = mutableStateOf(0f),
-    val offsetAnim: Animatable<Float, AnimationVector1D> = Animatable(0f),
+    val offsetAnim: Animatable<Float, AnimationVector1D> = Animatable(Float.MAX_VALUE),
     val isDragging: MutableState<Boolean> = mutableStateOf(false),
     val size: VarRef<IntSize> = VarRef(IntSize.Zero),
+)
+
+private data class BottomSheetDismissData(
     val onDismissRequest: (() -> Unit)? = null,
     val transitionDuration: Int = 300,
 )
