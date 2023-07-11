@@ -9,6 +9,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.rememberWindowState
 import kotlinx.coroutines.delay
+import java.awt.Dimension
 import java.util.prefs.Preferences
 
 object WindowPrefs {
@@ -19,19 +20,23 @@ object WindowPrefs {
 }
 
 @Composable
-fun rememberPersistedWindowState(node: String): WindowState {
+fun rememberPersistedWindowState(
+    node: String,
+    initialSize: Dimension = Dimension(1600, 1000),
+    initialPosition: Dimension = Dimension(0, 0),
+): WindowState {
     val prefs = remember { Preferences.userRoot().node(node) }
 
     val windowSize = remember {
         DpSize(
-            width = prefs.getFloat(WindowPrefs.WindowSizeW, 1600f).dp,
-            height = prefs.getFloat(WindowPrefs.WindowSizeH, 1000f).dp,
+            width = prefs.getFloat(WindowPrefs.WindowSizeW, initialSize.width.toFloat()).dp,
+            height = prefs.getFloat(WindowPrefs.WindowSizeH, initialSize.height.toFloat()).dp,
         )
     }
     val windowPosition = remember {
         WindowPosition(
-            x = prefs.getFloat(WindowPrefs.WindowPosX, 0f).dp,
-            y = prefs.getFloat(WindowPrefs.WindowPosY, 0f).dp,
+            x = prefs.getFloat(WindowPrefs.WindowPosX, initialPosition.width.toFloat()).dp,
+            y = prefs.getFloat(WindowPrefs.WindowPosY, initialPosition.height.toFloat()).dp,
         )
     }
     val windowState = rememberWindowState(position = windowPosition, size = windowSize)
