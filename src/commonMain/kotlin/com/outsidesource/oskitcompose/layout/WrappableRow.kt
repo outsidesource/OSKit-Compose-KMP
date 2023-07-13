@@ -3,6 +3,7 @@ package com.outsidesource.oskitcompose.layout
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
@@ -16,6 +17,7 @@ import kotlin.math.max
 @Composable
 fun WrappableRow(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
     verticalSpacing: Dp = 0.dp,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
@@ -60,14 +62,16 @@ fun WrappableRow(
 
         val totalWidth = rowWidths.maxOf { it }
         val totalHeight = rowHeights.sum() + ((rowHeights.size - 1) * verticalSpacing.roundToPx())
+        val layoutWidth = max(constraints.minWidth, totalWidth)
+        val layoutHeight = max(constraints.minHeight, totalHeight)
 
-        layout(constraints.maxWidth, totalHeight) {
-            var baseY = 0
+        layout(layoutWidth, layoutHeight) {
+            var baseY = verticalAlignment.align(totalHeight, layoutHeight)
 
             placeables.forEachIndexed { rowI, row ->
                 val childrenWidths = IntArray(row.size) { i -> row[i].width }
                 val mainAxisPositions = IntArray(row.size) { 0 }
-                hArrangement(totalWidth, childrenWidths, LayoutDirection.Ltr, density, mainAxisPositions)
+                hArrangement(layoutWidth, childrenWidths, LayoutDirection.Ltr, density, mainAxisPositions)
 
                 row.forEachIndexed { i, placeable ->
                     placeable.placeRelative(IntOffset(
