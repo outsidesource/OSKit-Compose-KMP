@@ -38,7 +38,7 @@ fun WrappableRow(
         val placeables: MutableList<MutableList<Placeable>> = mutableListOf(mutableListOf())
 
         measurables.forEach { measurable ->
-            val placeable = measurable.measure(constraints.copy(minWidth = 0))
+            val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
             val spacing =  horizontalArrangement.spacing.roundToPx()
 
             if (ongoingWidth + spacing + placeable.width > constraints.maxWidth) {
