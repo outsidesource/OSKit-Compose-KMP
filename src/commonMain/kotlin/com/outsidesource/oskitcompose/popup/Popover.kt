@@ -120,8 +120,11 @@ fun Popover(
     }
 }
 
-private class PopoverPositionProvider(val anchors: PopoverAnchors, val offset: DpOffset, val density: Density) :
-    PopupPositionProvider {
+class PopoverPositionProvider(
+    private val anchors: PopoverAnchors,
+    private val offset: DpOffset,
+    private val density: Density
+) : PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
         windowSize: IntSize,
@@ -161,13 +164,13 @@ private class PopoverPositionProvider(val anchors: PopoverAnchors, val offset: D
         return initialOffset + adjust
     }
 
-    fun isOffsetInBounds(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): Boolean =
+    private fun isOffsetInBounds(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): Boolean =
         offset.x > 0 &&
             offset.y > 0 &&
             offset.x + popupContentSize.width < windowSize.width &&
             offset.y + popupContentSize.height < windowSize.height
 
-    fun getAdjustment(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): IntOffset {
+    private fun getAdjustment(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): IntOffset {
         var xAdjust = 0
         var yAdjust = 0
 
