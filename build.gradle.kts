@@ -62,7 +62,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("com.outsidesource:oskit-kmp:3.1.0")
+                api("com.outsidesource:oskit-kmp:3.1.2")
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
@@ -70,7 +70,7 @@ kotlin {
                 api("androidx.compose.ui:ui:1.4.3")
                 api("androidx.core:core-ktx:1.10.1")
                 api("androidx.activity:activity-compose:1.7.2")
-                implementation("io.insert-koin:koin-core:3.3.3")
+                implementation("io.insert-koin:koin-core:3.4.0")
                 implementation("org.jetbrains:markdown:0.2.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
             }

@@ -15,22 +15,27 @@ class PopupShape(
     private val cornerRadius: Dp = 8.dp,
     private val caretWidth: Dp = 20.dp,
     private val caretHeight: Dp = 12.dp,
+    private val caretOffset: Float = .5f,
 ): Shape {
     override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
         with(density) {
             val path = Path()
+
             path.addRoundRect(
                 RoundRect(
-                left = 0f,
-                top = 0f,
-                right = size.width,
-                bottom = size.height,
-                cornerRadius = CornerRadius(cornerRadius.toPx(), cornerRadius.toPx())
+                    left = 0f,
+                    top = 0f,
+                    right = size.width,
+                    bottom = size.height,
+                    cornerRadius = CornerRadius(cornerRadius.toPx(), cornerRadius.toPx())
                 )
             )
-            path.moveTo((size.width / 2f) - (caretWidth.toPx() / 2), size.height)
-            path.lineTo((size.width / 2f), size.height + caretHeight.toPx())
-            path.lineTo((size.width / 2f) + (caretWidth.toPx() / 2), size.height)
+
+            val offsetTotalWidth = size.width - caretWidth.toPx() - cornerRadius.toPx() * 2
+            val offsetInitialX = (caretWidth.toPx() / 2) + cornerRadius.toPx()
+            path.moveTo((offsetTotalWidth * caretOffset) + offsetInitialX - (caretWidth.toPx() / 2), size.height)
+            path.lineTo((offsetTotalWidth * caretOffset) + offsetInitialX, size.height + caretHeight.toPx())
+            path.lineTo((offsetTotalWidth * caretOffset) + offsetInitialX + (caretWidth.toPx() / 2), size.height)
             path.close()
 
             return Outline.Generic(path)
