@@ -29,6 +29,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 
 /**
  * UI Tests:
@@ -244,14 +245,14 @@ private fun Modifier.panAndScalable(
 
         awaitEachGesture {
             awaitFirstDown()
-            val start = System.currentTimeMillis()
+            val start = Clock.System.now()
             var slop = DpOffset.Zero
 
             while (true) {
                 val event = awaitPointerEvent().changes.first()
                 if (event.changedToUp()) {
                     if (slop.x <= allowableClickSlop && slop.y <= allowableClickSlop &&
-                        System.currentTimeMillis() - start < 200
+                        (Clock.System.now() - start).inWholeMilliseconds < 200
                     ) {
                         onClick?.invoke(
                             (event.position.toDpOffset(density) - state.pan) / state.scale,

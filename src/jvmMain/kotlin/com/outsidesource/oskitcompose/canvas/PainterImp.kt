@@ -8,10 +8,12 @@ import androidx.compose.ui.res.loadSvgPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import com.outsidesource.oskitcompose.resources.KMPResource
+import okio.BufferedSource
+import okio.Source
 import java.io.InputStream
 
-actual fun kmpLoadImageBitmap(input: InputStream): ImageBitmap = loadImageBitmap(input)
-actual fun kmpLoadSvgPainter(input: InputStream, density: Density): Painter = loadSvgPainter(input, density)
+actual fun kmpLoadImageBitmap(source: BufferedSource): ImageBitmap = loadImageBitmap(source.inputStream())
+actual fun kmpLoadSvgPainter(source: BufferedSource, density: Density): Painter = loadSvgPainter(source.inputStream(), density)
 
 @Composable
 actual fun rememberKmpPainterResource(resource: KMPResource): Painter =

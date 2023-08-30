@@ -8,14 +8,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath(kotlin("gradle-plugin", "1.8.20"))
+        classpath(kotlin("gradle-plugin", "1.9.0"))
     }
 }
 
 plugins {
-    kotlin("multiplatform") version "1.8.20"
+    kotlin("multiplatform") version "1.9.0"
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.4.0"
+    id("org.jetbrains.compose") version "1.5.0"
     id("maven-publish")
 }
 
@@ -56,8 +56,15 @@ kotlin {
             useJUnitPlatform()
         }
     }
-    android {
+    androidTarget {
         publishLibraryVariants("release", "debug")
+    }
+    ios {
+        binaries {
+            framework {
+                baseName = "oskitkmp-compose"
+            }
+        }
     }
     sourceSets {
         val commonMain by getting {
@@ -66,13 +73,14 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                api("androidx.compose.foundation:foundation:1.4.3")
-                api("androidx.compose.ui:ui:1.4.3")
-                api("androidx.core:core-ktx:1.10.1")
-                api("androidx.activity:activity-compose:1.7.2")
+                implementation("com.squareup.okio:okio:3.5.0")
                 implementation("io.insert-koin:koin-core:3.4.0")
-                implementation("org.jetbrains:markdown:0.2.1")
+                implementation("org.jetbrains:markdown:0.5.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+                implementation("io.ktor:ktor-client-core:2.3.3")
+                implementation("io.ktor:ktor-client-cio:2.3.3")
+                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation(compose.components.resources)
             }
         }
         val commonTest by getting {
@@ -81,13 +89,15 @@ kotlin {
             }
         }
 
-        val jvmMain by getting {
-            dependencies {}
-        }
+        val jvmMain by getting
         val jvmTest by getting
 
         val androidMain by getting {
             dependencies {
+                implementation("androidx.compose.foundation:foundation:1.5.0")
+                implementation("androidx.compose.ui:ui:1.5.0")
+                implementation("androidx.core:core-ktx:1.10.1")
+                implementation("androidx.activity:activity-compose:1.7.2")
                 implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
             }
         }
@@ -96,6 +106,8 @@ kotlin {
                 implementation("junit:junit:4.13.2")
             }
         }
+        val iosMain by getting
+        val iosTest by getting
     }
 
     afterEvaluate {

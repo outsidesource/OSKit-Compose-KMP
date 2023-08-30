@@ -1,5 +1,6 @@
 package com.outsidesource.oskitcompose.canvas
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
@@ -9,22 +10,35 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import com.outsidesource.oskitcompose.resources.KMPResource
-import java.io.InputStream
-import java.net.URL
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import kotlinx.coroutines.*
+import okio.*
 
+@Composable
 expect fun rememberKmpPainterResource(resource: KMPResource): Painter
-expect fun kmpLoadImageBitmap(input: InputStream): ImageBitmap
-expect fun kmpLoadSvgPainter(input: InputStream, density: Density): Painter
+expect fun kmpLoadImageBitmap(source: BufferedSource): ImageBitmap
+expect fun kmpLoadSvgPainter(source: BufferedSource, density: Density): Painter
 
-fun kmpBitmapPainter(input: InputStream) = BitmapPainter(input.use(::kmpLoadImageBitmap))
+private val httpClient = HttpClient(CIO)
+private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+fun kmpBitmapPainter(source: Source) = BitmapPainter(source.buffer().use(::kmpLoadImageBitmap))
 
 fun kmpUrlImagePainter(url: String, density: Density): Painter {
-    val inputStream = URL(url).openStream().buffered()
+    val buffer = Buffer()
+
+    runBlocking {
+        val response = httpClient.get(url)
+        buffer.write(response.readBytes())
+    }
 
     return if (url.contains(".svg")) {
-        kmpLoadSvgPainter(inputStream, density)
+        kmpLoadSvgPainter(buffer, density)
     } else {
-        return BitmapPainter(inputStream.use(::kmpLoadImageBitmap))
+        return BitmapPainter(buffer.use(::kmpLoadImageBitmap))
     }
 }
 

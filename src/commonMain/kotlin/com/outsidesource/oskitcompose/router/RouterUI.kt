@@ -9,6 +9,7 @@ import com.outsidesource.oskitkmp.router.*
 import com.outsidesource.oskitkmp.tuples.Tup3
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.reflect.KClass
 
 
 internal val localRouteObjectStore = staticCompositionLocalOf { RouteObjectStore() }
@@ -25,7 +26,7 @@ val LocalRoute = staticCompositionLocalOf { RouteStackEntry(object : IRoute {}) 
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-internal fun createComposeRouteTransition(): AnimatedContentScope<RouteStackEntry>.() -> ContentTransform {
+internal fun createComposeRouteTransition(): AnimatedContentTransitionScope<RouteStackEntry>.() -> ContentTransform {
     val density = LocalDensity.current
 
     return {
@@ -33,7 +34,7 @@ internal fun createComposeRouteTransition(): AnimatedContentScope<RouteStackEntr
         val route = if (isPopping) initialState else targetState
         val transition = (route.transition as? ComposeRouteTransition) ?: NoRouteTransition
 
-        (if (isPopping) transition.popEnter else transition.enter)(density) with
+        (if (isPopping) transition.popEnter else transition.enter)(density) togetherWith
                 (if (isPopping) transition.popExit else transition.exit)(density)
     }
 }
@@ -50,7 +51,7 @@ internal fun createComposeRouteTransition(): AnimatedContentScope<RouteStackEntr
 fun RouteDestroyedEffect(effectId: String, effect: () -> Unit) {
     val router = localCoordinatorObserver.current
 
-    val (storedEffect, isVisibleRef, isDestroyedRef) = rememberForRoute(Tup3::class.java, effectId) {
+    val (storedEffect, isVisibleRef, isDestroyedRef) = rememberForRoute(Tup3::class, effectId) {
         val isDestroyedRef = Ref<Boolean>()
         val isVisibleRef = Ref<Boolean>()
 
@@ -79,7 +80,7 @@ fun RouteDestroyedEffect(effectId: String, effect: () -> Unit) {
  */
 @Composable
 inline fun <reified T : Any> rememberForRoute(key: String? = null, noinline factory: () -> T): T =
-    rememberForRoute(T::class.java, key, factory)
+    rememberForRoute(T::class, key, factory)
 
 /**
  * [rememberForRoute] Remembers a given object for the lifetime of the route. There may only be one instance of
@@ -88,7 +89,7 @@ inline fun <reified T : Any> rememberForRoute(key: String? = null, noinline fact
  */
 @Composable
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> rememberForRoute(objectType: Class<T>, key: String? = null, factory: () -> T): T {
+fun <T : Any> rememberForRoute(objectType: KClass<T>, key: String? = null, factory: () -> T): T {
     val objectStore = localRouteObjectStore.current
     val route = LocalRoute.current
     val router = localCoordinatorObserver.current
@@ -106,15 +107,15 @@ fun <T : Any> rememberForRoute(objectType: Class<T>, key: String? = null, factor
 class RouteObjectStore {
     private val objects = mutableMapOf<String, Any>()
 
-    operator fun <T> get(routeId: Int, key: String?, objectType: Class<T>): Any? {
-        return objects["$routeId:${objectType.canonicalName}:${key ?: ""}"]
+    operator fun <T: Any> get(routeId: Int, key: String?, objectType: KClass<T>): Any? {
+        return objects["$routeId:${objectType.qualifiedName}:${key ?: ""}"]
     }
 
-    operator fun <T> set(routeId: Int, key: String?, objectType: Class<T>, value: T) {
-        objects["$routeId:${objectType.canonicalName}:${key ?: ""}"] = value as Any
+    operator fun <T: Any> set(routeId: Int, key: String?, objectType: KClass<T>, value: T) {
+        objects["$routeId:${objectType.qualifiedName}:${key ?: ""}"] = value as Any
     }
 
-    fun <T> remove(routeId: Int, key: String?, objectType: Class<T>) {
-        objects.remove("$routeId:${objectType.canonicalName}:${key ?: ""}")
+    fun <T: Any> remove(routeId: Int, key: String?, objectType: KClass<T>) {
+        objects.remove("$routeId:${objectType.qualifiedName}:${key ?: ""}")
     }
 }

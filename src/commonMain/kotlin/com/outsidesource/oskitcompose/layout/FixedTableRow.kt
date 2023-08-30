@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
-import java.lang.Integer.min
+import kotlin.math.min
 
 /**
  * FixedTableRow specifies a row with columns of fixed width based on the passed in percentage

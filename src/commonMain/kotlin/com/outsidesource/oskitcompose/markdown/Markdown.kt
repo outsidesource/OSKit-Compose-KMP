@@ -47,6 +47,7 @@ import org.intellij.markdown.parser.MarkdownParser
 import com.outsidesource.oskitcompose.scrollbars.rememberKmpScrollbarAdapter
 import com.outsidesource.oskitcompose.scrollbars.KMPHorizontalScrollbar
 import com.outsidesource.oskitcompose.scrollbars.KMPScrollbarStyle
+import kotlinx.coroutines.IO
 
 private const val TAG_URL = "URL"
 private const val TAG_CODE_SPAN = "CODE_SPAN"

@@ -35,10 +35,10 @@ fun routeTransition(transition: IRouteTransition): IAnimatedRoute {
  */
 @ExperimentalAnimationApi
 data class ComposeRouteTransition(
-    val enter: AnimatedContentScope<RouteStackEntry>.(density: Density) -> EnterTransition,
-    val exit: AnimatedContentScope<RouteStackEntry>.(density: Density) -> ExitTransition,
-    val popEnter: AnimatedContentScope<RouteStackEntry>.(density: Density) -> EnterTransition,
-    val popExit: AnimatedContentScope<RouteStackEntry>.(density: Density) -> ExitTransition,
+    val enter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
+    val exit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
+    val popEnter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
+    val popExit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
 ) : IRouteTransition
 
 @ExperimentalAnimationApi
