@@ -22,7 +22,7 @@ expect fun rememberKmpPainterResource(resource: KMPResource): Painter
 expect fun kmpLoadImageBitmap(source: BufferedSource): ImageBitmap
 expect fun kmpLoadSvgPainter(source: BufferedSource, density: Density): Painter
 
-private val httpClient = HttpClient(CIO)
+private val httpClient = HttpClient()
 private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
 fun kmpBitmapPainter(source: Source) = BitmapPainter(source.buffer().use(::kmpLoadImageBitmap))

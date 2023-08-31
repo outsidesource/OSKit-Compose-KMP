@@ -59,13 +59,17 @@ kotlin {
     androidTarget {
         publishLibraryVariants("release", "debug")
     }
-    ios {
-        binaries {
-            framework {
-                baseName = "oskitkmp-compose"
-            }
+
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "oskit-compose"
         }
     }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -106,8 +110,20 @@ kotlin {
                 implementation("junit:junit:4.13.2")
             }
         }
-        val iosMain by getting
-        val iosTest by getting
+
+        val iosX64Main by getting
+        val iosArm64Main by getting
+        val iosSimulatorArm64Main by getting
+        val iosMain by creating {
+            dependsOn(commonMain)
+            iosX64Main.dependsOn(this)
+            iosArm64Main.dependsOn(this)
+            iosSimulatorArm64Main.dependsOn(this)
+
+            dependencies {
+                implementation("io.ktor:ktor-client-ios:2.3.3")
+            }
+        }
     }
 
     afterEvaluate {
