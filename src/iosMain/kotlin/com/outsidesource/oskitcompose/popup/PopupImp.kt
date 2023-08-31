@@ -23,7 +23,9 @@ actual fun Popup(
     alignment = alignment,
     offset = offset,
     onDismissRequest = onDismissRequest,
-    properties = PopupProperties(focusable = focusable),
+    properties = PopupProperties(
+        focusable = focusable,
+    ),
     onPreviewKeyEvent = onPreviewKeyEvent,
     onKeyEvent = onKeyEvent,
     content = content
@@ -41,7 +43,9 @@ actual fun Popup(
 ) = Popup(
     popupPositionProvider = popupPositionProvider,
     onDismissRequest = onDismissRequest,
-    properties = PopupProperties(focusable = focusable),
+    properties = PopupProperties(
+        focusable = focusable,
+    ),
     onPreviewKeyEvent = onPreviewKeyEvent,
     onKeyEvent = onKeyEvent,
     content = content

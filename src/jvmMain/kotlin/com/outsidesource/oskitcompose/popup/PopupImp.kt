@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.window.PopupProperties
 
 actual typealias PopupPositionProvider = androidx.compose.ui.window.PopupPositionProvider
 
@@ -18,10 +19,12 @@ actual fun Popup(
     isFullScreen: Boolean,
     content: @Composable () -> Unit,
 ) = androidx.compose.ui.window.Popup(
+    properties = PopupProperties(
+        focusable = focusable,
+    ),
     alignment = alignment,
     offset = offset,
     onDismissRequest = onDismissRequest,
-    focusable = focusable,
     onPreviewKeyEvent = onPreviewKeyEvent,
     onKeyEvent = onKeyEvent,
     content = content
@@ -38,9 +41,11 @@ actual fun Popup(
     content: @Composable () -> Unit,
 ) = androidx.compose.ui.window.Popup(
     popupPositionProvider = popupPositionProvider,
+    properties = PopupProperties(
+        focusable = focusable,
+    ),
     onDismissRequest = onDismissRequest,
     onPreviewKeyEvent = onPreviewKeyEvent,
     onKeyEvent = onKeyEvent,
-    focusable = focusable,
     content = content,
 )
