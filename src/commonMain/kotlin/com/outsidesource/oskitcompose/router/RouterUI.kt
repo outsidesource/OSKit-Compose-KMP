@@ -16,7 +16,7 @@ internal val localRouteObjectStore = staticCompositionLocalOf { RouteObjectStore
 internal val localCoordinatorObserver = staticCompositionLocalOf<ICoordinatorObserver> {
     object : ICoordinatorObserver {
         override val routeFlow: StateFlow<RouteStackEntry> = MutableStateFlow(RouteStackEntry(object : IRoute {}))
-        override fun addRouteDestroyedListener(block: () -> Unit) {}
+        override fun addRouteLifecycleListener(listener: IRouteLifecycleListener) {}
         override fun hasBackStack() = false
         override fun markTransitionStatus(status: RouteTransitionStatus) {}
         override fun pop() {}
@@ -55,10 +55,12 @@ fun RouteDestroyedEffect(effectId: String, effect: () -> Unit) {
         val isDestroyedRef = Ref<Boolean>()
         val isVisibleRef = Ref<Boolean>()
 
-        router.addRouteDestroyedListener {
-            if (isVisibleRef.value == false) effect()
-            isDestroyedRef.value = true
-        }
+        router.addRouteLifecycleListener(object : IRouteLifecycleListener {
+            override fun onRouteDestroyed() {
+                if (isVisibleRef.value == false) effect()
+                isDestroyedRef.value = true
+            }
+        })
 
         Tup3(effect, isVisibleRef, isDestroyedRef)
     } as Tup3<() -> Unit, Ref<Boolean>, Ref<Boolean>>
@@ -98,9 +100,9 @@ fun <T : Any> rememberForRoute(objectType: KClass<T>, key: String? = null, facto
 
     return if (storedObject != null) storedObject as T else factory().apply {
         objectStore[route.id, key, objectType] = this
-        router.addRouteDestroyedListener {
-            objectStore.remove(route.id, key, objectType)
-        }
+        router.addRouteLifecycleListener(object : IRouteLifecycleListener {
+            override fun onRouteDestroyed() = objectStore.remove(route.id, key, objectType)
+        })
     }
 }
 
