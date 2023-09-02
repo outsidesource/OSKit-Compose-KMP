@@ -78,7 +78,7 @@ kotlin {
                 api(compose.foundation)
                 api(compose.material)
                 implementation("com.squareup.okio:okio:3.5.0")
-                implementation("io.insert-koin:koin-core:3.4.0")
+                implementation("io.insert-koin:koin-core:3.4.3")
                 implementation("org.jetbrains:markdown:0.5.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("io.ktor:ktor-client-core:2.3.3")
@@ -102,7 +102,6 @@ kotlin {
                 implementation("androidx.compose.ui:ui:1.5.0")
                 implementation("androidx.core:core-ktx:1.10.1")
                 implementation("androidx.activity:activity-compose:1.7.2")
-                implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
             }
         }
         val androidInstrumentedTest by getting {
