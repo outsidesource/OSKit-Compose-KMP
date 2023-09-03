@@ -59,7 +59,6 @@ data class PopoverAnchors(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Popover(
     isVisible: Boolean,

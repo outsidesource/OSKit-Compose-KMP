@@ -82,7 +82,7 @@ fun RouteDestroyedEffect(effectId: String, effect: () -> Unit) {
  */
 @Composable
 inline fun <reified T : Any> rememberForRoute(key: String? = null, noinline factory: () -> T): T =
-    rememberForRoute(T::class, key, factory)
+    rememberForRoute(getKClassForGenericType<T>(), key, factory)
 
 /**
  * [rememberForRoute] Remembers a given object for the lifetime of the route. There may only be one instance of
@@ -105,6 +105,14 @@ fun <T : Any> rememberForRoute(objectType: KClass<T>, key: String? = null, facto
         })
     }
 }
+
+/**
+ * This is a workaround for a Kotlin KMP compiler bug for iOS. Using @Composable while trying to access a reified
+ * generic type throws a compilation error:
+ * (Generation of stubs for class org.jetbrains.kotlin.ir.symbols.impl.IrTypeParameterPublicSymbolImpl is not supported yet)
+ * https://github.com/JetBrains/compose-multiplatform/issues/3147
+ */
+inline fun <reified T : Any> getKClassForGenericType(): KClass<T> = T::class
 
 class RouteObjectStore {
     private val objects = mutableMapOf<String, Any>()
