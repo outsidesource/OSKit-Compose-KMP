@@ -13,5 +13,14 @@ data class KMPFont(
     val style: FontStyle = FontStyle.Normal,
 )
 
+/**
+ * Remembers a font family from a KMPFontFamily. This blocks while the font is loaded into memory.
+ * Use this sparingly. Use [resolveKmpFontFamily] and store it for use later instead.
+ */
 @Composable
 expect fun rememberKmpFontFamily(family: KMPFontFamily): FontFamily
+
+/**
+ * Resolves a KMPFontFamily to be used in Compose
+ */
+expect suspend fun resolveKmpFontFamily(family: KMPFontFamily): FontFamily

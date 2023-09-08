@@ -2,32 +2,19 @@ package com.outsidesource.oskitcompose.canvas
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.useResource
 import com.outsidesource.oskitcompose.resources.KMPResource
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.resource
 import org.jetbrains.skia.*
 
-internal data class DesktopKMPTypeface(val font: Font) : KMPTypeface
+private data class DesktopKMPCanvasTypeface(val font: Font) : KMPCanvasTypeface
 
-private val defaultCanvasTypeface = DesktopKMPTypeface(Font(Typeface.makeDefault()))
-
-actual val KMPTypeface.Companion.Default: KMPTypeface
-    get() = defaultCanvasTypeface
-
-fun KMPTypeface.Companion.make(path: String): KMPTypeface {
-    val bytes = useResource(path) { it.readAllBytes() }
-    return DesktopKMPTypeface(Font(Typeface.makeFromData(Data.makeFromBytes(bytes))))
-}
-
-@Composable
-actual fun rememberKmpCanvasTypeface(resource: KMPResource): KMPTypeface {
-    return remember(resource) { KMPTypeface.make((resource as KMPResource.Desktop).path) }
-}
-
-internal data class DesktopKMPTextLine(
+private data class DesktopKMPTextLine(
     override val text: String,
     override val width: Float,
     override val height: Float,
@@ -35,6 +22,23 @@ internal data class DesktopKMPTextLine(
     override val descent: Float,
     val textLine: TextLine,
 ) : KMPTextLine
+
+private val defaultCanvasTypeface = DesktopKMPCanvasTypeface(Font(Typeface.makeDefault()))
+
+actual val KMPCanvasTypeface.Companion.Default: KMPCanvasTypeface
+    get() = defaultCanvasTypeface
+
+@Composable
+actual fun rememberKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface {
+    return remember(resource) { KMPCanvasTypeface.make(resource as KMPResource.Desktop) }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+private fun KMPCanvasTypeface.Companion.make(resource: KMPResource.Desktop): KMPCanvasTypeface {
+    val resourceFile = resource(resource.path)
+    val bytes = runBlocking { resourceFile.readBytes() }
+    return DesktopKMPCanvasTypeface(Font(Typeface.makeFromData(Data.makeFromBytes(bytes))))
+}
 
 actual interface KMPTextLine {
     actual val text: String
@@ -44,8 +48,8 @@ actual interface KMPTextLine {
     actual val descent: Float
 
     actual companion object {
-        actual fun make(text: String, typeface: KMPTypeface, size: Float): KMPTextLine {
-            val bounds = TextLine.make(text, (typeface as DesktopKMPTypeface).font.makeWithSize(size))
+        actual fun make(text: String, typeface: KMPCanvasTypeface, size: Float): KMPTextLine {
+            val bounds = TextLine.make(text, (typeface as DesktopKMPCanvasTypeface).font.makeWithSize(size))
 
             return DesktopKMPTextLine(
                 text,

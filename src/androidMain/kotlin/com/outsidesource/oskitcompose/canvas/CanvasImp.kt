@@ -15,24 +15,9 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import com.outsidesource.oskitcompose.resources.KMPResource
 
-internal data class AndroidKMPTypeface(val typeface: Typeface) : KMPTypeface
+private data class AndroidKMPCanvasTypeface(val typeface: Typeface) : KMPCanvasTypeface
 
-actual val KMPTypeface.Companion.Default: KMPTypeface
-    get() = AndroidKMPTypeface(Typeface.DEFAULT)
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun KMPTypeface.Companion.make(context: Context, resourceId: Int): KMPTypeface {
-    return AndroidKMPTypeface(context.resources.getFont(resourceId))
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-actual fun rememberKmpCanvasTypeface(resource: KMPResource): KMPTypeface {
-    val context = LocalContext.current
-    return remember(resource) { KMPTypeface.make(context, (resource as KMPResource.Android).id) }
-}
-
-internal data class AndroidKMPTextLine(
+private data class AndroidKMPTextLine(
     override val text: String,
     override val width: Float,
     override val height: Float,
@@ -42,6 +27,21 @@ internal data class AndroidKMPTextLine(
     val typeface: Typeface,
 ) : KMPTextLine
 
+actual val KMPCanvasTypeface.Companion.Default: KMPCanvasTypeface
+    get() = AndroidKMPCanvasTypeface(Typeface.DEFAULT)
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun KMPCanvasTypeface.Companion.make(context: Context, resourceId: Int): KMPCanvasTypeface {
+    return AndroidKMPCanvasTypeface(context.resources.getFont(resourceId))
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+actual fun rememberKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface {
+    val context = LocalContext.current
+    return remember(resource) { KMPCanvasTypeface.make(context, (resource as KMPResource.Android).id) }
+}
+
 actual interface KMPTextLine {
     actual val text: String
     actual val width: Float
@@ -50,9 +50,9 @@ actual interface KMPTextLine {
     actual val descent: Float
 
     actual companion object {
-        actual fun make(text: String, typeface: KMPTypeface, size: Float): KMPTextLine {
+        actual fun make(text: String, typeface: KMPCanvasTypeface, size: Float): KMPTextLine {
             val frameworkPaint = NativePaint()
-            frameworkPaint.typeface = (typeface as AndroidKMPTypeface).typeface
+            frameworkPaint.typeface = (typeface as AndroidKMPCanvasTypeface).typeface
             frameworkPaint.textSize = size
 
             val bounds = Rect()

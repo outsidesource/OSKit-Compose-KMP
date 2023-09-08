@@ -11,26 +11,9 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.resource
 import org.jetbrains.skia.*
 
-internal data class DesktopKMPTypeface(val font: Font) : KMPTypeface
+private data class IOSKMPCanvasTypeface(val font: Font) : KMPCanvasTypeface
 
-private val defaultCanvasTypeface = DesktopKMPTypeface(Font(Typeface.makeDefault()))
-
-actual val KMPTypeface.Companion.Default: KMPTypeface
-    get() = defaultCanvasTypeface
-
-@Composable
-actual fun rememberKmpCanvasTypeface(resource: KMPResource): KMPTypeface {
-    return remember(resource) { KMPTypeface.make((resource as KMPResource.iOS)) }
-}
-
-@OptIn(ExperimentalResourceApi::class)
-private fun KMPTypeface.Companion.make(resource: KMPResource.iOS): KMPTypeface {
-    val resourceFile = resource(resource.path)
-    val bytes = runBlocking { resourceFile.readBytes() }
-    return DesktopKMPTypeface(Font(Typeface.makeFromData(Data.makeFromBytes(bytes))))
-}
-
-internal data class DesktopKMPTextLine(
+private data class IOSKMPTextLine(
     override val text: String,
     override val width: Float,
     override val height: Float,
@@ -38,6 +21,23 @@ internal data class DesktopKMPTextLine(
     override val descent: Float,
     val textLine: TextLine,
 ) : KMPTextLine
+
+private val defaultCanvasTypeface = IOSKMPCanvasTypeface(Font(Typeface.makeDefault()))
+
+actual val KMPCanvasTypeface.Companion.Default: KMPCanvasTypeface
+    get() = defaultCanvasTypeface
+
+@Composable
+actual fun rememberKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface {
+    return remember(resource) { KMPCanvasTypeface.make((resource as KMPResource.iOS)) }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+private fun KMPCanvasTypeface.Companion.make(resource: KMPResource.iOS): KMPCanvasTypeface {
+    val resourceFile = resource(resource.path)
+    val bytes = runBlocking { resourceFile.readBytes() }
+    return IOSKMPCanvasTypeface(Font(Typeface.makeFromData(Data.makeFromBytes(bytes))))
+}
 
 actual interface KMPTextLine {
     actual val text: String
@@ -47,10 +47,10 @@ actual interface KMPTextLine {
     actual val descent: Float
 
     actual companion object {
-        actual fun make(text: String, typeface: KMPTypeface, size: Float): KMPTextLine {
-            val bounds = TextLine.make(text, (typeface as DesktopKMPTypeface).font.makeWithSize(size))
+        actual fun make(text: String, typeface: KMPCanvasTypeface, size: Float): KMPTextLine {
+            val bounds = TextLine.make(text, (typeface as IOSKMPCanvasTypeface).font.makeWithSize(size))
 
-            return DesktopKMPTextLine(
+            return IOSKMPTextLine(
                 text,
                 bounds.width, bounds.height, ascent = bounds.ascent, descent = bounds.descent, bounds
             )
@@ -59,7 +59,7 @@ actual interface KMPTextLine {
 }
 
 actual fun Canvas.drawKmpTextLine(textLine: KMPTextLine, x: Float, y: Float, paint: Paint) {
-    nativeCanvas.drawTextLine((textLine as DesktopKMPTextLine).textLine, x, y, paint.asFrameworkPaint())
+    nativeCanvas.drawTextLine((textLine as IOSKMPTextLine).textLine, x, y, paint.asFrameworkPaint())
 }
 
 actual fun Paint.kmpBlur(radius: Float, mode: KMPBlurMode) {

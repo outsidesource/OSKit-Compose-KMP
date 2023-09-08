@@ -1,7 +1,10 @@
 package com.outsidesource.oskitcompose.scrollbars
 
+import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
@@ -11,7 +14,7 @@ actual typealias ScrollbarAdapter = androidx.compose.foundation.v2.ScrollbarAdap
 actual fun rememberKmpScrollbarAdapter(
     scrollState: LazyListState,
 ): ScrollbarAdapter =
-    androidx.compose.foundation.rememberScrollbarAdapter(
+    rememberScrollbarAdapter(
         scrollState = scrollState
     )
 
@@ -19,7 +22,7 @@ actual fun rememberKmpScrollbarAdapter(
 actual fun rememberKmpScrollbarAdapter(
     scrollState: ScrollState,
 ): ScrollbarAdapter =
-    androidx.compose.foundation.rememberScrollbarAdapter(
+    rememberScrollbarAdapter(
         scrollState = scrollState
     )
 
@@ -28,7 +31,7 @@ actual fun KMPVerticalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter
 ) {
-    androidx.compose.foundation.VerticalScrollbar(
+    VerticalScrollbar(
         modifier = modifier,
         adapter = adapter
     )
@@ -40,7 +43,7 @@ actual fun KMPVerticalScrollbar(
     adapter: ScrollbarAdapter,
     style: KMPScrollbarStyle,
 ) {
-    androidx.compose.foundation.VerticalScrollbar(
+    VerticalScrollbar(
         modifier = modifier,
         adapter = adapter,
         style = androidx.compose.foundation.ScrollbarStyle(
@@ -59,7 +62,7 @@ actual fun KMPHorizontalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter
 ) {
-    androidx.compose.foundation.HorizontalScrollbar(
+    HorizontalScrollbar(
         modifier = modifier,
         adapter = adapter
     )
@@ -71,7 +74,7 @@ actual fun KMPHorizontalScrollbar(
     adapter: ScrollbarAdapter,
     style: KMPScrollbarStyle,
 ) {
-    androidx.compose.foundation.HorizontalScrollbar(
+    HorizontalScrollbar(
         modifier = modifier,
         adapter = adapter,
         style = androidx.compose.foundation.ScrollbarStyle(

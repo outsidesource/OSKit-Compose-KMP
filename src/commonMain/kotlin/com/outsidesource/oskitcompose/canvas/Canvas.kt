@@ -13,18 +13,18 @@ expect interface KMPTextLine {
     val descent: Float
 
     companion object {
-        fun make(text: String, typeface: KMPTypeface, size: Float): KMPTextLine
+        fun make(text: String, typeface: KMPCanvasTypeface, size: Float): KMPTextLine
     }
 }
 
-interface KMPTypeface {
+interface KMPCanvasTypeface {
     companion object
 }
 
 @Composable
-expect fun rememberKmpCanvasTypeface(resource: KMPResource): KMPTypeface
+expect fun rememberKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface
 
-expect val KMPTypeface.Companion.Default: KMPTypeface
+expect val KMPCanvasTypeface.Companion.Default: KMPCanvasTypeface
 
 expect fun Canvas.drawKmpTextLine(textLine: KMPTextLine, x: Float, y: Float, paint: Paint)
 

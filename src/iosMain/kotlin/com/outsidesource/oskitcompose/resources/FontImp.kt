@@ -8,20 +8,24 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.resource
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 actual fun rememberKmpFontFamily(family: KMPFontFamily): FontFamily {
     return remember(family) {
-        FontFamily(family.fonts.map {
-            val resource = resource((it.resource as KMPResource.iOS).path)
-            val bytes = runBlocking { resource.readBytes() }
-            
-            Font(
-                identity = it.resource.path,
-                data = bytes,
-                weight = it.weight,
-                style = it.style,
-            )
-        })
+        runBlocking { resolveKmpFontFamily(family) }
     }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+actual suspend fun resolveKmpFontFamily(family: KMPFontFamily): FontFamily {
+    return FontFamily(family.fonts.map {
+        val resource = resource((it.resource as KMPResource.iOS).path)
+        val bytes = runBlocking { resource.readBytes() }
+
+        Font(
+            identity = it.resource.path,
+            data = bytes,
+            weight = it.weight,
+            style = it.style,
+        )
+    })
 }
