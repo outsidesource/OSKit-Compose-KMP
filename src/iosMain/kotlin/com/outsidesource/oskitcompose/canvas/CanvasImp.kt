@@ -6,9 +6,9 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.nativeCanvas
 import com.outsidesource.oskitcompose.resources.KMPResource
-import okio.FileSystem
-import okio.Path.Companion.toPath
-import okio.buffer
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.resource
 import org.jetbrains.skia.*
 
 internal data class DesktopKMPTypeface(val font: Font) : KMPTypeface
@@ -18,14 +18,16 @@ private val defaultCanvasTypeface = DesktopKMPTypeface(Font(Typeface.makeDefault
 actual val KMPTypeface.Companion.Default: KMPTypeface
     get() = defaultCanvasTypeface
 
-fun KMPTypeface.Companion.make(path: String): KMPTypeface {
-    val bytes = FileSystem.SYSTEM.source(path.toPath()).buffer().readByteArray()
-    return DesktopKMPTypeface(Font(Typeface.makeFromData(Data.makeFromBytes(bytes))))
-}
-
 @Composable
 actual fun rememberKmpCanvasTypeface(resource: KMPResource): KMPTypeface {
-    return remember(resource) { KMPTypeface.make((resource as KMPResource.iOS).path) }
+    return remember(resource) { KMPTypeface.make((resource as KMPResource.iOS)) }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+private fun KMPTypeface.Companion.make(resource: KMPResource.iOS): KMPTypeface {
+    val resourceFile = resource(resource.path)
+    val bytes = runBlocking { resourceFile.readBytes() }
+    return DesktopKMPTypeface(Font(Typeface.makeFromData(Data.makeFromBytes(bytes))))
 }
 
 internal data class DesktopKMPTextLine(

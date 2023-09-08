@@ -10,7 +10,6 @@ import com.outsidesource.oskitcompose.resources.KMPResource
 import okio.BufferedSource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Image
 
 actual fun kmpLoadImageBitmap(source: BufferedSource): ImageBitmap = Image.makeFromEncoded(source.readByteArray()).toComposeImageBitmap()

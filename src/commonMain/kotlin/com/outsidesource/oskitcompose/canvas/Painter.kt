@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import com.outsidesource.oskitcompose.resources.KMPResource
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.*
