@@ -34,7 +34,7 @@ fun kmpUrlImagePainter(url: String, density: Density): Painter {
         buffer.write(response.readBytes())
     }
 
-    return if (url.contains(".svg")) {
+    return if (url.endsWith(".svg")) {
         kmpLoadSvgPainter(buffer, density)
     } else {
         return BitmapPainter(buffer.use(::kmpLoadImageBitmap))
