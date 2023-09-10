@@ -18,4 +18,4 @@ actual fun kmpLoadSvgPainter(source: BufferedSource, density: Density): Painter 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 actual fun rememberKmpPainterResource(resource: KMPResource): Painter =
-    painterResource((resource as KMPResource.iOS).pathForDensity())
+    painterResource(resource.pathForDensity())

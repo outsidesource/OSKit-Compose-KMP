@@ -16,7 +16,7 @@ actual fun rememberKmpFontFamily(family: KMPFontFamily): FontFamily {
 actual suspend fun resolveKmpFontFamily(family: KMPFontFamily): FontFamily {
     return FontFamily(family.fonts.map {
         Font(
-            resource = (it.resource as KMPResource.Desktop).path,
+            resource = it.resource.path,
             weight = it.weight,
             style = it.style,
         )

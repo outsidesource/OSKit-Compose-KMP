@@ -7,8 +7,6 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.nativeCanvas
 import com.outsidesource.oskitcompose.resources.KMPResource
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.resource
 import org.jetbrains.skia.*
 
 private data class DesktopKMPCanvasTypeface(val font: Font) : KMPCanvasTypeface
@@ -29,13 +27,17 @@ actual val KMPCanvasTypeface.Companion.Default: KMPCanvasTypeface
 
 @Composable
 actual fun rememberKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface {
-    return remember(resource) { KMPCanvasTypeface.make(resource as KMPResource.Desktop) }
+    return remember(resource) {
+        runBlocking { resolveKmpCanvasTypeface(resource) }
+    }
 }
 
-@OptIn(ExperimentalResourceApi::class)
-private fun KMPCanvasTypeface.Companion.make(resource: KMPResource.Desktop): KMPCanvasTypeface {
-    val resourceFile = resource(resource.path)
-    val bytes = runBlocking { resourceFile.readBytes() }
+actual suspend fun resolveKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface {
+    return KMPCanvasTypeface.make(resource)
+}
+
+private suspend fun KMPCanvasTypeface.Companion.make(resource: KMPResource): KMPCanvasTypeface {
+    val bytes = resource.readBytes()
     return DesktopKMPCanvasTypeface(Font(Typeface.makeFromData(Data.makeFromBytes(bytes))))
 }
 
