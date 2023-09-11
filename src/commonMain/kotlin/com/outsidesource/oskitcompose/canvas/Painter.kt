@@ -1,6 +1,5 @@
 package com.outsidesource.oskitcompose.canvas
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
@@ -9,15 +8,12 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import com.outsidesource.oskitcompose.resources.KMPResource
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
 import okio.*
 
-@Composable
-expect fun rememberKmpPainterResource(resource: KMPResource): Painter
 expect fun kmpLoadImageBitmap(source: BufferedSource): ImageBitmap
 expect fun kmpLoadSvgPainter(source: BufferedSource, density: Density): Painter
 

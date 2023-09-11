@@ -13,7 +13,8 @@ import androidx.compose.ui.graphics.NativePaint
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
-import com.outsidesource.oskitcompose.resources.KMPResource
+import com.outsidesource.oskitcompose.resources.KMPFont
+import com.outsidesource.oskitcompose.resources.KMPImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -39,43 +40,18 @@ actual val KMPCanvasTypeface.Companion.Default: KMPCanvasTypeface
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-actual fun rememberKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface {
-    val context = LocalContext.current
-
-    return remember(resource) {
-        if (resource.resourceId != null) {
-            KMPCanvasTypeface.make(context, resource.resourceId)
-        } else if (resource.path != null) {
-            runBlocking { KMPCanvasTypeface.make(resource.path) }
-        } else {
-            // This cannot happen due to the KMPResource constructors
-            KMPCanvasTypeface.Default
-        }
+actual fun rememberKmpCanvasTypeface(font: KMPFont): KMPCanvasTypeface {
+    return remember(font) {
+        runBlocking { resolveKmpCanvasTypeface(font) }
     }
-}
-
-actual suspend fun resolveKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface {
-    return if (resource.resourceId != null) {
-        KMPCanvasTypeface.Default
-    } else if (resource.path != null) {
-        KMPCanvasTypeface.make(resource.path)
-    } else {
-        // This cannot happen due to the KMPResource constructors
-        KMPCanvasTypeface.Default
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-private fun KMPCanvasTypeface.Companion.make(context: Context, resourceId: Int): KMPCanvasTypeface {
-    return AndroidKMPCanvasTypeface(context.resources.getFont(resourceId))
 }
 
 @OptIn(ExperimentalResourceApi::class)
-private suspend fun KMPCanvasTypeface.Companion.make(path: String): KMPCanvasTypeface = withContext(Dispatchers.IO) {
-    val name = path.toPath().name
+actual suspend fun resolveKmpCanvasTypeface(font: KMPFont): KMPCanvasTypeface = withContext(Dispatchers.IO) {
+    val name = font.path.toPath().name
     val file = File.createTempFile(name, null)
     val os = file.outputStream()
-    val bytes = runBlocking { resource(path).readBytes() }
+    val bytes = runBlocking { resource(font.path).readBytes() }
 
     os.write(bytes)
     os.flush()

@@ -3,7 +3,8 @@ package com.outsidesource.oskitcompose.canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
-import com.outsidesource.oskitcompose.resources.KMPResource
+import com.outsidesource.oskitcompose.resources.KMPFont
+import com.outsidesource.oskitcompose.resources.KMPImage
 
 expect interface KMPTextLine {
     val text: String
@@ -22,13 +23,13 @@ interface KMPCanvasTypeface {
 }
 
 @Composable
-expect fun rememberKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface
+expect fun rememberKmpCanvasTypeface(font: KMPFont): KMPCanvasTypeface
 
 /**
  * Resolves a KMPCanvasTypeface from a KMPResource.
  * Note: Android KMPResources that use resource Ids (Int) will return the default typeface
  */
-expect suspend fun resolveKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface
+expect suspend fun resolveKmpCanvasTypeface(font: KMPFont): KMPCanvasTypeface
 
 expect val KMPCanvasTypeface.Companion.Default: KMPCanvasTypeface
 

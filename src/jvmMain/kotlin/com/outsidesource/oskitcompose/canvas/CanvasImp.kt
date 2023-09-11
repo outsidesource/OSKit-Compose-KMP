@@ -5,7 +5,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.nativeCanvas
-import com.outsidesource.oskitcompose.resources.KMPResource
+import com.outsidesource.oskitcompose.resources.KMPFont
+import com.outsidesource.oskitcompose.resources.KMPImage
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.skia.*
 
@@ -26,18 +27,14 @@ actual val KMPCanvasTypeface.Companion.Default: KMPCanvasTypeface
     get() = defaultCanvasTypeface
 
 @Composable
-actual fun rememberKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface {
-    return remember(resource) {
-        runBlocking { resolveKmpCanvasTypeface(resource) }
+actual fun rememberKmpCanvasTypeface(font: KMPFont): KMPCanvasTypeface {
+    return remember(font) {
+        runBlocking { resolveKmpCanvasTypeface(font) }
     }
 }
 
-actual suspend fun resolveKmpCanvasTypeface(resource: KMPResource): KMPCanvasTypeface {
-    return KMPCanvasTypeface.make(resource)
-}
-
-private suspend fun KMPCanvasTypeface.Companion.make(resource: KMPResource): KMPCanvasTypeface {
-    val bytes = resource.readBytes()
+actual suspend fun resolveKmpCanvasTypeface(font: KMPFont): KMPCanvasTypeface {
+    val bytes = font.readBytes()
     return DesktopKMPCanvasTypeface(Font(Typeface.makeFromData(Data.makeFromBytes(bytes))))
 }
 

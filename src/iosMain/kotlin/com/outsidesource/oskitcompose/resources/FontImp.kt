@@ -18,11 +18,11 @@ actual fun rememberKmpFontFamily(family: KMPFontFamily): FontFamily {
 @OptIn(ExperimentalResourceApi::class)
 actual suspend fun resolveKmpFontFamily(family: KMPFontFamily): FontFamily {
     return FontFamily(family.fonts.map {
-        val resource = resource(it.resource.path)
+        val resource = resource(it.path)
         val bytes = runBlocking { resource.readBytes() }
 
         Font(
-            identity = it.resource.path,
+            identity = it.path,
             data = bytes,
             weight = it.weight,
             style = it.style,

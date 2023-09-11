@@ -1,12 +1,13 @@
 package com.outsidesource.oskitcompose.resources
 
 import androidx.compose.runtime.Stable
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.resource
 
 @Stable
-expect class KMPResource {
-    /**
-     * Returns the bytes from the resource file.
-     * Note: Android KMPResources that use resource Ids (Int) will return an empty byte array
-     */
-    suspend fun readBytes(): ByteArray
+data class KMPResource(
+    val path: String,
+) {
+    @OptIn(ExperimentalResourceApi::class)
+    suspend fun readBytes(): ByteArray = resource(path).readBytes()
 }
