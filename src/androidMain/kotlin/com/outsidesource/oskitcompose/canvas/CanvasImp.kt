@@ -79,6 +79,7 @@ private suspend fun KMPCanvasTypeface.Companion.make(path: String): KMPCanvasTyp
 
     os.write(bytes)
     os.flush()
+    os.close()
 
     return@withContext AndroidKMPCanvasTypeface(Typeface.createFromFile(file))
 }

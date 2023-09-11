@@ -34,6 +34,7 @@ actual suspend fun resolveKmpFontFamily(family: KMPFontFamily): FontFamily {
 
             os.write(bytes)
             os.flush()
+            os.close()
 
             Font(
                 file = file,
