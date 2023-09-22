@@ -8,14 +8,14 @@ actual fun SystemBarColorEffect(
     statusBarColor: Color,
     navigationBarColor: Color,
 ) {
-    TODO()
+    // TODO
 }
 
 @Composable
 actual fun StatusBarIconColorEffect(
     useDarkIcons: Boolean,
 ) {
-    TODO()
+    // TODO
 }
 
 @Composable
@@ -23,5 +23,5 @@ actual fun SystemBarIconColorEffect(
     useDarkStatusBarIcons: Boolean,
     useDarkNavigationBarIcons: Boolean,
 ) {
-    TODO()
+    // TODO
 }
