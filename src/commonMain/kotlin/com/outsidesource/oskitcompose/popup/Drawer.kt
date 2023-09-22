@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitcompose.modifier.OuterShadow
 import com.outsidesource.oskitcompose.modifier.outerShadow
+import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -154,6 +155,7 @@ fun Drawer(
                     ) {
                         Box(
                             modifier = Modifier
+                                .preventClickPropagationToParent()
                                 .onGloballyPositioned { swipeData.size.value = it.size }
                                 .then(if (shouldDismissOnSwipe) Modifier.drawerSwipeToDismiss() else Modifier)
                                 .offset(x = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })

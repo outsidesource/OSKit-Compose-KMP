@@ -69,7 +69,6 @@ data class ModalStyles(
  * @param styles Styles to modify the look of the [Modal]
  * @param content The content to be displayed inside the popup.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Modal(
     isVisible: Boolean,
