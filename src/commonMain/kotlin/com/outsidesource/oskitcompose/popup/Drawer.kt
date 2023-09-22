@@ -1,9 +1,6 @@
 package com.outsidesource.oskitcompose.popup
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -11,7 +8,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
@@ -30,7 +26,6 @@ import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitcompose.modifier.OuterShadow
 import com.outsidesource.oskitcompose.modifier.outerShadow
-import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -72,7 +67,6 @@ data class DrawerStyles(
  * @param styles Styles to modify the look of the [Drawer]
  * @param content The content to be displayed inside the popup.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Drawer(
     isVisible: Boolean,

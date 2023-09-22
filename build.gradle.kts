@@ -15,7 +15,7 @@ buildscript {
 plugins {
     kotlin("multiplatform") version "1.9.0"
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.5.0"
+    id("org.jetbrains.compose") version "1.5.1"
     id("maven-publish")
 }
 
@@ -51,12 +51,13 @@ repositories {
 
 kotlin {
     jvm {
-        jvmToolchain(11)
+        jvmToolchain(17)
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
     }
     androidTarget {
+        jvmToolchain(11)
         publishLibraryVariants("release", "debug")
     }
 
@@ -98,9 +99,9 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                implementation("androidx.compose.foundation:foundation:1.5.0")
-                implementation("androidx.compose.ui:ui:1.5.0")
-                implementation("androidx.core:core-ktx:1.10.1")
+                implementation("androidx.compose.foundation:foundation:1.5.1")
+                implementation("androidx.compose.ui:ui:1.5.1")
+                implementation("androidx.core:core-ktx:1.12.0")
                 implementation("androidx.activity:activity-compose:1.7.2")
             }
         }
