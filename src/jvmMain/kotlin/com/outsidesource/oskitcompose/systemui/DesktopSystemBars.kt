@@ -17,3 +17,11 @@ actual fun StatusBarIconColorEffect(
 ) {
     // Noop for Desktop
 }
+
+@Composable
+actual fun SystemBarIconColorEffect(
+    useDarkStatusBarIcons: Boolean,
+    useDarkNavigationBarIcons: Boolean,
+) {
+    // Noop for Desktop
+}

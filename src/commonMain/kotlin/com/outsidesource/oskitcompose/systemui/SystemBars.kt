@@ -13,3 +13,9 @@ expect fun SystemBarColorEffect(
 expect fun StatusBarIconColorEffect(
     useDarkIcons: Boolean = true,
 )
+
+@Composable
+expect fun SystemBarIconColorEffect(
+    useDarkStatusBarIcons: Boolean,
+    useDarkNavigationBarIcons: Boolean,
+)

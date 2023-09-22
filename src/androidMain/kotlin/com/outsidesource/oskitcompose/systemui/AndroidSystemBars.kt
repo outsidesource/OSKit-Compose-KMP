@@ -47,6 +47,19 @@ actual fun StatusBarIconColorEffect(
     }
 }
 
+@Composable
+actual fun SystemBarIconColorEffect(
+    useDarkStatusBarIcons: Boolean,
+    useDarkNavigationBarIcons: Boolean,
+) {
+    val systemUiController = rememberSystemUiController()
+
+    LaunchedEffect(useDarkStatusBarIcons, useDarkNavigationBarIcons) {
+        systemUiController.statusBarDarkContentEnabled = useDarkStatusBarIcons
+        systemUiController.navigationBarDarkContentEnabled = useDarkNavigationBarIcons
+    }
+}
+
 /**
  * Taken from Accompanist SystemUI as it was deprecated as of 10-2023
  */

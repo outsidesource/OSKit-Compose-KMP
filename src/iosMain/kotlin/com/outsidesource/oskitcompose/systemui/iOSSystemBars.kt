@@ -8,12 +8,20 @@ actual fun SystemBarColorEffect(
     statusBarColor: Color,
     navigationBarColor: Color,
 ) {
-    // Noop for Desktop
+    TODO()
 }
 
 @Composable
 actual fun StatusBarIconColorEffect(
     useDarkIcons: Boolean,
 ) {
-    // Noop for Desktop
+    TODO()
+}
+
+@Composable
+actual fun SystemBarIconColorEffect(
+    useDarkStatusBarIcons: Boolean,
+    useDarkNavigationBarIcons: Boolean,
+) {
+    TODO()
 }
