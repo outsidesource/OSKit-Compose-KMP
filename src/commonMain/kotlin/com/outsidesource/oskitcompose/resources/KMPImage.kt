@@ -26,6 +26,5 @@ data class KMPImage(
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 expect fun rememberKmpImage(resource: KMPImage): Painter
