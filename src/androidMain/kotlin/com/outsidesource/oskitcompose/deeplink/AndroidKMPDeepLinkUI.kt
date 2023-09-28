@@ -19,7 +19,7 @@ actual fun KMPDeepLinkEffect(
     DisposableEffect(Unit) {
         if (initialDeepLink != null) onNewDeepLink(initialDeepLink)
 
-        val listener = Consumer<Intent> { onNewDeepLink(KMPDeepLink.Android(it)) }
+        val listener = Consumer<Intent> { onNewDeepLink(KMPDeepLink(it)) }
         parentActivity.addOnNewIntentListener(listener)
         onDispose { parentActivity.removeOnNewIntentListener(listener) }
     }
