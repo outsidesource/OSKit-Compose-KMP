@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -76,7 +75,7 @@ private fun DatePickerModal(
 ) {
     Modal(
         isVisible = isVisible,
-        shouldDismissOnExternalClick = true,
+        dismissOnExternalClick = true,
         onDismissRequest = onDismissRequest,
         styles = ModalStyles.None,
         isFullScreen = isFullScreen,

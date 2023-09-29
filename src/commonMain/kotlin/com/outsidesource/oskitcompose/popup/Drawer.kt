@@ -14,8 +14,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
@@ -61,10 +59,10 @@ data class DrawerStyles(
  *
  * @param isVisible Whether the modal is visible or not
  * @param onDismissRequest Executes when the user performs an action to dismiss the [Drawer]
- * @param shouldDismissOnExternalClick calls [onDismissRequest] when clicking on the scrim
- * @param shouldDismissOnEscapeKey call [onDismissRequest] when pressing escape or back key
- * @param shouldDismissOnSwipe calls [onDismissRequest] when swiping the bottom sheet away
- * @param isFullScreen Only utilized in Android. Specifies whether to draw behind the system bars or not
+ * @param dismissOnExternalClick calls [onDismissRequest] when clicking on the scrim
+ * @param dismissOnBackPress call [onDismissRequest] when pressing escape or back key
+ * @param dismissOnSwipe calls [onDismissRequest] when swiping the bottom sheet away
+ * @param isFullScreen Utilized in Android and iOS. Specifies whether to draw behind the system bars or not
  * @param styles Styles to modify the look of the [Drawer]
  * @param content The content to be displayed inside the popup.
  */
@@ -73,9 +71,9 @@ fun Drawer(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
-    shouldDismissOnExternalClick: Boolean = true,
-    shouldDismissOnEscapeKey: Boolean = true,
-    shouldDismissOnSwipe: Boolean = true,
+    dismissOnExternalClick: Boolean = true,
+    dismissOnBackPress: Boolean = true,
+    dismissOnSwipe: Boolean = true,
     isFullScreen: Boolean = true,
     styles: DrawerStyles = remember { DrawerStyles() },
     content: @Composable BoxScope.() -> Unit
@@ -89,17 +87,12 @@ fun Drawer(
         )
 
         if (transition.currentState || transition.targetState) {
-            Popup(
+            KMPPopup(
                 popupPositionProvider = DrawerPositionProvider,
                 focusable = true,
                 onDismissRequest = onDismissRequest,
+                dismissOnBackPress = dismissOnBackPress,
                 isFullScreen = isFullScreen,
-                onKeyEvent = {
-                    if ((it.key == Key.Escape || it.key == Key.Back) && shouldDismissOnEscapeKey) {
-                        onDismissRequest?.invoke()
-                    }
-                    false
-                },
             ) {
                 Box(
                     modifier = Modifier
@@ -121,7 +114,7 @@ fun Drawer(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
-                            onClick = { if (shouldDismissOnExternalClick) onDismissRequest?.invoke() }
+                            onClick = { if (dismissOnExternalClick) onDismissRequest?.invoke() }
                         )
                         .background(color = styles.scrimColor.copy(styles.scrimColor.alpha * alpha)),
                 ) {
@@ -157,7 +150,7 @@ fun Drawer(
                             modifier = Modifier
                                 .preventClickPropagationToParent()
                                 .onGloballyPositioned { swipeData.size.value = it.size }
-                                .then(if (shouldDismissOnSwipe) Modifier.drawerSwipeToDismiss() else Modifier)
+                                .then(if (dismissOnSwipe) Modifier.drawerSwipeToDismiss() else Modifier)
                                 .offset(x = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
                                 .width(styles.width)
                                 .fillMaxHeight()

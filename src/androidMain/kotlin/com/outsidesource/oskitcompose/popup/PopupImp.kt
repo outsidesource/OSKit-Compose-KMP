@@ -4,14 +4,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 
 actual typealias PopupPositionProvider = androidx.compose.ui.window.PopupPositionProvider
 
 @Composable
-actual fun Popup(
+actual fun KMPPopup(
     alignment: Alignment,
     offset: IntOffset,
+    dismissOnBackPress: Boolean,
     onDismissRequest: (() -> Unit)?,
     focusable: Boolean,
     onPreviewKeyEvent: (KeyEvent) -> Boolean,
@@ -20,17 +22,24 @@ actual fun Popup(
     content: @Composable () -> Unit,
 ) {
     if (!isFullScreen) {
-        androidx.compose.ui.window.Popup(
+        Popup(
             alignment = alignment,
             offset = offset,
             onDismissRequest = onDismissRequest,
-            properties = PopupProperties(focusable = focusable, excludeFromSystemGesture = false),
+            properties = PopupProperties(
+                focusable = focusable,
+                excludeFromSystemGesture = false,
+                dismissOnBackPress = dismissOnBackPress,
+            ),
             content = content,
         )
     } else {
         AndroidFullScreenPopup(
             onDismissRequest = onDismissRequest,
-            properties = AndroidFullScreenPopupProperties(focusable = focusable),
+            properties = AndroidFullScreenPopupProperties(
+                focusable = focusable,
+                dismissOnBackPress = dismissOnBackPress,
+            ),
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = onKeyEvent,
             content = content,
@@ -39,8 +48,9 @@ actual fun Popup(
 }
 
 @Composable
-actual fun Popup(
+actual fun KMPPopup(
     popupPositionProvider: PopupPositionProvider,
+    dismissOnBackPress: Boolean,
     onDismissRequest: (() -> Unit)?,
     onPreviewKeyEvent: (KeyEvent) -> Boolean,
     onKeyEvent: (KeyEvent) -> Boolean,
@@ -49,16 +59,23 @@ actual fun Popup(
     content: @Composable () -> Unit,
 ) {
     if (!isFullScreen) {
-        androidx.compose.ui.window.Popup(
+        Popup(
             popupPositionProvider = popupPositionProvider,
             onDismissRequest = onDismissRequest,
-            properties = PopupProperties(focusable = focusable, excludeFromSystemGesture = false),
+            properties = PopupProperties(
+                focusable = focusable,
+                excludeFromSystemGesture = false,
+                dismissOnBackPress = dismissOnBackPress,
+            ),
             content = content,
         )
     } else {
         AndroidFullScreenPopup(
             onDismissRequest = onDismissRequest,
-            properties = AndroidFullScreenPopupProperties(focusable = focusable),
+            properties = AndroidFullScreenPopupProperties(
+                focusable = focusable,
+                dismissOnBackPress = dismissOnBackPress,
+            ),
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = onKeyEvent,
             content = content,

@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
@@ -20,7 +19,6 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.geometry.toIntOffset
 import com.outsidesource.oskitcompose.modifier.disablePointerInput
-import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 
 const val popoverAnimDuration = 150
 
@@ -66,7 +64,7 @@ fun Popover(
     offset: DpOffset = DpOffset(0f.dp, 0f.dp),
     popupPositionProvider: PopupPositionProvider? = null,
     onDismissRequest: (() -> Unit)? = null,
-    dismissOnEscapeKey: Boolean = true,
+    dismissOnBackKey: Boolean = true,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
     content: @Composable BoxScope.() -> Unit
@@ -93,16 +91,14 @@ fun Popover(
     )
 
     if (transition.currentState || transition.targetState) {
-        Popup(
+        KMPPopup(
             popupPositionProvider = popoverPositionProvider,
             focusable = true,
             onDismissRequest = onDismissRequest,
             onPreviewKeyEvent = onPreviewKeyEvent,
+            dismissOnBackPress = dismissOnBackKey,
+            onKeyEvent = onKeyEvent,
             isFullScreen = false,
-            onKeyEvent = {
-                if (dismissOnEscapeKey) { if (it.key == Key.Escape || it.key == Key.Back) onDismissRequest?.invoke() }
-                onKeyEvent(it)
-            }
         ) {
             Box(
                 modifier = Modifier
