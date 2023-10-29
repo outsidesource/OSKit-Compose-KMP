@@ -1,27 +1,37 @@
 package com.outsidesource.oskitcompose.systemui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.interop.LocalUIViewController
+import com.outsidesource.oskitcompose.uikit.OSUIViewControllerWrapper
+import platform.UIKit.UIColor
 
 @Composable
 actual fun SystemBarColorEffect(
     statusBarColor: Color,
+    statusBarIconColor: SystemBarIconColor,
     navigationBarColor: Color,
+    navigationBarIconColor: SystemBarIconColor,
 ) {
-    // TODO
-}
+    val vc = LocalUIViewController.current.parentViewController
 
-@Composable
-actual fun StatusBarIconColorEffect(
-    useDarkIcons: Boolean,
-) {
-    // TODO
-}
+    DisposableEffect(statusBarColor, statusBarIconColor) {
+        if (vc !is OSUIViewControllerWrapper) return@DisposableEffect onDispose {  }
 
-@Composable
-actual fun SystemBarIconColorEffect(
-    useDarkStatusBarIcons: Boolean,
-    useDarkNavigationBarIcons: Boolean,
-) {
-    // TODO
+        vc.setStatusBarBackground(UIColor(
+            red = statusBarColor.red.toDouble(),
+            green = statusBarColor.green.toDouble(),
+            blue = statusBarColor.blue.toDouble(),
+            alpha = statusBarColor.alpha.toDouble(),
+        ))
+
+        when (statusBarIconColor) {
+            SystemBarIconColor.Unspecified -> {}
+            SystemBarIconColor.Dark -> vc.setStatusBarIconColor(true)
+            SystemBarIconColor.Light -> vc.setStatusBarIconColor(false)
+        }
+
+        onDispose {  }
+    }
 }

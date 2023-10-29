@@ -8,7 +8,6 @@ import android.view.View
 import android.view.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
@@ -23,40 +22,31 @@ import androidx.core.view.WindowInsetsCompat
 @Composable
 actual fun SystemBarColorEffect(
     statusBarColor: Color,
+    statusBarIconColor: SystemBarIconColor,
     navigationBarColor: Color,
+    navigationBarIconColor: SystemBarIconColor,
 ) {
     val systemUiController = rememberSystemUiController()
 
-    DisposableEffect(statusBarColor, navigationBarColor) {
+    DisposableEffect(statusBarColor, navigationBarColor, statusBarIconColor, navigationBarIconColor) {
         systemUiController.setStatusBarColor(statusBarColor)
         systemUiController.setNavigationBarColor(navigationBarColor)
         systemUiController.navigationBarDarkContentEnabled = true
         systemUiController.isNavigationBarContrastEnforced = false
+
+        when (statusBarIconColor) {
+            SystemBarIconColor.Unspecified -> {}
+            SystemBarIconColor.Dark -> systemUiController.statusBarDarkContentEnabled = true
+            SystemBarIconColor.Light -> systemUiController.statusBarDarkContentEnabled = false
+        }
+
+        when (navigationBarIconColor) {
+            SystemBarIconColor.Unspecified -> {}
+            SystemBarIconColor.Dark -> systemUiController.navigationBarDarkContentEnabled = true
+            SystemBarIconColor.Light -> systemUiController.navigationBarDarkContentEnabled = false
+        }
+
         onDispose { }
-    }
-}
-
-@Composable
-actual fun StatusBarIconColorEffect(
-    useDarkIcons: Boolean,
-) {
-    val systemUiController = rememberSystemUiController()
-
-    LaunchedEffect(useDarkIcons) {
-        systemUiController.statusBarDarkContentEnabled = useDarkIcons
-    }
-}
-
-@Composable
-actual fun SystemBarIconColorEffect(
-    useDarkStatusBarIcons: Boolean,
-    useDarkNavigationBarIcons: Boolean,
-) {
-    val systemUiController = rememberSystemUiController()
-
-    LaunchedEffect(useDarkStatusBarIcons, useDarkNavigationBarIcons) {
-        systemUiController.statusBarDarkContentEnabled = useDarkStatusBarIcons
-        systemUiController.navigationBarDarkContentEnabled = useDarkNavigationBarIcons
     }
 }
 

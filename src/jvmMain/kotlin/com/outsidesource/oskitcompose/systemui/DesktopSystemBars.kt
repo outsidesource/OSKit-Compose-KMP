@@ -6,22 +6,9 @@ import androidx.compose.ui.graphics.Color
 @Composable
 actual fun SystemBarColorEffect(
     statusBarColor: Color,
+    statusBarIconColor: SystemBarIconColor,
     navigationBarColor: Color,
-) {
-    // Noop for Desktop
-}
-
-@Composable
-actual fun StatusBarIconColorEffect(
-    useDarkIcons: Boolean,
-) {
-    // Noop for Desktop
-}
-
-@Composable
-actual fun SystemBarIconColorEffect(
-    useDarkStatusBarIcons: Boolean,
-    useDarkNavigationBarIcons: Boolean,
+    navigationBarIconColor: SystemBarIconColor,
 ) {
     // Noop for Desktop
 }
