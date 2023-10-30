@@ -102,8 +102,7 @@ data class MarkdownStyles(
     val h6TextStyle: TextStyle = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
     val italicTextStyle: TextStyle = TextStyle(fontStyle = FontStyle.Italic),
     val strongTextStyle: TextStyle = TextStyle(fontWeight = FontWeight.Bold),
-    val hrColor: Color = Color(0x20000000),
-    val hrThickness: Dp = 2.dp,
+    val horizontalRuleComposable: @Composable () -> Unit = { DefaultMarkdownHR() },
     val codeSpanDecoration: DrawScope.(Path) -> Unit = { path ->
         val fillPaint = Paint().apply {
             style = PaintingStyle.Fill
@@ -269,6 +268,15 @@ fun LazyMarkdown(
 }
 
 @Composable
+fun DefaultMarkdownHR() {
+    Divider(
+        modifier = Modifier.fillMaxWidth().clip(CircleShape),
+        thickness = 2.dp,
+        color = Color(0x20000000),
+    )
+}
+
+@Composable
 private fun MarkdownBlock(block: MarkdownBlock) {
     when (block) {
         is MarkdownBlock.Heading -> MarkdownHeading(block)
@@ -279,7 +287,7 @@ private fun MarkdownBlock(block: MarkdownBlock) {
         is MarkdownBlock.BlockQuote -> MarkdownBlockQuote(block)
         is MarkdownBlock.Setext -> MarkdownSetext(block)
         is MarkdownBlock.Image -> MarkdownImage(block)
-        is MarkdownBlock.HR -> MarkdownHorizontalRule()
+        is MarkdownBlock.HR -> LocalMarkdownInfo.current.styles.horizontalRuleComposable()
     }
 }
 
@@ -515,19 +523,8 @@ private fun MarkdownSetext(setext: MarkdownBlock.Setext) {
                 MarkdownSetextSize.Setext2 -> styles.h2TextStyle
             },
         )
-        MarkdownHorizontalRule()
+        styles.horizontalRuleComposable()
     }
-}
-
-@Composable
-private fun MarkdownHorizontalRule() {
-    val styles = LocalMarkdownInfo.current.styles
-
-    Divider(
-        modifier = Modifier.fillMaxWidth().clip(CircleShape),
-        thickness = styles.hrThickness,
-        color = styles.hrColor,
-    )
 }
 
 /**
