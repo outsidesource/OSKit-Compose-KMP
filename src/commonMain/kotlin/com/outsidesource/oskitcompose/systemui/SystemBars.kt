@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
  * [SystemBarColorEffect] Configures the system toolbars for Android and iOS. On desktop this effect is a no-op.
  *
  * iOS Notes: In order to use [SystemBarColorEffect] in iOS, replace [ComposeUIViewController]
- * with [OSComposeUIViewController].
+ * with [OSComposeUIViewController] and use `ignoresSafeArea()` on your primary View.
  * [navigationBarIconColor] is a no-op in iOS.
  */
 @Composable

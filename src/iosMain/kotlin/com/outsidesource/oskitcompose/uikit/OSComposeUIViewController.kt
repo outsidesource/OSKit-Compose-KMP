@@ -36,7 +36,10 @@ internal class OSUIViewControllerWrapper(
         addChildViewController(childVC)
         childVC.view.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(childVC.view)
-        statusBarView = UIView(frame = statusBarFrame).apply { view.addSubview(this) }
+        statusBarView = UIView(frame = statusBarFrame).apply {
+            userInteractionEnabled = false
+            view.addSubview(this)
+        }
 
         val navBarHeight = (UIApplication.sharedApplication.windows.firstOrNull() as? UIWindow)?.safeAreaInsets?.useContents { bottom } ?: 0.0
         val navBarFrame = CGRectMake(
@@ -46,7 +49,10 @@ internal class OSUIViewControllerWrapper(
             height = navBarHeight,
         )
 
-        navigationBarView = UIView(frame = navBarFrame).apply { view.addSubview(this) }
+        navigationBarView = UIView(frame = navBarFrame).apply {
+            userInteractionEnabled = false
+            view.addSubview(this)
+        }
 
         NSLayoutConstraint.activateConstraints(listOf(
             childVC.view.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor),
