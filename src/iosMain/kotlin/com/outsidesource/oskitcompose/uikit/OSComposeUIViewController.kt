@@ -5,6 +5,7 @@ import androidx.compose.ui.window.ComposeUIViewController
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGRectMake
+import platform.Foundation.NSTimeInterval
 import platform.UIKit.*
 
 fun OSComposeUIViewController(
@@ -88,8 +89,6 @@ internal class OSUIViewControllerWrapper(
     }
 
     fun setNavigationBarBackground(color: UIColor) {
-        UIView.animateWithDuration(200.0) {
-            navigationBarView?.backgroundColor = color
-        }
+        navigationBarView?.backgroundColor = color
     }
 }

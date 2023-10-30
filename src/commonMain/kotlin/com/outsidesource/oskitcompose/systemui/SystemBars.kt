@@ -18,6 +18,17 @@ expect fun SystemBarColorEffect(
     navigationBarIconColor: SystemBarIconColor = SystemBarIconColor.Unspecified,
 )
 
+
+interface ISystemBarColorController {
+    fun setStatusBarColor(color: Color)
+    fun setStatusBarIconColor(color: SystemBarIconColor)
+    fun setNavigationBarColor(color: Color)
+    fun setNavigationBarIconColor(color: SystemBarIconColor)
+}
+
+@Composable
+expect fun rememberSystemBarColorController(): ISystemBarColorController
+
 /**
  * [SystemBarIconColor] defines to change system icons to dark or light. Using [Unspecified] will not change
  * the current setting.

@@ -26,27 +26,48 @@ actual fun SystemBarColorEffect(
     navigationBarColor: Color,
     navigationBarIconColor: SystemBarIconColor,
 ) {
+    val sbc = rememberSystemBarColorController()
+
+    DisposableEffect(statusBarColor, statusBarIconColor, navigationBarColor, navigationBarIconColor) {
+        sbc.setStatusBarColor(statusBarColor)
+        sbc.setNavigationBarColor(navigationBarColor)
+        sbc.setStatusBarIconColor(statusBarIconColor)
+        sbc.setNavigationBarIconColor(navigationBarIconColor)
+        onDispose {  }
+    }
+}
+
+@Composable
+actual fun rememberSystemBarColorController(): ISystemBarColorController {
     val systemUiController = rememberSystemUiController()
 
-    DisposableEffect(statusBarColor, navigationBarColor, statusBarIconColor, navigationBarIconColor) {
-        systemUiController.setStatusBarColor(statusBarColor)
-        systemUiController.setNavigationBarColor(navigationBarColor)
-        systemUiController.navigationBarDarkContentEnabled = true
-        systemUiController.isNavigationBarContrastEnforced = false
+    return remember {
+        object : ISystemBarColorController {
+            override fun setStatusBarColor(color: Color) {
+                systemUiController.setStatusBarColor(color)
+            }
 
-        when (statusBarIconColor) {
-            SystemBarIconColor.Unspecified -> {}
-            SystemBarIconColor.Dark -> systemUiController.statusBarDarkContentEnabled = true
-            SystemBarIconColor.Light -> systemUiController.statusBarDarkContentEnabled = false
+            override fun setStatusBarIconColor(color: SystemBarIconColor) {
+                when (color) {
+                    SystemBarIconColor.Unspecified -> {}
+                    SystemBarIconColor.Dark -> systemUiController.statusBarDarkContentEnabled = true
+                    SystemBarIconColor.Light -> systemUiController.statusBarDarkContentEnabled = false
+                }
+            }
+
+            override fun setNavigationBarColor(color: Color) {
+                systemUiController.setNavigationBarColor(color)
+                systemUiController.isNavigationBarContrastEnforced = true
+            }
+
+            override fun setNavigationBarIconColor(color: SystemBarIconColor) {
+                when (color) {
+                    SystemBarIconColor.Unspecified -> {}
+                    SystemBarIconColor.Dark -> systemUiController.navigationBarDarkContentEnabled = true
+                    SystemBarIconColor.Light -> systemUiController.navigationBarDarkContentEnabled = false
+                }
+            }
         }
-
-        when (navigationBarIconColor) {
-            SystemBarIconColor.Unspecified -> {}
-            SystemBarIconColor.Dark -> systemUiController.navigationBarDarkContentEnabled = true
-            SystemBarIconColor.Light -> systemUiController.navigationBarDarkContentEnabled = false
-        }
-
-        onDispose { }
     }
 }
 
