@@ -462,13 +462,13 @@ private fun MarkdownList(list: MarkdownBlock.List) {
             .fillMaxWidth()
             .padding(start = 8.dp),
     ) {
-        list.items.forEachIndexed { i, item ->
-            if (item !is MarkdownBlock.ListItem) return@forEachIndexed
+        list.items.forEach { item ->
+            if (item !is MarkdownBlock.ListItem) return@forEach
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (list.isOrdered) {
                     Text(
-                        text = "${i + 1}.",
+                        text = "${item.prefix}.",
                         textAlign = TextAlign.End,
                     )
                 } else {
@@ -558,7 +558,15 @@ private fun List<ASTNode>.buildBlockItems(source: String, markdownInfo: Markdown
             MarkdownElementTypes.BLOCK_QUOTE -> items.add(MarkdownBlock.BlockQuote(child.buildBlockItems(source, markdownInfo, density)))
             MarkdownElementTypes.UNORDERED_LIST -> items.add(MarkdownBlock.List(items = child.buildBlockItems(source, markdownInfo, density), isOrdered = false))
             MarkdownElementTypes.ORDERED_LIST -> items.add(MarkdownBlock.List(items = child.buildBlockItems(source, markdownInfo, density), isOrdered = true))
-            MarkdownElementTypes.LIST_ITEM -> items.add(MarkdownBlock.ListItem(content = child.buildBlockItems(source, markdownInfo, density)))
+            MarkdownElementTypes.LIST_ITEM -> {
+                val prefixNode = child.children.firstOrNull()
+                val prefix = if (prefixNode?.type == MarkdownTokenTypes.LIST_NUMBER) {
+                    prefixNode.getTextInNode(source).toString().removeSuffix(". ")
+                } else {
+                    null
+                }
+                items.add(MarkdownBlock.ListItem(prefix = prefix, content = child.buildBlockItems(source, markdownInfo, density)))
+            }
             MarkdownElementTypes.PARAGRAPH -> items.addAll(child.buildBlockItems(source, markdownInfo, density))
             MarkdownElementTypes.HTML_BLOCK -> {} // Ignore HTML because <br/> cause a lot of extra line breaks and there isn't a great way to render it
             MarkdownTokenTypes.HORIZONTAL_RULE -> items.add(MarkdownBlock.HR)
@@ -777,7 +785,7 @@ private sealed class MarkdownBlock {
     data class Code(val content: AnnotatedString): MarkdownBlock()
     data class BlockQuote(val content: kotlin.collections.List<MarkdownBlock>): MarkdownBlock()
     data class List(val items: kotlin.collections.List<MarkdownBlock>, val isOrdered: Boolean): MarkdownBlock()
-    data class ListItem(val content: kotlin.collections.List<MarkdownBlock>): MarkdownBlock()
+    data class ListItem(val prefix: String? = null, val content: kotlin.collections.List<MarkdownBlock>): MarkdownBlock()
     data class Heading(val size: MarkdownHeadingSize, val content: AnnotatedString): MarkdownBlock()
     data class Setext(val size: MarkdownSetextSize, val content: AnnotatedString): MarkdownBlock()
     data object HR: MarkdownBlock()
