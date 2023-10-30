@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.Color
  *
  * iOS Notes: In order to use [SystemBarColorEffect] in iOS, replace [ComposeUIViewController]
  * with [OSComposeUIViewController].
- * [navigationBarColor] and [navigationBarIconColor] are no-ops in iOS.
+ * [navigationBarIconColor] is a no-op in iOS.
  */
 @Composable
 expect fun SystemBarColorEffect(

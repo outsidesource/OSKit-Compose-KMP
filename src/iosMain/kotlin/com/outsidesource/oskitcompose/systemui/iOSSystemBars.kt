@@ -26,6 +26,13 @@ actual fun SystemBarColorEffect(
             alpha = statusBarColor.alpha.toDouble(),
         ))
 
+        vc.setNavigationBarBackground(UIColor(
+            red = navigationBarColor.red.toDouble(),
+            green = navigationBarColor.green.toDouble(),
+            blue = navigationBarColor.blue.toDouble(),
+            alpha = navigationBarColor.alpha.toDouble(),
+        ))
+
         when (statusBarIconColor) {
             SystemBarIconColor.Unspecified -> {}
             SystemBarIconColor.Dark -> vc.setStatusBarIconColor(true)

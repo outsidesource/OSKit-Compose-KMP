@@ -3,6 +3,8 @@ package com.outsidesource.oskitcompose.uikit
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.ComposeUIViewController
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.useContents
+import platform.CoreGraphics.CGRectMake
 import platform.UIKit.*
 
 fun OSComposeUIViewController(
@@ -15,12 +17,13 @@ internal class OSUIViewControllerWrapper(
     composeViewController: UIViewController
 ): UIViewController(
     nibName = null,
-    bundle = null
+    bundle = null,
 ) {
 
     private val childVC = composeViewController
     private var statusBarStyle = UIStatusBarStyleDarkContent
     private var statusBarView: UIView? = null
+    private var navigationBarView: UIView? = null
 
     @OptIn(ExperimentalForeignApi::class)
     override fun viewDidLoad() {
@@ -33,6 +36,16 @@ internal class OSUIViewControllerWrapper(
         childVC.view.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(childVC.view)
         statusBarView = UIView(frame = statusBarFrame).apply { view.addSubview(this) }
+
+        val navBarHeight = (UIApplication.sharedApplication.windows.firstOrNull() as? UIWindow)?.safeAreaInsets?.useContents { bottom } ?: 0.0
+        val navBarFrame = CGRectMake(
+            x = 0.0,
+            y = view.frame.useContents { size.height - navBarHeight },
+            width = view.frame.useContents { size.width },
+            height = navBarHeight,
+        )
+
+        navigationBarView = UIView(frame = navBarFrame).apply { view.addSubview(this) }
 
         NSLayoutConstraint.activateConstraints(listOf(
             childVC.view.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor),
@@ -51,6 +64,14 @@ internal class OSUIViewControllerWrapper(
         val statusBarFrame = view.window?.windowScene?.statusBarManager?.statusBarFrame
             ?: UIApplication.sharedApplication.statusBarFrame
         statusBarView?.setFrame(statusBarFrame)
+
+        val navBarHeight = (UIApplication.sharedApplication.windows.firstOrNull() as? UIWindow)?.safeAreaInsets?.useContents { bottom } ?: 0.0
+        navigationBarView?.setFrame(CGRectMake(
+            x = 0.0,
+            y = view.frame.useContents { size.height - navBarHeight },
+            width = view.frame.useContents { size.width },
+            height = navBarHeight
+        ))
     }
 
     override fun preferredStatusBarStyle(): UIStatusBarStyle {
@@ -64,5 +85,11 @@ internal class OSUIViewControllerWrapper(
 
     fun setStatusBarBackground(color: UIColor) {
         statusBarView?.backgroundColor = color
+    }
+
+    fun setNavigationBarBackground(color: UIColor) {
+        UIView.animateWithDuration(200.0) {
+            navigationBarView?.backgroundColor = color
+        }
     }
 }
