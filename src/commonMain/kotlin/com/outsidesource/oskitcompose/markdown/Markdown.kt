@@ -560,6 +560,8 @@ private fun List<ASTNode>.buildBlockItems(source: String, markdownInfo: Markdown
             MarkdownElementTypes.ORDERED_LIST -> items.add(MarkdownBlock.List(items = child.buildBlockItems(source, markdownInfo, density), isOrdered = true))
             MarkdownElementTypes.LIST_ITEM -> items.add(MarkdownBlock.ListItem(content = child.buildBlockItems(source, markdownInfo, density)))
             MarkdownElementTypes.PARAGRAPH -> items.addAll(child.buildBlockItems(source, markdownInfo, density))
+            MarkdownElementTypes.HTML_BLOCK -> {} // Ignore HTML because <br/> cause a lot of extra line breaks and there isn't a great way to render it
+            MarkdownTokenTypes.HORIZONTAL_RULE -> items.add(MarkdownBlock.HR)
 
             // Inline Content
             MarkdownElementTypes.STRONG -> text.append(child.buildBoldContent(source, markdownInfo, density))
@@ -778,7 +780,7 @@ private sealed class MarkdownBlock {
     data class ListItem(val content: kotlin.collections.List<MarkdownBlock>): MarkdownBlock()
     data class Heading(val size: MarkdownHeadingSize, val content: AnnotatedString): MarkdownBlock()
     data class Setext(val size: MarkdownSetextSize, val content: AnnotatedString): MarkdownBlock()
-    object HR: MarkdownBlock()
+    data object HR: MarkdownBlock()
     sealed class Image(
         open val painter: Painter?,
         open val description: String,
