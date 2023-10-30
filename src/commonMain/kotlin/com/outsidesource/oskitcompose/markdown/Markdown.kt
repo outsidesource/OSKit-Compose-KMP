@@ -73,8 +73,7 @@ data class MarkdownStyles(
         lineHeight = 1.4.em,
         letterSpacing = .5.sp,
     ),
-    val blockQuoteBorderColor: Color = Color(0x20000000),
-    val blockQuoteBorderWidth: Dp = 4.dp,
+    val blockQuoteModifier: Modifier = defaultMarkdownBlockQuoteModifier,
     val blockQuoteTextStyle: TextStyle = TextStyle(
         fontSize = 16.sp,
         lineHeight = 1.4.em,
@@ -86,14 +85,13 @@ data class MarkdownStyles(
         lineHeight = 1.4.em,
         letterSpacing = .5.sp,
     ),
-    val codeBackgroundColor: Color = Color(0x10000000),
-    val codeBorderColor: Color = Color(0x10000000),
-    val codeBorderRadius: Dp = 4.dp,
+    val codeModifier: Modifier = defaultMarkdownCodeModifier,
     val linkTextStyle: TextStyle = TextStyle(
         color = Color.Blue,
         textDecoration = TextDecoration.None,
         letterSpacing = .5.sp,
     ),
+    val headerModifier: (MarkdownHeadingSize) -> Modifier = { Modifier },
     val h1TextStyle: TextStyle = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
     val h2TextStyle: TextStyle = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
     val h3TextStyle: TextStyle = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
@@ -106,15 +104,15 @@ data class MarkdownStyles(
     val codeSpanDecoration: DrawScope.(Path) -> Unit = { path ->
         val fillPaint = Paint().apply {
             style = PaintingStyle.Fill
-            pathEffect = PathEffect.cornerPathEffect(codeBorderRadius.toPx())
-            color = codeBackgroundColor
+            pathEffect = PathEffect.cornerPathEffect(4.dp.toPx())
+            color = Color(0x10000000)
         }
 
         val strokePaint = Paint().apply {
             style = PaintingStyle.Stroke
             strokeWidth = Dp.Hairline.toPx()
-            pathEffect = PathEffect.cornerPathEffect(codeBorderRadius.toPx())
-            color = codeBorderColor
+            pathEffect = PathEffect.cornerPathEffect(4.dp.toPx())
+            color = Color(0x10000000)
             isAntiAlias = false
         }
 
@@ -267,6 +265,16 @@ fun LazyMarkdown(
     }
 }
 
+val defaultMarkdownBlockQuoteModifier: Modifier = Modifier
+    .borderStart(color = Color(0x20000000), width = 4.dp)
+    .padding(8.dp)
+
+val defaultMarkdownCodeModifier: Modifier = Modifier
+    .clip(RoundedCornerShape(4.dp))
+    .background(Color(0x10000000))
+    .border(width = Dp.Hairline, color = Color(0x10000000), shape = RoundedCornerShape(4.dp))
+    .padding(8.dp)
+
 @Composable
 fun DefaultMarkdownHR() {
     Divider(
@@ -296,6 +304,7 @@ private fun MarkdownHeading(header: MarkdownBlock.Heading) {
     val styles = LocalMarkdownInfo.current.styles
 
     MarkdownInlineContent(
+        modifier = styles.headerModifier(header.size),
         content = header.content,
         textStyle = when (header.size) {
             MarkdownHeadingSize.H1 -> styles.h1TextStyle
@@ -320,8 +329,7 @@ private fun MarkdownBlockQuote(blockQuote: MarkdownBlock.BlockQuote) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .borderStart(color = styles.blockQuoteBorderColor, width = styles.blockQuoteBorderWidth)
-            .padding(8.dp),
+            .then(styles.blockQuoteModifier),
         verticalArrangement = Arrangement.spacedBy(styles.blockGap)
     ) {
         for (block in blockQuote.content) {
@@ -333,6 +341,7 @@ private fun MarkdownBlockQuote(blockQuote: MarkdownBlock.BlockQuote) {
 @Composable
 private fun MarkdownInlineContent(
     content: AnnotatedString,
+    modifier: Modifier = Modifier,
     textStyle: TextStyle = LocalMarkdownInfo.current.styles.paragraphTextStyle,
 ) {
     val styles = LocalMarkdownInfo.current.styles
@@ -387,7 +396,7 @@ private fun MarkdownInlineContent(
                 codeSpans.forEach {
                     styles.codeSpanDecoration(this, it)
                 }
-            },
+            }.then(modifier),
         style = textStyle,
         text = content,
         onTextLayout = { lr ->
@@ -443,10 +452,7 @@ private fun MarkdownCodeBlock(codeBlock: MarkdownBlock.Code) {
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(styles.codeBorderRadius))
-                .background(styles.codeBackgroundColor)
-                .border(width = Dp.Hairline, color = styles.codeBorderColor, shape = RoundedCornerShape(4.dp))
-                .padding(8.dp)
+                .then(styles.codeModifier)
                 .then(if (allowHScroll) Modifier.horizontalScroll(state = scrollState) else Modifier),
             text = codeBlock.content,
             style = styles.codeTextStyle
