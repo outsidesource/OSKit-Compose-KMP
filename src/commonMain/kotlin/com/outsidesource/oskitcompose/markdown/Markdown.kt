@@ -478,6 +478,7 @@ private fun MarkdownList(list: MarkdownBlock.List) {
                     Text(
                         text = "${item.prefix}.",
                         textAlign = TextAlign.End,
+                        style = LocalMarkdownInfo.current.styles.paragraphTextStyle,
                     )
                 } else {
                     Box(
