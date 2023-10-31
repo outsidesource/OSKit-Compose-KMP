@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import io.ktor.client.*
@@ -44,7 +45,7 @@ fun kmpUrlImagePainter(url: String, density: Density): Painter {
             BitmapPainter(buffer.use(::kmpLoadImageBitmap))
         }
     } catch (e: Exception) {
-        ImageLoadErrorPainter
+        imageLoadErrorPainter(density)
     }
 }
 
@@ -62,12 +63,12 @@ fun Painter.asBitmap(density: Density, size: Size): ImageBitmap {
     return bitmap
 }
 
-val ImageLoadErrorPainter = object : Painter() {
-    override val intrinsicSize: Size = Size(75f, 75f)
+internal fun imageLoadErrorPainter(density: Density) = object : Painter() {
+    override val intrinsicSize: Size = with(density) { Size(25.dp.toPx(), 25.dp.toPx()) }
     override fun DrawScope.onDraw() {
         val edgeDistance = 8.dp.toPx()
 
-        drawRoundRect(Color(0xFFCCCCCC), cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx()))
+        drawRoundRect(Color(0x20000000), cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx()))
 
         drawLine(
             color = Color.Black,
