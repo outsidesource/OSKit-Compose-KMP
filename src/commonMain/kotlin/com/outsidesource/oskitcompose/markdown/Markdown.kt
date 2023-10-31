@@ -65,15 +65,12 @@ private val LocalMarkdownInfo = staticCompositionLocalOf { MarkdownInfo() }
 
 @Immutable
 data class MarkdownStyles(
+    // Misc
     val allowCodeBlockHorizontalScrolling: Boolean = true,
     val loaderBackgroundColor: Color = Color(0x30000000),
     val blockGap: Dp = 16.dp,
-    val paragraphTextStyle: TextStyle = TextStyle(
-        fontSize = 16.sp,
-        lineHeight = 1.4.em,
-        letterSpacing = .5.sp,
-    ),
-    val blockQuoteModifier: Modifier = defaultMarkdownBlockQuoteModifier,
+
+    // Text Styles
     val blockQuoteTextStyle: TextStyle = TextStyle(
         fontSize = 16.sp,
         lineHeight = 1.4.em,
@@ -85,13 +82,6 @@ data class MarkdownStyles(
         lineHeight = 1.4.em,
         letterSpacing = .5.sp,
     ),
-    val codeModifier: Modifier = defaultMarkdownCodeModifier,
-    val linkTextStyle: TextStyle = TextStyle(
-        color = Color.Blue,
-        textDecoration = TextDecoration.None,
-        letterSpacing = .5.sp,
-    ),
-    val headerModifier: (MarkdownHeadingSize) -> Modifier = { Modifier },
     val h1TextStyle: TextStyle = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
     val h2TextStyle: TextStyle = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
     val h3TextStyle: TextStyle = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
@@ -99,29 +89,33 @@ data class MarkdownStyles(
     val h5TextStyle: TextStyle = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
     val h6TextStyle: TextStyle = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
     val italicTextStyle: TextStyle = TextStyle(fontStyle = FontStyle.Italic),
+    val linkTextStyle: TextStyle = TextStyle(
+        color = Color.Blue,
+        textDecoration = TextDecoration.None,
+        letterSpacing = .5.sp,
+    ),
+    val paragraphTextStyle: TextStyle = TextStyle(
+        fontSize = 16.sp,
+        lineHeight = 1.4.em,
+        letterSpacing = .5.sp,
+    ),
     val strongTextStyle: TextStyle = TextStyle(fontWeight = FontWeight.Bold),
+
+    // Layout/Decoration Styles
     val horizontalRuleComposable: @Composable () -> Unit = { DefaultMarkdownHR() },
-    val codeSpanDecoration: DrawScope.(Path) -> Unit = { path ->
-        val fillPaint = Paint().apply {
-            style = PaintingStyle.Fill
-            pathEffect = PathEffect.cornerPathEffect(4.dp.toPx())
-            color = Color(0x10000000)
-        }
-
-        val strokePaint = Paint().apply {
-            style = PaintingStyle.Stroke
-            strokeWidth = Dp.Hairline.toPx()
-            pathEffect = PathEffect.cornerPathEffect(4.dp.toPx())
-            color = Color(0x10000000)
-            isAntiAlias = false
-        }
-
-        drawIntoCanvas { canvas ->
-            canvas.drawPath(path, fillPaint)
-            canvas.drawPath(path, strokePaint)
-        }
-    },
+    val codeSpanDecoration: DrawScope.(Path) -> Unit = defaultCodeSpanDecoration,
+    val blockQuoteModifier: Modifier = defaultMarkdownBlockQuoteModifier,
+    val codeModifier: Modifier = defaultMarkdownCodeModifier,
+    val headerModifier: (MarkdownHeadingSize) -> Modifier = { Modifier },
+    val listModifier: Modifier = defaultMarkdownListModifier,
+    val listItemPrefixSpacing: Dp = 12.dp,
+    val listItemPrefixComposable: @Composable RowScope.(isOrdered: Boolean, prefixContent: String?) -> Unit =
+        { isOrdered, prefixContent -> DefaultMarkdownListItemPrefix(isOrdered, prefixContent) },
+    val imageModifier: Modifier = Modifier,
+    val paragraphModifier: Modifier = Modifier,
+    val setextModifier: (MarkdownSetextSize) -> Modifier = { Modifier },
 ) {
+
     fun withDefaultTextStyle(defaultTextStyle: TextStyle): MarkdownStyles = copy(
         paragraphTextStyle = paragraphTextStyle.merge(defaultTextStyle),
         blockQuoteTextStyle = blockQuoteTextStyle.merge(defaultTextStyle),
@@ -136,10 +130,6 @@ data class MarkdownStyles(
         italicTextStyle = italicTextStyle.merge(defaultTextStyle),
         strongTextStyle = strongTextStyle.merge(defaultTextStyle),
     )
-
-    companion object {
-        val standard = MarkdownStyles()
-    }
 }
 
 /**
@@ -156,6 +146,8 @@ data class MarkdownStyles(
  *  valign (top|center|bottom) (only affects inline images)
  *
  *  example: ![image description](local:my-image-id,width:20,height:20,halign:start,valign:center)
+ *
+ * Note: Android and iOS do not support svg images
  *
  *  [loadAsync] If true Markdown will parse and load URL images on the IO thread. If there aren't any URL images it is
  *  recommended that [loadAsync] is false.
@@ -275,6 +267,29 @@ val defaultMarkdownCodeModifier: Modifier = Modifier
     .border(width = Dp.Hairline, color = Color(0x10000000), shape = RoundedCornerShape(4.dp))
     .padding(8.dp)
 
+val defaultMarkdownListModifier: Modifier = Modifier.padding(start = 8.dp)
+
+val defaultCodeSpanDecoration: DrawScope.(Path) -> Unit = { path ->
+    val fillPaint = Paint().apply {
+        style = PaintingStyle.Fill
+        pathEffect = PathEffect.cornerPathEffect(4.dp.toPx())
+        color = Color(0x10000000)
+    }
+
+    val strokePaint = Paint().apply {
+        style = PaintingStyle.Stroke
+        strokeWidth = Dp.Hairline.toPx()
+        pathEffect = PathEffect.cornerPathEffect(4.dp.toPx())
+        color = Color(0x10000000)
+        isAntiAlias = false
+    }
+
+    drawIntoCanvas { canvas ->
+        canvas.drawPath(path, fillPaint)
+        canvas.drawPath(path, strokePaint)
+    }
+}
+
 @Composable
 fun DefaultMarkdownHR() {
     Divider(
@@ -282,6 +297,25 @@ fun DefaultMarkdownHR() {
         thickness = 2.dp,
         color = Color(0x20000000),
     )
+}
+
+@Composable
+fun DefaultMarkdownListItemPrefix(isOrdered: Boolean, prefixContent: String?) {
+    if (isOrdered) {
+        Text(
+            text = "${prefixContent}.",
+            textAlign = TextAlign.End,
+            style = LocalMarkdownInfo.current.styles.paragraphTextStyle,
+        )
+    } else {
+        Box(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(Color.Black)
+        )
+    }
 }
 
 @Composable
@@ -319,7 +353,10 @@ private fun MarkdownHeading(header: MarkdownBlock.Heading) {
 
 @Composable
 private fun MarkdownParagraph(paragraph: MarkdownBlock.Paragraph) {
-    MarkdownInlineContent(paragraph.content)
+    MarkdownInlineContent(
+        modifier = LocalMarkdownInfo.current.styles.paragraphModifier,
+        content = paragraph.content
+    )
 }
 
 @Composable
@@ -424,6 +461,7 @@ private fun MarkdownInlineContent(
 
 @Composable
 private fun MarkdownImage(image: MarkdownBlock.Image) {
+    val styles = LocalMarkdownInfo.current.styles
     val painter = image.painter ?: return Text(image.description)
     val alignment = if (image is MarkdownBlock.Image.Local) image.hAlignment else Alignment.Start
 
@@ -433,7 +471,9 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
             val width = min(maxWidth, image.width)
 
             Image(
-                modifier = Modifier.size(width = image.width, height = width * ratio),
+                modifier = Modifier
+                    .size(width = image.width, height = width * ratio)
+                    .then(styles.imageModifier),
                 painter = painter,
                 contentDescription = image.description,
             )
@@ -471,30 +511,18 @@ private fun MarkdownCodeBlock(codeBlock: MarkdownBlock.Code) {
 
 @Composable
 private fun MarkdownList(list: MarkdownBlock.List) {
+    val styles = LocalMarkdownInfo.current.styles
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 8.dp),
+            .then(styles.listModifier),
     ) {
         list.items.forEach { item ->
             if (item !is MarkdownBlock.ListItem) return@forEach
 
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (list.isOrdered) {
-                    Text(
-                        text = "${item.prefix}.",
-                        textAlign = TextAlign.End,
-                        style = LocalMarkdownInfo.current.styles.paragraphTextStyle,
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .size(6.dp)
-                            .clip(CircleShape)
-                            .background(Color.Black)
-                    )
-                }
+            Row(horizontalArrangement = Arrangement.spacedBy(styles.listItemPrefixSpacing)) {
+                styles.listItemPrefixComposable(this, list.isOrdered, item.prefix)
 
                 Column {
                     item.content.forEach {
@@ -523,7 +551,7 @@ private fun MarkdownSetext(setext: MarkdownBlock.Setext) {
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = styles.setextModifier(setext.size),
             text = setext.content,
             style = when (setext.size) {
                 MarkdownSetextSize.Setext1 -> styles.h1TextStyle
