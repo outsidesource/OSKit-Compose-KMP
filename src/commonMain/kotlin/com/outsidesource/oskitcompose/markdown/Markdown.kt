@@ -308,12 +308,14 @@ fun DefaultMarkdownListItemPrefix(isOrdered: Boolean, prefixContent: String?) {
             style = LocalMarkdownInfo.current.styles.paragraphTextStyle,
         )
     } else {
+        val color = LocalMarkdownInfo.current.styles.paragraphTextStyle.color
+
         Box(
             modifier = Modifier
                 .padding(top = 8.dp)
                 .size(6.dp)
                 .clip(CircleShape)
-                .background(Color.Black)
+                .background(if (color != Color.Unspecified) color else Color.Black)
         )
     }
 }
