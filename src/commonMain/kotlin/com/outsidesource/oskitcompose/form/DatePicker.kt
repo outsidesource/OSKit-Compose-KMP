@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalComposeUiApi::class)
-
 package com.outsidesource.oskitcompose.form
 
 import androidx.compose.animation.AnimatedVisibility
@@ -21,7 +19,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -29,11 +26,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.unit.*
+import com.outsidesource.oskitcompose.date.DateTextFormat
+import com.outsidesource.oskitcompose.date.getDisplayName
+import com.outsidesource.oskitcompose.date.lengthInDays
 import com.outsidesource.oskitcompose.popup.*
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
-import java.time.format.TextStyle
-import java.util.*
 import kotlin.math.min
 
 private val hPadding = 16.dp
@@ -50,6 +48,7 @@ fun DatePicker(
     onDismissRequest: (() -> Unit)? = null,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     centerInWindow: Boolean = false,
+    isFullScreen: Boolean = true,
     onChange: (date: LocalDate) -> Unit,
 ) {
     val viewType = remember { mutableStateOf(DatePickerViewType.Month) }
@@ -57,17 +56,17 @@ fun DatePicker(
     val selectedDate = remember(date) { mutableStateOf(date) }
 
     if (centerInWindow) {
-        DatePickerModal(isVisible, onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
+        DatePickerModal(isVisible, onDismissRequest, isFullScreen, date, onChange, viewType, currentDate, selectedDate)
     } else {
         DatePickerPopover(isVisible, onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun DatePickerModal(
     isVisible: Boolean,
     onDismissRequest: (() -> Unit)? = null,
+    isFullScreen: Boolean = true,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     onChange: (date: LocalDate) -> Unit,
     viewType: MutableState<DatePickerViewType>,
@@ -76,10 +75,12 @@ private fun DatePickerModal(
 ) {
     Modal(
         isVisible = isVisible,
-        shouldDismissOnExternalClick = true,
+        dismissOnExternalClick = true,
         onDismissRequest = onDismissRequest,
+        styles = ModalStyles.None,
+        isFullScreen = isFullScreen,
         onKeyEvent = {
-            if (it.key == Key.Escape) onDismissRequest?.invoke()
+            if (it.key == Key.Escape || it.key == Key.Back) onDismissRequest?.invoke()
             false
         },
     ) {
@@ -87,7 +88,6 @@ private fun DatePickerModal(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun DatePickerPopover(
     isVisible: Boolean,
@@ -106,7 +106,6 @@ private fun DatePickerPopover(
             if (it.key == Key.Escape) onDismissRequest?.invoke()
             false
         },
-        focusable = true,
         offset = DpOffset(0.dp, (-16f).dp),
     ) {
         DatePickerContent(onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
@@ -160,12 +159,9 @@ private fun DatePickerContent(
                     .clickable { viewType.value = DatePickerViewType.Month }
                     .padding(vertical = 4.dp, horizontal = 8.dp),
                 text = "${
-                    selectedDate.value.dayOfWeek.getDisplayName(
-                        TextStyle.SHORT,
-                        Locale.getDefault()
-                    )
+                    selectedDate.value.dayOfWeek.getDisplayName(DateTextFormat.Short)
                 }, " +
-                        "${selectedDate.value.month.getDisplayName(TextStyle.FULL, Locale.getDefault())} " +
+                        "${selectedDate.value.month.getDisplayName(DateTextFormat.Full)} " +
                         "${selectedDate.value.dayOfMonth}",
                 style = androidx.compose.ui.text.TextStyle(
                     fontSize = 24.sp,
@@ -224,7 +220,7 @@ private fun DatePickerMonthView(
                         Icon(imageVector = Icons.Filled.KeyboardArrowLeft, contentDescription = "Previous month")
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(currentDate.value.month.getDisplayName(TextStyle.FULL, Locale.getDefault()))
+                        Text(currentDate.value.month.getDisplayName(DateTextFormat.Full))
                         Text(currentDate.value.year.toString())
                     }
                     Box(
@@ -252,7 +248,7 @@ private fun DatePickerMonthView(
                 }
 
                 val startIndex = dayOne.dayOfWeek.sundayFirstOrdinal()
-                val maxIndex = (dayOne.month.length(dayOne.isLeapYear()) + startIndex)
+                val maxIndex = (dayOne.month.lengthInDays(dayOne.year) + startIndex)
 
                 for (i in 0 until 6) {
                     Row {
@@ -316,7 +312,7 @@ private fun DatePickerYearView(
                                     month = selectedDate.value.month,
                                     dayOfMonth = min(
                                         selectedDate.value.dayOfMonth,
-                                        selectedDate.value.month.length(isLeapYear(year))
+                                        selectedDate.value.month.lengthInDays(year)
                                     ),
                                     year = year
                                 )
@@ -324,7 +320,7 @@ private fun DatePickerYearView(
                                     month = currentDate.value.month,
                                     dayOfMonth = min(
                                         currentDate.value.dayOfMonth,
-                                        currentDate.value.month.length(isLeapYear(year))
+                                        currentDate.value.month.lengthInDays(year)
                                     ),
                                     year = year
                                 )
@@ -367,21 +363,7 @@ private fun DatePickerDay(
     }
 }
 
-private fun DayOfWeek.sundayFirstOrdinal(): Int = when (this.value) {
+private fun DayOfWeek.sundayFirstOrdinal(): Int = when (this.ordinal) {
     7 -> 0
-    else -> this.value
-}
-
-private fun isLeapYear(year: Int): Boolean {
-    if (year % 4 != 0) return false
-    if (year % 100 != 0) return true
-    if (year % 400 != 0) return false
-    return true
-}
-
-private fun LocalDate.isLeapYear(): Boolean {
-    if (year % 4 != 0) return false
-    if (year % 100 != 0) return true
-    if (year % 400 != 0) return false
-    return true
+    else -> this.ordinal
 }

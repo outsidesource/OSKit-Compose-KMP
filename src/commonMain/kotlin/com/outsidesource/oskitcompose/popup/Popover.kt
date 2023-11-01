@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
@@ -58,7 +57,6 @@ data class PopoverAnchors(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Popover(
     isVisible: Boolean,
@@ -66,8 +64,7 @@ fun Popover(
     offset: DpOffset = DpOffset(0f.dp, 0f.dp),
     popupPositionProvider: PopupPositionProvider? = null,
     onDismissRequest: (() -> Unit)? = null,
-    dismissOnEscapeKey: Boolean = true,
-    focusable: Boolean = false,
+    dismissOnBackKey: Boolean = true,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
     content: @Composable BoxScope.() -> Unit
@@ -94,15 +91,14 @@ fun Popover(
     )
 
     if (transition.currentState || transition.targetState) {
-        Popup(
+        KMPPopup(
             popupPositionProvider = popoverPositionProvider,
-            focusable = focusable,
+            focusable = true,
             onDismissRequest = onDismissRequest,
             onPreviewKeyEvent = onPreviewKeyEvent,
-            onKeyEvent = {
-                if (dismissOnEscapeKey) { if (it.key == Key.Escape) onDismissRequest?.invoke() }
-                onKeyEvent(it)
-            }
+            dismissOnBackPress = dismissOnBackKey,
+            onKeyEvent = onKeyEvent,
+            isFullScreen = false,
         ) {
             Box(
                 modifier = Modifier
@@ -119,8 +115,11 @@ fun Popover(
     }
 }
 
-private class PopoverPositionProvider(val anchors: PopoverAnchors, val offset: DpOffset, val density: Density) :
-    PopupPositionProvider {
+class PopoverPositionProvider(
+    private val anchors: PopoverAnchors,
+    private val offset: DpOffset,
+    private val density: Density
+) : PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
         windowSize: IntSize,
@@ -160,13 +159,13 @@ private class PopoverPositionProvider(val anchors: PopoverAnchors, val offset: D
         return initialOffset + adjust
     }
 
-    fun isOffsetInBounds(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): Boolean =
+    private fun isOffsetInBounds(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): Boolean =
         offset.x > 0 &&
             offset.y > 0 &&
             offset.x + popupContentSize.width < windowSize.width &&
             offset.y + popupContentSize.height < windowSize.height
 
-    fun getAdjustment(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): IntOffset {
+    private fun getAdjustment(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): IntOffset {
         var xAdjust = 0
         var yAdjust = 0
 

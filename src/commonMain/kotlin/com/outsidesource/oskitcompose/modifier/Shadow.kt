@@ -1,5 +1,6 @@
 package com.outsidesource.oskitcompose.modifier
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
@@ -19,35 +20,48 @@ fun Modifier.innerShadow(
     color: Color = Color.Black,
     shape: Shape = RectangleShape,
     offset: DpOffset = DpOffset.Zero,
-) = drawWithContent {
-    drawContent()
+    drawOverContent: Boolean = false,
+) = (if (!drawOverContent) graphicsLayer { alpha = .99f } else this) // This forces Android to use alpha compositing
+    .drawWithContent {
+        if (drawOverContent) drawContent()
 
-    val rect = Rect(Offset.Zero, size)
-    val paint = Paint()
+        val rect = Rect(Offset.Zero, size)
+        val paint = Paint()
 
-    drawIntoCanvas {
-        paint.color = color
-        paint.isAntiAlias = true
+        drawIntoCanvas {
+            paint.color = color
+            paint.isAntiAlias = true
 
-        it.saveLayer(rect, paint)
+            if (drawOverContent) it.saveLayer(rect, paint)
 
-        val fillOutline = shape.createOutline(size, layoutDirection, this)
-        it.drawOutline(paint = paint, outline = fillOutline)
+            val fillOutline = shape.createOutline(size, layoutDirection, this)
+            it.drawOutline(paint = paint, outline = fillOutline)
 
-        paint.blendMode = BlendMode.DstOut
+            paint.blendMode = BlendMode.DstOut
 
-        if (blur.toPx() > 0) paint.kmpBlur(blur.toPx() / 2)
+            if (blur.toPx() > 0) paint.kmpBlur(blur.toPx() / 2)
 
-        translate(
-            left = spread.toPx() + offset.x.toPx(),
-            top = spread.toPx() + offset.y.toPx()
-        ) {
-            val shadowSize = size.copy(width = size.width - (spread.toPx() * 2), size.height - (spread.toPx() * 2))
-            val shadowOutline = shape.createOutline(shadowSize, layoutDirection, this)
-            it.drawOutline(paint = paint, outline = shadowOutline)
+            translate(
+                left = spread.toPx() + offset.x.toPx(),
+                top = spread.toPx() + offset.y.toPx()
+            ) {
+                val shadowSize = size.copy(width = size.width - (spread.toPx() * 2), size.height - (spread.toPx() * 2))
+                val shadowOutline = shape.createOutline(shadowSize, layoutDirection, this)
+                it.drawOutline(paint = paint, outline = shadowOutline)
+            }
         }
+
+        if (!drawOverContent) drawContent()
     }
-}
+
+data class InnerShadow(
+    val blur: Dp,
+    val spread: Dp = 0.dp,
+    val color: Color = Color.Black,
+    val shape: Shape = RectangleShape,
+    val offset: DpOffset = DpOffset.Zero,
+    val drawOverContent: Boolean = false,
+)
 
 fun Modifier.outerShadow(
     blur: Dp,
@@ -74,3 +88,12 @@ fun Modifier.outerShadow(
         }
     }
 }
+
+@Immutable
+data class OuterShadow(
+    val blur: Dp,
+    val spread: Dp = 0.dp,
+    val color: Color = Color.Black,
+    val shape: Shape = RectangleShape,
+    val offset: DpOffset = DpOffset.Zero,
+)

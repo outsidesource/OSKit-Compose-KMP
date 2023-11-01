@@ -1,7 +1,7 @@
 package com.outsidesource.oskitcompose.interactor
 
 import androidx.compose.runtime.*
-import com.outsidesource.oskitkmp.interactor.IInteractorObservable
+import com.outsidesource.oskitkmp.interactor.IInteractor
 import com.outsidesource.oskitkmp.interactor.Interactor
 import kotlinx.coroutines.flow.Flow
 
@@ -9,13 +9,13 @@ import kotlinx.coroutines.flow.Flow
  * [rememberInteractor] will remember an Interactor and subscribe to its state.
  */
 @Composable
-fun <S : Any> Interactor<S>.collectAsState(): State<S> = flow().collectAsState(state)
+fun <S : Any> IInteractor<S>.collectAsState(): S = flow().collectAsState(state).value
 
 /**
  * [rememberInteractor] will remember an Interactor and subscribe to its state.
  */
 @Composable
-fun <B : IInteractorObservable<S>, S> rememberInteractor(factory: () -> B): Pair<S, B> = rememberInteractor(
+fun <B : IInteractor<S>, S> rememberInteractor(factory: () -> B): Pair<S, B> = rememberInteractor(
     rememberFactory = { remember { it() } },
     interactorFactory = factory,
 )
@@ -24,7 +24,7 @@ fun <B : IInteractorObservable<S>, S> rememberInteractor(factory: () -> B): Pair
  * []rememberInteractor] will remember an Interactor and subscribe to its state for the lifetime of the keys provided.
  */
 @Composable
-fun <B : IInteractorObservable<S>, S> rememberInteractor(
+fun <B : IInteractor<S>, S> rememberInteractor(
     key1: Any? = Unit,
     factory: () -> B,
 ): Pair<S, B> = rememberInteractor(
@@ -36,7 +36,7 @@ fun <B : IInteractorObservable<S>, S> rememberInteractor(
  * [rememberInteractor] will remember an Interactor and subscribe to its state for the lifetime of the keys provided.
  */
 @Composable
-fun <B : IInteractorObservable<S>, S> rememberInteractor(
+fun <B : IInteractor<S>, S> rememberInteractor(
     key1: Any? = Unit,
     key2: Any? = Unit,
     factory: () -> B,
@@ -49,7 +49,7 @@ fun <B : IInteractorObservable<S>, S> rememberInteractor(
  * [rememberInteractor] will remember an Interactor and subscribe to its state for the lifetime of the keys provided.
  */
 @Composable
-fun <B : IInteractorObservable<S>, S> rememberInteractor(
+fun <B : IInteractor<S>, S> rememberInteractor(
     key1: Any? = Unit,
     key2: Any? = Unit,
     key3: Any? = Unit,
@@ -63,7 +63,7 @@ fun <B : IInteractorObservable<S>, S> rememberInteractor(
  * [rememberInteractor] will remember an Interactor and subscribe to its state for the lifetime of the keys provided.
  */
 @Composable
-private fun <B : IInteractorObservable<S>, S> rememberInteractor(
+private fun <B : IInteractor<S>, S> rememberInteractor(
     rememberFactory: @Composable (@DisallowComposableCalls () -> Pair<B, Flow<S>>) -> Pair<B, Flow<S>>,
     interactorFactory: () -> B,
 ): Pair<S, B> {

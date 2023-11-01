@@ -35,10 +35,10 @@ fun routeTransition(transition: IRouteTransition): IAnimatedRoute {
  */
 @ExperimentalAnimationApi
 data class ComposeRouteTransition(
-    val enter: AnimatedContentScope<RouteStackEntry>.(density: Density) -> EnterTransition,
-    val exit: AnimatedContentScope<RouteStackEntry>.(density: Density) -> ExitTransition,
-    val popEnter: AnimatedContentScope<RouteStackEntry>.(density: Density) -> EnterTransition,
-    val popExit: AnimatedContentScope<RouteStackEntry>.(density: Density) -> ExitTransition,
+    val enter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
+    val exit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
+    val popEnter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
+    val popExit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
 ) : IRouteTransition
 
 @ExperimentalAnimationApi
@@ -72,6 +72,22 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
     popExit = {
         val offsetX = with(it) { 40.dp.toPx() }.toInt()
         slideOut(tween(400, easing = CubicBezierEaseOutCirc)) { IntOffset(offsetX, 0) }
+    },
+)
+
+@ExperimentalAnimationApi
+val SlideFromBottomRouteTransition = ComposeRouteTransition(
+    enter = {
+        slideIn(tween(400)) { IntOffset(0, it.height) }
+    },
+    exit = {
+        fadeOut(tween(400), .99f) + scaleOut(tween(400), targetScale = .9f)
+    },
+    popEnter = {
+        fadeIn(tween(400), 0f) + scaleIn(tween(400), initialScale = .9f)
+    },
+    popExit = {
+        slideOut(tween(400)) { IntOffset(0, (it.height * .5).toInt()) }
     },
 )
 

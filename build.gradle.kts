@@ -8,14 +8,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath(kotlin("gradle-plugin", "1.8.0"))
+        classpath(kotlin("gradle-plugin", "1.9.0"))
     }
 }
 
 plugins {
-    kotlin("multiplatform") version "1.8.0"
+    kotlin("multiplatform") version "1.9.0"
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.3.0"
+    id("org.jetbrains.compose") version "1.5.1"
     id("maven-publish")
 }
 
@@ -51,27 +51,41 @@ repositories {
 
 kotlin {
     jvm {
-        jvmToolchain(11)
+        jvmToolchain(17)
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
     }
-    android {
+    androidTarget {
+        jvmToolchain(11)
         publishLibraryVariants("release", "debug")
     }
+
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "oskit-compose"
+        }
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("com.outsidesource:oskit-kmp:2.1.0")
+                api("com.outsidesource:oskit-kmp:4.0.0")
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                api("androidx.compose.foundation:foundation:1.3.1")
-                api("androidx.compose.ui:ui:1.3.3")
-                api("androidx.core:core-ktx:1.9.0")
-                api("androidx.activity:activity-compose:1.6.1")
-                implementation("org.jetbrains:markdown:0.2.1")
+                implementation("com.squareup.okio:okio:3.5.0")
+                implementation("io.insert-koin:koin-core:3.4.3")
+                implementation("org.jetbrains:markdown:0.5.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+                implementation("io.ktor:ktor-client-core:2.3.3")
+                implementation("io.ktor:ktor-client-cio:2.3.3")
+                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation(compose.components.resources)
             }
         }
         val commonTest by getting {
@@ -80,17 +94,34 @@ kotlin {
             }
         }
 
-        val jvmMain by getting {
-            dependencies {}
-        }
+        val jvmMain by getting
         val jvmTest by getting
 
         val androidMain by getting {
-            dependencies {}
+            dependencies {
+                implementation("androidx.compose.foundation:foundation:1.5.2")
+                implementation("androidx.compose.ui:ui:1.5.2")
+                implementation("androidx.core:core-ktx:1.12.0")
+                implementation("androidx.activity:activity-compose:1.7.2")
+            }
         }
         val androidInstrumentedTest by getting {
             dependencies {
                 implementation("junit:junit:4.13.2")
+            }
+        }
+
+        val iosX64Main by getting
+        val iosArm64Main by getting
+        val iosSimulatorArm64Main by getting
+        val iosMain by creating {
+            dependsOn(commonMain)
+            iosX64Main.dependsOn(this)
+            iosArm64Main.dependsOn(this)
+            iosSimulatorArm64Main.dependsOn(this)
+
+            dependencies {
+                implementation("io.ktor:ktor-client-ios:2.3.3")
             }
         }
     }

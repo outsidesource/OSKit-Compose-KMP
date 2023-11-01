@@ -1,9 +1,10 @@
 package com.outsidesource.oskitcompose.modifier
 
-import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.*
 import com.outsidesource.oskitcompose.pointer.awaitFirstDownEvent
 import com.outsidesource.oskitcompose.pointer.awaitForUpOrCancellationEvent
@@ -58,11 +59,42 @@ inline fun Modifier.kmpMouseScrollFilter(
 
 fun Modifier.kmpClickableEvent(vararg keys: Any, onClick: (down: PointerEvent, up: PointerEvent) -> Unit): Modifier =
     pointerInput(keys) {
-        forEachGesture {
-            awaitPointerEventScope {
-                val down = awaitFirstDownEvent().also { it.changes.forEach { change -> if (change.pressed != change.previousPressed) change.consume() } }
-                val up = awaitForUpOrCancellationEvent() ?: return@awaitPointerEventScope
-                onClick(down, up)
-            }
+        awaitEachGesture {
+            val down =
+                awaitFirstDownEvent().also { it.changes.forEach { change -> if (change.pressed != change.previousPressed) change.consume() } }
+            val up = awaitForUpOrCancellationEvent() ?: return@awaitEachGesture
+            onClick(down, up)
         }
     }
+
+expect fun Modifier.kmpOnExternalDrag(
+    enabled: Boolean = true,
+    onDragStart: (KMPExternalDragValue) -> Unit = {},
+    onDrag: (KMPExternalDragValue) -> Unit = {},
+    onDragExit: () -> Unit = {},
+    onDrop: (KMPExternalDragValue) -> Unit = {},
+): Modifier
+
+data class KMPExternalDragValue(
+    val dragPosition: Offset,
+    val dragData: KMPDragData,
+)
+
+interface KMPDragData {
+    interface FilesList : KMPDragData {
+        fun readFiles(): List<String>
+    }
+
+    interface Image : KMPDragData {
+        fun readImage(): Painter
+    }
+
+    interface Text : KMPDragData {
+        val bestMimeType: String
+        fun readText(): String
+    }
+
+    interface Unknown : KMPDragData {
+        val value: Any
+    }
+}
