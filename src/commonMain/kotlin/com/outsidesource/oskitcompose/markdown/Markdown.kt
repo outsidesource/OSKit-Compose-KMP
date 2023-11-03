@@ -136,7 +136,7 @@ data class MarkdownStyles(
  * Markdown
  *
  * A Simple markdown renderer for basic rich text.
- * This composable does not support HTML.
+ * This composable does not support HTML or links navigating to internal references.
  *
  * Images in Markdown can either be URLs or local resources. Local resources are designated by a user-provided id string
  * and a Painter passed via [localImageMap]. Local resources also have the option of adding sizing and alignment info:
@@ -149,8 +149,8 @@ data class MarkdownStyles(
  *
  * Note: Android and iOS do not support svg images
  *
- *  [loadAsync] If true Markdown will parse and load URL images on the IO thread. If there aren't any URL images it is
- *  recommended that [loadAsync] is false.
+ * [loadAsync] If true Markdown will parse and load URL images on the IO thread. If there aren't any URL images it is
+ * recommended that [loadAsync] is false.
  *
  * TODO: Wrap with SelectionContainer when SelectionContainer does not block clicking of links
  */
@@ -164,7 +164,13 @@ fun Markdown(
     onLinkClick: ((it: String) -> Unit)? = null,
 ) {
     val uriHandler = LocalUriHandler.current
-    val localOnLinkClick = onLinkClick ?: { uriHandler.openUri(it) }
+    val localOnLinkClick = onLinkClick ?: {
+        try {
+            uriHandler.openUri(it)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
     val localMarkdownInfo = remember(styles, localImageMap, onLinkClick) { MarkdownInfo(localImageMap, styles, onLinkClick = localOnLinkClick) }
     val density = LocalDensity.current
 
@@ -576,68 +582,157 @@ private fun List<ASTNode>.buildBlockItems(source: String, markdownInfo: Markdown
     val text = AnnotatedString.Builder()
 
     forEachIndexed { i, child ->
-        val previousChild = getOrNull(i - 1)
+        try {
+            val previousChild = getOrNull(i - 1)
 
-        when (child.type) {
-            // Block Level Content
-            MarkdownElementTypes.ATX_1 -> items.add(MarkdownBlock.Heading(size = MarkdownHeadingSize.H1, child.buildHeaderContent(source, markdownInfo, density)))
-            MarkdownElementTypes.ATX_2 -> items.add(MarkdownBlock.Heading(size = MarkdownHeadingSize.H2, child.buildHeaderContent(source, markdownInfo, density)))
-            MarkdownElementTypes.ATX_3 -> items.add(MarkdownBlock.Heading(size = MarkdownHeadingSize.H3, child.buildHeaderContent(source, markdownInfo, density)))
-            MarkdownElementTypes.ATX_4 -> items.add(MarkdownBlock.Heading(size = MarkdownHeadingSize.H4, child.buildHeaderContent(source, markdownInfo, density)))
-            MarkdownElementTypes.ATX_5 -> items.add(MarkdownBlock.Heading(size = MarkdownHeadingSize.H5, child.buildHeaderContent(source, markdownInfo, density)))
-            MarkdownElementTypes.ATX_6 -> items.add(MarkdownBlock.Heading(size = MarkdownHeadingSize.H6, child.buildHeaderContent(source, markdownInfo, density)))
-            MarkdownElementTypes.SETEXT_1 -> items.add(MarkdownBlock.Setext(size = MarkdownSetextSize.Setext1, child.buildSetextContent(source, markdownInfo, density)))
-            MarkdownElementTypes.SETEXT_2 -> items.add(MarkdownBlock.Setext(size = MarkdownSetextSize.Setext2, child.buildSetextContent(source, markdownInfo, density)))
-            MarkdownElementTypes.CODE_FENCE -> items.add(MarkdownBlock.Code(child.buildCodeFenceContent(source)))
-            MarkdownElementTypes.BLOCK_QUOTE -> items.add(MarkdownBlock.BlockQuote(child.buildBlockItems(source, markdownInfo, density)))
-            MarkdownElementTypes.UNORDERED_LIST -> items.add(MarkdownBlock.List(items = child.buildBlockItems(source, markdownInfo, density), isOrdered = false))
-            MarkdownElementTypes.ORDERED_LIST -> items.add(MarkdownBlock.List(items = child.buildBlockItems(source, markdownInfo, density), isOrdered = true))
-            MarkdownElementTypes.LIST_ITEM -> {
-                val prefixNode = child.children.firstOrNull()
-                val prefix = if (prefixNode?.type == MarkdownTokenTypes.LIST_NUMBER) {
-                    prefixNode.getTextInNode(source).toString().removeSuffix(". ")
-                } else {
-                    null
-                }
-                items.add(MarkdownBlock.ListItem(prefix = prefix, content = child.buildBlockItems(source, markdownInfo, density)))
-            }
-            MarkdownElementTypes.PARAGRAPH -> items.addAll(child.buildBlockItems(source, markdownInfo, density))
-            MarkdownElementTypes.HTML_BLOCK -> {} // Ignore HTML because <br/> cause a lot of extra line breaks and there isn't a great way to render it
-            MarkdownTokenTypes.HORIZONTAL_RULE -> items.add(MarkdownBlock.HR)
+            when (child.type) {
+                // Block Level Content
+                MarkdownElementTypes.ATX_1 -> items.add(
+                    MarkdownBlock.Heading(
+                        size = MarkdownHeadingSize.H1,
+                        child.buildHeaderContent(source, markdownInfo, density)
+                    )
+                )
 
-            // Inline Content
-            MarkdownElementTypes.STRONG -> text.append(child.buildBoldContent(source, markdownInfo, density))
-            MarkdownElementTypes.EMPH -> text.append(child.buildItalicContent(source, markdownInfo, density))
-            MarkdownElementTypes.CODE_SPAN -> text.append(child.buildCodeSpanContent(source, markdownInfo.styles))
-            MarkdownElementTypes.INLINE_LINK,
-            MarkdownElementTypes.AUTOLINK -> text.append(child.buildLinkContent(source, markdownInfo.styles))
-            MarkdownElementTypes.IMAGE -> {
-                if (size == 1) { // Handle Block images (paragraphs with only an image)
-                    items.add(child.buildImage(source, markdownInfo, density))
-                } else { // Handle inline images
-                    val id = (markdownInfo.inlineImageMap.size + 1).toString()
-                    val imageInfo = child.buildImage(source, markdownInfo, density)
-                    text.pushStringAnnotation(TAG_INLINE_IMAGE, id)
-                    text.appendInlineContent(id, " ")
-                    text.pop()
-                    markdownInfo.inlineImageMap[id] = imageInfo
-                }
-            }
+                MarkdownElementTypes.ATX_2 -> items.add(
+                    MarkdownBlock.Heading(
+                        size = MarkdownHeadingSize.H2,
+                        child.buildHeaderContent(source, markdownInfo, density)
+                    )
+                )
 
-            // Tokens
-            MarkdownTokenTypes.BLOCK_QUOTE -> {}
-            MarkdownTokenTypes.LIST_BULLET -> {}
-            MarkdownTokenTypes.LIST_NUMBER -> {}
-            MarkdownTokenTypes.WHITE_SPACE -> {
-                if (previousChild == null) return@forEachIndexed
-                when (previousChild.type) {
-                    MarkdownTokenTypes.EOL,
-                    MarkdownTokenTypes.ATX_HEADER,
-                    MarkdownTokenTypes.BLOCK_QUOTE -> return@forEachIndexed
+                MarkdownElementTypes.ATX_3 -> items.add(
+                    MarkdownBlock.Heading(
+                        size = MarkdownHeadingSize.H3,
+                        child.buildHeaderContent(source, markdownInfo, density)
+                    )
+                )
+
+                MarkdownElementTypes.ATX_4 -> items.add(
+                    MarkdownBlock.Heading(
+                        size = MarkdownHeadingSize.H4,
+                        child.buildHeaderContent(source, markdownInfo, density)
+                    )
+                )
+
+                MarkdownElementTypes.ATX_5 -> items.add(
+                    MarkdownBlock.Heading(
+                        size = MarkdownHeadingSize.H5,
+                        child.buildHeaderContent(source, markdownInfo, density)
+                    )
+                )
+
+                MarkdownElementTypes.ATX_6 -> items.add(
+                    MarkdownBlock.Heading(
+                        size = MarkdownHeadingSize.H6,
+                        child.buildHeaderContent(source, markdownInfo, density)
+                    )
+                )
+
+                MarkdownElementTypes.SETEXT_1 -> items.add(
+                    MarkdownBlock.Setext(
+                        size = MarkdownSetextSize.Setext1,
+                        child.buildSetextContent(source, markdownInfo, density)
+                    )
+                )
+
+                MarkdownElementTypes.SETEXT_2 -> items.add(
+                    MarkdownBlock.Setext(
+                        size = MarkdownSetextSize.Setext2,
+                        child.buildSetextContent(source, markdownInfo, density)
+                    )
+                )
+
+                MarkdownElementTypes.CODE_BLOCK -> items.add(MarkdownBlock.Code(child.buildCodeBlockContent(source)))
+                MarkdownElementTypes.CODE_FENCE -> items.add(MarkdownBlock.Code(child.buildCodeFenceContent(source)))
+                MarkdownElementTypes.BLOCK_QUOTE -> items.add(
+                    MarkdownBlock.BlockQuote(
+                        child.buildBlockItems(
+                            source,
+                            markdownInfo,
+                            density
+                        )
+                    )
+                )
+
+                MarkdownElementTypes.UNORDERED_LIST -> items.add(
+                    MarkdownBlock.List(
+                        items = child.buildBlockItems(
+                            source,
+                            markdownInfo,
+                            density
+                        ), isOrdered = false
+                    )
+                )
+
+                MarkdownElementTypes.ORDERED_LIST -> items.add(
+                    MarkdownBlock.List(
+                        items = child.buildBlockItems(
+                            source,
+                            markdownInfo,
+                            density
+                        ), isOrdered = true
+                    )
+                )
+
+                MarkdownElementTypes.LIST_ITEM -> {
+                    val prefixNode = child.children.firstOrNull()
+                    val prefix = if (prefixNode?.type == MarkdownTokenTypes.LIST_NUMBER) {
+                        prefixNode.getTextInNode(source).toString().removeSuffix(". ")
+                    } else {
+                        null
+                    }
+                    items.add(
+                        MarkdownBlock.ListItem(
+                            prefix = prefix,
+                            content = child.buildBlockItems(source, markdownInfo, density)
+                        )
+                    )
                 }
-                text.append(' ')
+
+                MarkdownElementTypes.PARAGRAPH -> items.addAll(child.buildBlockItems(source, markdownInfo, density))
+                MarkdownElementTypes.HTML_BLOCK -> {} // Ignore HTML because <br/> cause a lot of extra line breaks and there isn't a great way to render it
+                MarkdownTokenTypes.HORIZONTAL_RULE -> items.add(MarkdownBlock.HR)
+
+                // Inline Content
+                MarkdownElementTypes.STRONG -> text.append(child.buildBoldContent(source, markdownInfo, density))
+                MarkdownElementTypes.EMPH -> text.append(child.buildItalicContent(source, markdownInfo, density))
+                MarkdownElementTypes.CODE_SPAN -> text.append(child.buildCodeSpanContent(source, markdownInfo.styles))
+                MarkdownElementTypes.INLINE_LINK,
+                MarkdownElementTypes.AUTOLINK -> text.append(child.buildLinkContent(source, markdownInfo.styles))
+
+                MarkdownElementTypes.IMAGE -> {
+                    if (size == 1) { // Handle Block images (paragraphs with only an image)
+                        items.add(child.buildImage(source, markdownInfo, density))
+                    } else { // Handle inline images
+                        println(child.getTextInNode(source))
+                        val id = (markdownInfo.inlineImageMap.size + 1).toString()
+                        val imageInfo = child.buildImage(source, markdownInfo, density)
+                        text.pushStringAnnotation(TAG_INLINE_IMAGE, id)
+                        text.appendInlineContent(id, " ")
+                        text.pop()
+                        markdownInfo.inlineImageMap[id] = imageInfo
+                    }
+                }
+
+                // Tokens
+                MarkdownTokenTypes.BLOCK_QUOTE -> {}
+                MarkdownTokenTypes.LIST_BULLET -> {}
+                MarkdownTokenTypes.LIST_NUMBER -> {}
+                MarkdownTokenTypes.WHITE_SPACE -> {
+                    if (previousChild == null) return@forEachIndexed
+                    when (previousChild.type) {
+                        MarkdownTokenTypes.EOL,
+                        MarkdownTokenTypes.ATX_HEADER,
+                        MarkdownTokenTypes.BLOCK_QUOTE -> return@forEachIndexed
+                    }
+                    text.append(' ')
+                }
+
+                else -> text.append(child.getTextInNode(source).toString())
             }
-            else -> text.append(child.getTextInNode(source).toString())
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -645,6 +740,10 @@ private fun List<ASTNode>.buildBlockItems(source: String, markdownInfo: Markdown
     if (annotatedString.text.trim('\n').isNotBlank()) items.add(MarkdownBlock.Paragraph(annotatedString))
 
     return items
+}
+
+private fun ASTNode.buildCodeBlockContent(source: String) = buildAnnotatedString {
+    append(getTextInNode(source).toString().trimIndent())
 }
 
 private fun ASTNode.buildCodeFenceContent(source: String) = buildAnnotatedString {
@@ -716,11 +815,15 @@ private fun ASTNode.buildItalicContent(source: String, markdownInfo: MarkdownInf
 
 private fun ASTNode.buildCodeSpanContent(source: String, styles: MarkdownStyles): AnnotatedString {
     return buildAnnotatedString {
-        val text = findChildOfType(MarkdownTokenTypes.TEXT) ?: return@buildAnnotatedString
+        val startChildIndex = children.indexOfFirst { it.type != MarkdownTokenTypes.BACKTICK }
+        val endChildIndex = children.indexOfLast { it.type != MarkdownTokenTypes.BACKTICK }
+        val start = children[startChildIndex].startOffset
+        val end = children[endChildIndex].endOffset
+
         withStyle(styles.codeTextStyle.toSpanStyle()) {
             pushStringAnnotation(TAG_CODE_SPAN, "")
             append(' ')
-            append(text.getTextInNode(source).toString())
+            append(source.subSequence(start, end).toString())
             append(' ')
             pop()
         }

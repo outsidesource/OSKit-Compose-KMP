@@ -8,15 +8,16 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath(kotlin("gradle-plugin", "1.9.0"))
+        classpath(kotlin("gradle-plugin", "1.9.20"))
     }
 }
 
 plugins {
-    kotlin("multiplatform") version "1.9.0"
+    kotlin("multiplatform") version "1.9.20"
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.5.1"
+    id("org.jetbrains.compose") version "1.5.10"
     id("maven-publish")
+    id("org.jetbrains.dokka") version "1.9.10"
 }
 
 apply(from = "versioning.gradle.kts")
@@ -71,6 +72,8 @@ kotlin {
         }
     }
 
+    applyDefaultHierarchyTemplate()
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -80,29 +83,27 @@ kotlin {
                 api(compose.material)
                 implementation("com.squareup.okio:okio:3.5.0")
                 implementation("io.insert-koin:koin-core:3.4.3")
-                implementation("org.jetbrains:markdown:0.5.0")
+                implementation("org.jetbrains:markdown:0.5.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
-                implementation("io.ktor:ktor-client-core:2.3.3")
+                implementation("io.ktor:ktor-client-core:2.3.4")
                 implementation("io.ktor:ktor-client-cio:2.3.3")
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
             }
         }
+
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
             }
         }
 
-        val jvmMain by getting
-        val jvmTest by getting
-
         val androidMain by getting {
             dependencies {
-                implementation("androidx.compose.foundation:foundation:1.5.2")
-                implementation("androidx.compose.ui:ui:1.5.2")
+                implementation("androidx.compose.foundation:foundation:1.5.4")
+                implementation("androidx.compose.ui:ui:1.5.4")
                 implementation("androidx.core:core-ktx:1.12.0")
-                implementation("androidx.activity:activity-compose:1.7.2")
+                implementation("androidx.activity:activity-compose:1.8.0")
             }
         }
         val androidInstrumentedTest by getting {
@@ -111,15 +112,7 @@ kotlin {
             }
         }
 
-        val iosX64Main by getting
-        val iosArm64Main by getting
-        val iosSimulatorArm64Main by getting
-        val iosMain by creating {
-            dependsOn(commonMain)
-            iosX64Main.dependsOn(this)
-            iosArm64Main.dependsOn(this)
-            iosSimulatorArm64Main.dependsOn(this)
-
+        val iosMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-ios:2.3.3")
             }
