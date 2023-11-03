@@ -35,7 +35,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.canvas.kmpUrlImagePainter
 import com.outsidesource.oskitcompose.modifier.borderStart
+import com.outsidesource.oskitcompose.scrollbars.KMPHorizontalScrollbar
+import com.outsidesource.oskitcompose.scrollbars.KMPScrollbarStyle
+import com.outsidesource.oskitcompose.scrollbars.rememberKmpScrollbarAdapter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
@@ -44,10 +48,7 @@ import org.intellij.markdown.ast.findChildOfType
 import org.intellij.markdown.ast.getTextInNode
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.parser.MarkdownParser
-import com.outsidesource.oskitcompose.scrollbars.rememberKmpScrollbarAdapter
-import com.outsidesource.oskitcompose.scrollbars.KMPHorizontalScrollbar
-import com.outsidesource.oskitcompose.scrollbars.KMPScrollbarStyle
-import kotlinx.coroutines.IO
+import kotlin.math.max
 
 private const val TAG_URL = "URL"
 private const val TAG_CODE_SPAN = "CODE_SPAN"
@@ -195,7 +196,11 @@ fun Markdown(
     CompositionLocalProvider(LocalMarkdownInfo provides localMarkdownInfo) {
         Column(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(localMarkdownInfo.styles.blockGap)
+            verticalArrangement = if (tree.isEmpty()) {
+                Arrangement.Center
+            } else {
+                Arrangement.spacedBy(localMarkdownInfo.styles.blockGap)
+            }
         ) {
             if (tree.isEmpty()) {
                 Column(
@@ -395,6 +400,7 @@ private fun MarkdownInlineContent(
     var codeSpans by remember(content) { mutableStateOf(emptyList<Path>()) }
     val inlineImageMap = LocalMarkdownInfo.current.inlineImageMap
     val density = LocalDensity.current
+    var maxImageHeight = 0f
 
     val inlineContent = remember(content) {
         buildMap {
@@ -402,6 +408,8 @@ private fun MarkdownInlineContent(
                 val id = it.item
                 val image = inlineImageMap[id] ?: return@forEach
                 val (width, height) = with(density) { Pair(image.width.toSp(), image.height.toSp()) }
+                maxImageHeight = max(height.value, maxImageHeight)
+
                 val alignment = if (image is MarkdownBlock.Image.Local) {
                     when (image.vAlignment) {
                         Alignment.Top -> PlaceholderVerticalAlign.Top
@@ -442,7 +450,13 @@ private fun MarkdownInlineContent(
                     styles.codeSpanDecoration(this, it)
                 }
             }.then(modifier),
-        style = textStyle,
+        style = textStyle.copy(
+            lineHeight = if (maxImageHeight == 0f) {
+                textStyle.lineHeight
+            } else {
+                maxImageHeight.sp
+            }
+        ),
         text = content,
         onTextLayout = { lr ->
             layoutResult.value = lr
@@ -705,11 +719,10 @@ private fun List<ASTNode>.buildBlockItems(source: String, markdownInfo: Markdown
                     if (size == 1) { // Handle Block images (paragraphs with only an image)
                         items.add(child.buildImage(source, markdownInfo, density))
                     } else { // Handle inline images
-                        println(child.getTextInNode(source))
                         val id = (markdownInfo.inlineImageMap.size + 1).toString()
                         val imageInfo = child.buildImage(source, markdownInfo, density)
                         text.pushStringAnnotation(TAG_INLINE_IMAGE, id)
-                        text.appendInlineContent(id, " ")
+                        text.appendInlineContent(id, "inlineImage")
                         text.pop()
                         markdownInfo.inlineImageMap[id] = imageInfo
                     }
