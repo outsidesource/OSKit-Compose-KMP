@@ -34,12 +34,7 @@ actual fun rememberSystemBarColorController(): ISystemBarColorController {
         object : ISystemBarColorController {
             override fun setStatusBarColor(color: Color) {
                 if (vc !is OSUIViewControllerWrapper) return
-                vc.setStatusBarBackground(UIColor(
-                    red = color.red.toDouble(),
-                    green = color.green.toDouble(),
-                    blue = color.blue.toDouble(),
-                    alpha = color.alpha.toDouble(),
-                ))
+                vc.setStatusBarBackground(color)
             }
 
             override fun setStatusBarIconColor(color: SystemBarIconColor) {

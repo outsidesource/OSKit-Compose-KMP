@@ -12,7 +12,7 @@ import androidx.compose.ui.interop.LocalUIViewController
 import androidx.compose.ui.window.ComposeUIViewController
 import com.outsidesource.oskitcompose.systemui.KMPWindowInsets
 import com.outsidesource.oskitcompose.systemui.bottomInsets
-import kotlinx.cinterop.ExperimentalForeignApi
+import com.outsidesource.oskitcompose.systemui.topInsets
 import kotlinx.coroutines.flow.MutableStateFlow
 import platform.UIKit.*
 
@@ -26,9 +26,24 @@ fun OSComposeUIViewController(
                 modifier = Modifier.fillMaxSize()
             ) {
                 content()
+                StatusBarBackground()
                 NavBarBackground()
             }
         }
+    )
+}
+
+@Composable
+private fun BoxScope.StatusBarBackground() {
+    val vc = LocalUIViewController.current.parentViewController
+    if (vc !is OSUIViewControllerWrapper) return
+    val color by vc.statusBarColor.collectAsState()
+
+    Box(modifier = Modifier
+        .align(Alignment.TopStart)
+        .fillMaxWidth()
+        .background(color)
+        .windowInsetsPadding(KMPWindowInsets.topInsets)
     )
 }
 
@@ -55,23 +70,15 @@ internal class OSUIViewControllerWrapper(
 
     private val childVC = composeViewController
     private var statusBarStyle = UIStatusBarStyleDarkContent
-    private var statusBarView: UIView? = null
+    internal val statusBarColor = MutableStateFlow(Color.Transparent)
     internal val navigationBarColor = MutableStateFlow(Color.Transparent)
 
-    @OptIn(ExperimentalForeignApi::class)
     override fun viewDidLoad() {
         super.viewDidLoad()
-
-        val statusBarFrame = view.window?.windowScene?.statusBarManager?.statusBarFrame
-            ?: UIApplication.sharedApplication.statusBarFrame
 
         addChildViewController(childVC)
         childVC.view.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(childVC.view)
-        statusBarView = UIView(frame = statusBarFrame).apply {
-            userInteractionEnabled = false
-            view.addSubview(this)
-        }
 
         NSLayoutConstraint.activateConstraints(listOf(
             childVC.view.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor),
@@ -83,15 +90,6 @@ internal class OSUIViewControllerWrapper(
         childVC.didMoveToParentViewController(this)
     }
 
-    @OptIn(ExperimentalForeignApi::class)
-    override fun viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-
-        val statusBarFrame = view.window?.windowScene?.statusBarManager?.statusBarFrame
-            ?: UIApplication.sharedApplication.statusBarFrame
-        statusBarView?.setFrame(statusBarFrame)
-    }
-
     override fun preferredStatusBarStyle(): UIStatusBarStyle {
         return statusBarStyle
     }
@@ -101,8 +99,8 @@ internal class OSUIViewControllerWrapper(
         setNeedsStatusBarAppearanceUpdate()
     }
 
-    fun setStatusBarBackground(color: UIColor) {
-        statusBarView?.backgroundColor = color
+    fun setStatusBarBackground(color: Color) {
+        statusBarColor.tryEmit(color)
     }
 
     fun setNavigationBarBackground(color: Color) {
