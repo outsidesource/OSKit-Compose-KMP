@@ -1,17 +1,49 @@
 package com.outsidesource.oskitcompose.uikit
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.interop.LocalUIViewController
 import androidx.compose.ui.window.ComposeUIViewController
+import com.outsidesource.oskitcompose.systemui.KMPWindowInsets
+import com.outsidesource.oskitcompose.systemui.bottomInsets
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.useContents
-import platform.CoreGraphics.CGRectMake
-import platform.Foundation.NSTimeInterval
+import kotlinx.coroutines.flow.MutableStateFlow
 import platform.UIKit.*
 
 fun OSComposeUIViewController(
     content: @Composable () -> Unit,
 ): UIViewController {
-    return OSUIViewControllerWrapper(ComposeUIViewController(content))
+
+    return OSUIViewControllerWrapper(
+        ComposeUIViewController {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                content()
+                NavBarBackground()
+            }
+        }
+    )
+}
+
+@Composable
+private fun BoxScope.NavBarBackground() {
+    val vc = LocalUIViewController.current.parentViewController
+    if (vc !is OSUIViewControllerWrapper) return
+    val color by vc.navigationBarColor.collectAsState()
+
+    Box(modifier = Modifier
+        .align(Alignment.BottomStart)
+        .fillMaxWidth()
+        .background(color)
+        .windowInsetsPadding(KMPWindowInsets.bottomInsets)
+    )
 }
 
 internal class OSUIViewControllerWrapper(
@@ -24,7 +56,7 @@ internal class OSUIViewControllerWrapper(
     private val childVC = composeViewController
     private var statusBarStyle = UIStatusBarStyleDarkContent
     private var statusBarView: UIView? = null
-    private var navigationBarView: UIView? = null
+    internal val navigationBarColor = MutableStateFlow(Color.Transparent)
 
     @OptIn(ExperimentalForeignApi::class)
     override fun viewDidLoad() {
@@ -37,19 +69,6 @@ internal class OSUIViewControllerWrapper(
         childVC.view.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(childVC.view)
         statusBarView = UIView(frame = statusBarFrame).apply {
-            userInteractionEnabled = false
-            view.addSubview(this)
-        }
-
-        val navBarHeight = (UIApplication.sharedApplication.windows.firstOrNull() as? UIWindow)?.safeAreaInsets?.useContents { bottom } ?: 0.0
-        val navBarFrame = CGRectMake(
-            x = 0.0,
-            y = view.frame.useContents { size.height - navBarHeight },
-            width = view.frame.useContents { size.width },
-            height = navBarHeight,
-        )
-
-        navigationBarView = UIView(frame = navBarFrame).apply {
             userInteractionEnabled = false
             view.addSubview(this)
         }
@@ -71,14 +90,6 @@ internal class OSUIViewControllerWrapper(
         val statusBarFrame = view.window?.windowScene?.statusBarManager?.statusBarFrame
             ?: UIApplication.sharedApplication.statusBarFrame
         statusBarView?.setFrame(statusBarFrame)
-
-        val navBarHeight = (UIApplication.sharedApplication.windows.firstOrNull() as? UIWindow)?.safeAreaInsets?.useContents { bottom } ?: 0.0
-        navigationBarView?.setFrame(CGRectMake(
-            x = 0.0,
-            y = view.frame.useContents { size.height - navBarHeight },
-            width = view.frame.useContents { size.width },
-            height = navBarHeight
-        ))
     }
 
     override fun preferredStatusBarStyle(): UIStatusBarStyle {
@@ -94,7 +105,7 @@ internal class OSUIViewControllerWrapper(
         statusBarView?.backgroundColor = color
     }
 
-    fun setNavigationBarBackground(color: UIColor) {
-        navigationBarView?.backgroundColor = color
+    fun setNavigationBarBackground(color: Color) {
+        navigationBarColor.tryEmit(color)
     }
 }

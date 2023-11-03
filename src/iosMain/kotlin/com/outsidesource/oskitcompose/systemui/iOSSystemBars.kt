@@ -53,12 +53,7 @@ actual fun rememberSystemBarColorController(): ISystemBarColorController {
 
             override fun setNavigationBarColor(color: Color) {
                 if (vc !is OSUIViewControllerWrapper) return
-                vc.setNavigationBarBackground(UIColor(
-                    red = color.red.toDouble(),
-                    green = color.green.toDouble(),
-                    blue = color.blue.toDouble(),
-                    alpha = color.alpha.toDouble(),
-                ))
+                vc.setNavigationBarBackground(color)
             }
 
             override fun setNavigationBarIconColor(color: SystemBarIconColor) {}
