@@ -568,11 +568,18 @@ private fun MarkdownList(list: MarkdownBlock.List) {
             .fillMaxWidth()
             .then(styles.listModifier),
     ) {
-        list.items.forEach { item ->
-            if (item !is MarkdownBlock.ListItem) return@forEach
+        var resolvedPrefix = 0
+
+        list.items.forEachIndexed { i, item ->
+            if (item !is MarkdownBlock.ListItem) return@forEachIndexed
+
+            resolvedPrefix = when {
+                i == 0 -> item.prefix?.toIntOrNull() ?: 1
+                else -> resolvedPrefix + 1
+            }
 
             Row(horizontalArrangement = Arrangement.spacedBy(styles.listItemPrefixSpacing)) {
-                styles.listItemPrefixComposable(this, list.isOrdered, item.prefix)
+                styles.listItemPrefixComposable(this, list.isOrdered, "$resolvedPrefix")
 
                 Column {
                     item.content.forEach {
