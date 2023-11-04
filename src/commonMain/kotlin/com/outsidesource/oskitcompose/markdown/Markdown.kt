@@ -155,7 +155,7 @@ data class MarkdownStyles(
  * Note: Android and iOS do not support svg images
  *
  * [loadAsync] If true Markdown will parse and load URL images on the IO thread. If there aren't any URL images it is
- * recommended that [loadAsync] is false.
+ * recommended that [loadAsync] is false. If you have URL images, it is recommended that [loadAsync] is true.
  *
  * TODO: Wrap with SelectionContainer when SelectionContainer does not block clicking of links
  */
@@ -166,7 +166,52 @@ fun Markdown(
     styles: MarkdownStyles = MarkdownStyles(),
     localImageMap: Map<String, Painter> = emptyMap(),
     loadAsync: Boolean = false,
+    onLoaded: () -> Unit = {},
     onLinkClick: ((it: String) -> Unit)? = null,
+) = InternalMarkdown(
+    text = text,
+    modifier = modifier,
+    styles = styles,
+    localImageMap = localImageMap,
+    loadAsync = loadAsync,
+    onLoaded = onLoaded,
+    onLinkClick = onLinkClick,
+    isLazy = false,
+)
+
+@Composable
+fun LazyMarkdown(
+    text: String,
+    modifier: Modifier = Modifier,
+    styles: MarkdownStyles = MarkdownStyles(),
+    localImageMap: Map<String, Painter> = emptyMap(),
+    lazyListState: LazyListState = rememberLazyListState(),
+    loadAsync: Boolean = false,
+    onLoaded: () -> Unit = {},
+    onLinkClick: ((String) -> Unit)? = null,
+) = InternalMarkdown(
+    text = text,
+    modifier = modifier,
+    styles = styles,
+    localImageMap = localImageMap,
+    loadAsync = loadAsync,
+    onLoaded = onLoaded,
+    onLinkClick = onLinkClick,
+    lazyListState = lazyListState,
+    isLazy = true,
+)
+
+@Composable
+private fun InternalMarkdown(
+    text: String,
+    modifier: Modifier = Modifier,
+    styles: MarkdownStyles = MarkdownStyles(),
+    localImageMap: Map<String, Painter> = emptyMap(),
+    lazyListState: LazyListState? = null,
+    loadAsync: Boolean = false,
+    onLoaded: () -> Unit = {},
+    onLinkClick: ((String) -> Unit)? = null,
+    isLazy: Boolean = false,
 ) {
     val uriHandler = LocalUriHandler.current
     val localOnLinkClick = onLinkClick ?: {
@@ -176,6 +221,7 @@ fun Markdown(
             e.printStackTrace()
         }
     }
+
     val localMarkdownInfo = remember(styles, localImageMap, onLinkClick) { MarkdownInfo(localImageMap, styles, onLinkClick = localOnLinkClick) }
     val density = LocalDensity.current
 
@@ -186,6 +232,7 @@ fun Markdown(
                     .buildMarkdownTreeFromString(text)
                     .buildBlockItems(text, localMarkdownInfo, density)
             }
+            onLoaded()
         }
     } else {
         remember(text, localMarkdownInfo, density) {
@@ -214,59 +261,19 @@ fun Markdown(
                     CircularProgressIndicator(color = styles.loaderBackgroundColor)
                 }
             }
-            tree.forEach { MarkdownBlock(it) }
-        }
-    }
-}
 
-@Composable
-fun LazyMarkdown(
-    text: String,
-    modifier: Modifier = Modifier,
-    styles: MarkdownStyles = MarkdownStyles(),
-    localImageMap: Map<String, Painter> = emptyMap(),
-    lazyListState: LazyListState = rememberLazyListState(),
-    loadAsync: Boolean = false,
-    onLinkClick: ((String) -> Unit)? = null,
-) {
-    val uriHandler = LocalUriHandler.current
-    val localOnLinkClick = onLinkClick ?: { uriHandler.openUri(it) }
-    val localMarkdownInfo = remember(styles, localImageMap, onLinkClick) { MarkdownInfo(localImageMap, styles, onLinkClick = localOnLinkClick) }
-    val density = LocalDensity.current
-    val tree by if (loadAsync) {
-        produceState(initialValue = emptyList(), text, localMarkdownInfo, density, loadAsync) {
-            value = withContext(Dispatchers.IO) {
-                MarkdownParser(CommonMarkFlavourDescriptor())
-                    .buildMarkdownTreeFromString(text)
-                    .buildBlockItems(text, localMarkdownInfo, density)
-            }
-        }
-    } else {
-        remember(text, localMarkdownInfo, density) {
-            mutableStateOf(
-                MarkdownParser(CommonMarkFlavourDescriptor())
-                    .buildMarkdownTreeFromString(text)
-                    .buildBlockItems(text, localMarkdownInfo, density)
-            )
-        }
-    }
-
-    CompositionLocalProvider(LocalMarkdownInfo provides localMarkdownInfo) {
-        if (tree.isEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator(color = styles.loaderBackgroundColor)
-            }
-        }
-        LazyColumn(
-            modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(localMarkdownInfo.styles.blockGap),
-            state = lazyListState,
-        ) {
-            items(tree) {
-                MarkdownBlock(it)
+            if (!isLazy) {
+                tree.forEach { MarkdownBlock(it) }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(localMarkdownInfo.styles.blockGap),
+                    state = lazyListState ?: rememberLazyListState(),
+                ) {
+                    items(tree) {
+                        MarkdownBlock(it)
+                    }
+                }
             }
         }
     }
