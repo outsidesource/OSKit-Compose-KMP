@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.*
@@ -140,13 +141,16 @@ data class MarkdownStyles(
  * This composable does not support HTML or links navigating to internal references.
  *
  * Images in Markdown can either be URLs or local resources. Local resources are designated by a user-provided id string
- * and a Painter passed via [localImageMap]. Local resources also have the option of adding sizing and alignment info:
- *  width (in dp)
- *  height (in dp)
- *  halign (start|center|end) (only affects block images)
- *  valign (top|center|bottom) (only affects inline images)
+ * and a Painter passed via [localImageMap].
  *
- *  example: ![image description](local:my-image-id,width:20,height:20,halign:start,valign:center)
+ * Images also have the option of adding sizing, alignment, and scaling info:
+ *   width (in dp)
+ *   height (in dp)
+ *   hAlign (start|center|end) (only affects block images)
+ *   vAlign (top|center|bottom) (only affects inline images)
+ *   scale (none|crop|fillBounds|fit|fillWidth|fillHeight|inside)
+ *
+ *   example: ![attrs(width=20, height=20, hAlign=start, vAlign=center) image description](local:my-image-id)
  *
  * Note: Android and iOS do not support svg images
  *
@@ -407,17 +411,16 @@ private fun MarkdownInlineContent(
             content.getStringAnnotations(TAG_INLINE_IMAGE, 0, content.length).forEach {
                 val id = it.item
                 val image = inlineImageMap[id] ?: return@forEach
-                val (width, height) = with(density) { Pair(image.width.toSp(), image.height.toSp()) }
+                val size = resolveDimensionsForImage(density, image)
+                val (width, height) = with(density) { Pair(size.width.toSp(), size.height.toSp()) }
                 maxImageHeight = max(height.value, maxImageHeight)
 
-                val alignment = if (image is MarkdownBlock.Image.Local) {
-                    when (image.vAlignment) {
-                        Alignment.Top -> PlaceholderVerticalAlign.Top
-                        Alignment.CenterVertically -> PlaceholderVerticalAlign.Center
-                        Alignment.Bottom -> PlaceholderVerticalAlign.Bottom
-                        else -> PlaceholderVerticalAlign.Center
-                    }
-                } else PlaceholderVerticalAlign.Center
+                val alignment = when (image.vAlignment) {
+                    Alignment.Top -> PlaceholderVerticalAlign.Top
+                    Alignment.CenterVertically -> PlaceholderVerticalAlign.Center
+                    Alignment.Bottom -> PlaceholderVerticalAlign.Bottom
+                    else -> PlaceholderVerticalAlign.Center
+                }
 
                 put(id,
                     InlineTextContent(
@@ -484,23 +487,48 @@ private fun MarkdownInlineContent(
 @Composable
 private fun MarkdownImage(image: MarkdownBlock.Image) {
     val styles = LocalMarkdownInfo.current.styles
+    val density = LocalDensity.current
     val painter = image.painter ?: return Text(image.description)
-    val alignment = if (image is MarkdownBlock.Image.Local) image.hAlignment else Alignment.Start
+    val alignment = image.hAlignment
 
     Column(modifier = Modifier.fillMaxWidth()) {
         BoxWithConstraints(modifier = Modifier.align(alignment)) {
-            val ratio = image.height / image.width
-            val width = min(maxWidth, image.width)
+            val size = resolveDimensionsForImage(density, image)
 
             Image(
                 modifier = Modifier
-                    .size(width = image.width, height = width * ratio)
+                    .size(width = size.width, height = size.height)
                     .then(styles.imageModifier),
                 painter = painter,
+                contentScale = image.scale,
                 contentDescription = image.description,
             )
         }
     }
+}
+
+private fun resolveDimensionsForImage(
+    density: Density,
+    image: MarkdownBlock.Image,
+): DpSize {
+    if (image.painter == null) return DpSize.Zero
+
+    val ratio = with(density) { image.painter.intrinsicSize.width.toDp() / image.painter.intrinsicSize.height.toDp() }
+    val intrinsicSize = with(density) { image.painter.intrinsicSize.toDpSize() }
+
+    val width = when {
+        image.width != Dp.Unspecified -> image.width
+        image.height != Dp.Unspecified -> image.height * ratio
+        else -> intrinsicSize.width
+    }
+
+    val height = when {
+        image.height != Dp.Unspecified -> image.height
+        image.width != Dp.Unspecified -> image.width / ratio
+        else -> intrinsicSize.height
+    }
+
+    return DpSize(width, height)
 }
 
 @Composable
@@ -863,70 +891,71 @@ private fun ASTNode.buildLinkContent(source: String, styles: MarkdownStyles): An
 }
 
 private fun ASTNode.buildImage(source: String, markdownInfo: MarkdownInfo, density: Density): MarkdownBlock.Image {
-    val link = findChildOfType(MarkdownElementTypes.INLINE_LINK) ?: return MarkdownBlock.Image.Remote()
+    val link = findChildOfType(MarkdownElementTypes.INLINE_LINK) ?: return MarkdownBlock.Image()
     val description = link.findChildOfType(MarkdownElementTypes.LINK_TEXT)?.getTextInNode(source)?.let { it.substring(1, it.length - 1) } ?: ""
     val destination = link.findChildOfType(MarkdownElementTypes.LINK_DESTINATION)?.getTextInNode(source)?.toString() ?: ""
 
-    return if (destination.startsWith("local:")) {
-        var id = ""
-        var width = Dp.Unspecified
-        var height = Dp.Unspecified
-        var halign = Alignment.Start
-        var valign = Alignment.CenterVertically
+    var parsedDescription = description
+    var width = Dp.Unspecified
+    var height = Dp.Unspecified
+    var hAlign = Alignment.Start
+    var vAlign = Alignment.CenterVertically
+    var scale = ContentScale.Fit
 
-        destination.split(",").forEach { attribute ->
-            val pair = attribute.split(":")
+    if (description.startsWith("attrs(")) {
+        val attrsStart = 6
+        val attrsEnd = description.indexOf(')', attrsStart)
+        val attributes = description.substring(attrsStart..< attrsEnd)
+        parsedDescription = description.substring(attrsEnd + 1 ..< description.length)
+
+        attributes.split(",").forEach { attribute ->
+            val pair = attribute.split("=")
             if (pair.size != 2) return@forEach
 
-            when (pair[0]) {
-                "local" -> id = pair[1]
+            when (pair[0].trim()) {
                 "width" -> width = pair[1].toFloatOrNull()?.dp ?: Dp.Unspecified
                 "height" -> height = pair[1].toFloatOrNull()?.dp ?: Dp.Unspecified
-                "halign" -> halign = when (pair[1]) {
+                "hAlign" -> hAlign = when (pair[1]) {
                     "start" -> Alignment.Start
                     "center" -> Alignment.CenterHorizontally
                     "end" -> Alignment.End
                     else -> Alignment.Start
                 }
-                "valign" -> valign = when (pair[1]) {
+                "vAlign" -> vAlign = when (pair[1]) {
                     "top" -> Alignment.Top
                     "center" -> Alignment.CenterVertically
                     "bottom" -> Alignment.Bottom
                     else -> Alignment.CenterVertically
                 }
+                "scale" -> scale = when (pair[1]) {
+                    "fit" -> ContentScale.Fit
+                    "inside" -> ContentScale.Inside
+                    "none" -> ContentScale.None
+                    "fillBounds" -> ContentScale.FillBounds
+                    "fillHeight" -> ContentScale.FillHeight
+                    "fillWidth" -> ContentScale.FillWidth
+                    "crop" -> ContentScale.Crop
+                    else -> ContentScale.Fit
+                }
             }
         }
-
-        val painter = markdownInfo.localImageMap[id]
-
-        with(density) {
-            width = if (width != Dp.Unspecified) width else painter?.intrinsicSize?.width?.toDp() ?: 0.dp
-            height = if (height != Dp.Unspecified) height else painter?.intrinsicSize?.height?.toDp() ?: 0.dp
-        }
-
-        MarkdownBlock.Image.Local(
-            description = description,
-            id = id,
-            width = width,
-            height = height,
-            hAlignment = halign,
-            vAlignment = valign,
-            painter = painter
-        )
-    } else {
-        val painter = kmpUrlImagePainter(destination, density)
-        val (width, height) = with(density) {
-            Pair(painter.intrinsicSize.width.toDp(), painter.intrinsicSize.height.toDp())
-        }
-
-        MarkdownBlock.Image.Remote(
-            description = description,
-            url = destination,
-            painter = painter,
-            width = width,
-            height = height,
-        )
     }
+
+    val painter = if (destination.startsWith("local:")) {
+        markdownInfo.localImageMap[destination.split(":").getOrElse(1) { "" }]
+    } else {
+        kmpUrlImagePainter(destination, density)
+    }
+
+    return MarkdownBlock.Image(
+        painter = painter,
+        description = parsedDescription,
+        width = width,
+        height = height,
+        hAlignment = hAlign,
+        vAlignment = vAlign,
+        scale = scale,
+    )
 }
 
 @Immutable
@@ -939,40 +968,15 @@ private sealed class MarkdownBlock {
     data class Heading(val size: MarkdownHeadingSize, val content: AnnotatedString): MarkdownBlock()
     data class Setext(val size: MarkdownSetextSize, val content: AnnotatedString): MarkdownBlock()
     data object HR: MarkdownBlock()
-    sealed class Image(
-        open val painter: Painter?,
-        open val description: String,
-        open val width: Dp = Dp.Unspecified,
-        open val height: Dp = Dp.Unspecified,
-    ): MarkdownBlock() {
-        data class Remote(
-            val url: String = "",
-            override val description: String = "",
-            override val painter: Painter? = null,
-            override val width: Dp = Dp.Unspecified,
-            override val height: Dp = Dp.Unspecified,
-        ): Image(
-            painter = painter,
-            description = description,
-            width = width,
-            height = height,
-        )
-
-        data class Local(
-            val id: String = "",
-            val hAlignment: Alignment.Horizontal = Alignment.Start,
-            val vAlignment: Alignment.Vertical = Alignment.CenterVertically,
-            override val description: String = "",
-            override val painter: Painter? = null,
-            override val width: Dp = Dp.Unspecified,
-            override val height: Dp = Dp.Unspecified,
-        ): Image(
-            painter = painter,
-            description = description,
-            width = width,
-            height = height,
-        )
-    }
+    data class Image(
+        val painter: Painter? = null,
+        val description: String = "",
+        val width: Dp = Dp.Unspecified,
+        val height: Dp = Dp.Unspecified,
+        val hAlignment: Alignment.Horizontal = Alignment.Start,
+        val vAlignment: Alignment.Vertical = Alignment.CenterVertically,
+        val scale: ContentScale = ContentScale.Fit,
+    ): MarkdownBlock()
 }
 
 enum class MarkdownHeadingSize {
