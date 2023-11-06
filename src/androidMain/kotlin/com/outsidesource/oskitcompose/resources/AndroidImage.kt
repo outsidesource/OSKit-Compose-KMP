@@ -7,4 +7,4 @@ import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-actual fun rememberKmpImage(resource: KMPImage): Painter = painterResource(resource.pathForDensity())
+actual fun rememberKmpImagePainter(resource: KMPImage): Painter = painterResource(resource.pathForDensity())
