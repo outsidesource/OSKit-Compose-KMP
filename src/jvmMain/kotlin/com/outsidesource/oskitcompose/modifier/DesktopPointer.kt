@@ -1,6 +1,5 @@
 package com.outsidesource.oskitcompose.modifier
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.painter.Painter
