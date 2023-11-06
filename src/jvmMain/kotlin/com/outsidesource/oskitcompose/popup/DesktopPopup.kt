@@ -3,6 +3,7 @@ package com.outsidesource.oskitcompose.popup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
@@ -20,18 +21,22 @@ actual fun KMPPopup(
     onKeyEvent: (KeyEvent) -> Boolean,
     isFullScreen: Boolean,
     content: @Composable () -> Unit,
-) = Popup(
-    properties = PopupProperties(
-        focusable = focusable,
-        dismissOnBackPress = dismissOnBackPress,
-    ),
-    alignment = alignment,
-    offset = offset,
-    onDismissRequest = onDismissRequest,
-    onPreviewKeyEvent = onPreviewKeyEvent,
-    onKeyEvent = onKeyEvent,
-    content = content
-)
+) {
+    val layoutDirection = LocalLayoutDirection.current
+
+    Popup(
+        properties = PopupProperties(
+            focusable = focusable,
+            dismissOnBackPress = dismissOnBackPress,
+        ),
+        alignment = alignment,
+        offset = offset,
+        onDismissRequest = onDismissRequest,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent,
+        content = { LocalLayoutDirectionWrapper(layoutDirection, content) },
+    )
+}
 
 @Composable
 actual fun KMPPopup(
@@ -43,14 +48,18 @@ actual fun KMPPopup(
     focusable: Boolean,
     isFullScreen: Boolean,
     content: @Composable () -> Unit,
-) = Popup(
-    popupPositionProvider = popupPositionProvider,
-    properties = PopupProperties(
-        focusable = focusable,
-        dismissOnBackPress = dismissOnBackPress,
-    ),
-    onDismissRequest = onDismissRequest,
-    onPreviewKeyEvent = onPreviewKeyEvent,
-    onKeyEvent = onKeyEvent,
-    content = content,
-)
+) {
+    val layoutDirection = LocalLayoutDirection.current
+
+    Popup(
+        popupPositionProvider = popupPositionProvider,
+        properties = PopupProperties(
+            focusable = focusable,
+            dismissOnBackPress = dismissOnBackPress,
+        ),
+        onDismissRequest = onDismissRequest,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent,
+        content = { LocalLayoutDirectionWrapper(layoutDirection, content) }
+    )
+}

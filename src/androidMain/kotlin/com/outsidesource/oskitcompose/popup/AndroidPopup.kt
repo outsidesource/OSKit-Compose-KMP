@@ -3,6 +3,7 @@ package com.outsidesource.oskitcompose.popup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
@@ -21,6 +22,8 @@ actual fun KMPPopup(
     isFullScreen: Boolean,
     content: @Composable () -> Unit,
 ) {
+    val layoutDirection = LocalLayoutDirection.current
+
     if (!isFullScreen) {
         Popup(
             alignment = alignment,
@@ -31,7 +34,7 @@ actual fun KMPPopup(
                 excludeFromSystemGesture = false,
                 dismissOnBackPress = dismissOnBackPress,
             ),
-            content = content,
+            content = { LocalLayoutDirectionWrapper(layoutDirection, content) },
         )
     } else {
         AndroidFullScreenPopup(
@@ -42,7 +45,7 @@ actual fun KMPPopup(
             ),
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = onKeyEvent,
-            content = content,
+            content = { LocalLayoutDirectionWrapper(layoutDirection, content) },
         )
     }
 }
@@ -58,6 +61,8 @@ actual fun KMPPopup(
     isFullScreen: Boolean,
     content: @Composable () -> Unit,
 ) {
+    val layoutDirection = LocalLayoutDirection.current
+
     if (!isFullScreen) {
         Popup(
             popupPositionProvider = popupPositionProvider,
@@ -67,7 +72,7 @@ actual fun KMPPopup(
                 excludeFromSystemGesture = false,
                 dismissOnBackPress = dismissOnBackPress,
             ),
-            content = content,
+            content = { LocalLayoutDirectionWrapper(layoutDirection, content) },
         )
     } else {
         AndroidFullScreenPopup(
@@ -78,7 +83,7 @@ actual fun KMPPopup(
             ),
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = onKeyEvent,
-            content = content,
+            content = { LocalLayoutDirectionWrapper(layoutDirection, content) },
         )
     }
 }
