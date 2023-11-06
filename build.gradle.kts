@@ -58,7 +58,7 @@ kotlin {
         }
     }
     androidTarget {
-        jvmToolchain(11)
+        jvmToolchain(17)
         publishLibraryVariants("release", "debug")
     }
 
@@ -86,7 +86,7 @@ kotlin {
                 implementation("org.jetbrains:markdown:0.5.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("io.ktor:ktor-client-core:2.3.4")
-                implementation("io.ktor:ktor-client-cio:2.3.3")
+                implementation("io.ktor:ktor-client-cio:2.3.4")
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
             }
@@ -138,16 +138,17 @@ kotlin {
 }
 
 android {
-    compileSdk = 33
+    namespace = "com.outsidesource.oskitcompose"
+    compileSdk = 34
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     publishing {
