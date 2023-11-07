@@ -46,6 +46,8 @@ data class DrawerStyles(
 ) {
     companion object {
         val None = DrawerStyles(
+            transitionDuration = 0,
+            scrimColor = Color.Transparent,
             width = Dp.Unspecified,
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,

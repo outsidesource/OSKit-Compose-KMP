@@ -45,6 +45,8 @@ data class ModalStyles(
 ) {
     companion object {
         val None = ModalStyles(
+            transitionDuration = 0,
+            scrimColor = Color.Transparent,
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,

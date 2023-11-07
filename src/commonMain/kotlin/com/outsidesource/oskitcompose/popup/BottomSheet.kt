@@ -44,6 +44,8 @@ data class BottomSheetStyles(
 ) {
     companion object {
         val None = BottomSheetStyles(
+            transitionDuration = 0,
+            scrimColor = Color.Transparent,
             maxWidth = Dp.Unspecified,
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
