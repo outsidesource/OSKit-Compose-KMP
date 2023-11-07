@@ -20,6 +20,7 @@ import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitcompose.modifier.OuterShadow
@@ -185,6 +186,8 @@ private fun Modifier.drawerSwipeToDismiss() = composed {
     val offsetAnim = swipeData.offsetAnim
     val scope = rememberCoroutineScope()
     val velocityTracker = remember { VelocityTracker() }
+    val direction = LocalLayoutDirection.current
+    val targetVelocity = -3250
 
     pointerInput(Unit) {
         detectDragGestures(
@@ -194,15 +197,18 @@ private fun Modifier.drawerSwipeToDismiss() = composed {
             },
             onDrag = { change, delta ->
                 velocityTracker.addPointerInputChange(change)
-                offset = (offset + delta.x).coerceAtMost(0f)
+                val mult = if (direction == LayoutDirection.Ltr) 1 else -1
+                offset = (offset + delta.x * mult).coerceAtMost(0f)
             },
             onDragEnd = {
                 scope.launch {
                     isDragging = false
                     offsetAnim.snapTo(offset)
 
-                    val velocity = velocityTracker.calculateVelocity().x
-                    if (velocity < -3250) {
+                    val velocityMult = if (direction == LayoutDirection.Ltr) 1 else -1
+                    val velocity = velocityTracker.calculateVelocity().x * velocityMult
+
+                    if (velocity < targetVelocity) {
                         dismissData.onDismissRequest?.invoke()
                         offsetAnim.animateTo(-swipeData.size.value.width.toFloat(), initialVelocity = velocity)
                         return@launch
