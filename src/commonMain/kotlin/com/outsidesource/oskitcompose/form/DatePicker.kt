@@ -77,7 +77,7 @@ private fun DatePickerModal(
         isVisible = isVisible,
         dismissOnExternalClick = true,
         onDismissRequest = onDismissRequest,
-        styles = ModalStyles.None,
+        styles = ModalStyles.UserDefinedContent,
         isFullScreen = isFullScreen,
         onKeyEvent = {
             if (it.key == Key.Escape || it.key == Key.Back) onDismissRequest?.invoke()

@@ -18,9 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.*
@@ -44,9 +42,10 @@ data class ModalStyles(
     val contentPadding: PaddingValues = PaddingValues(16.dp),
 ) {
     companion object {
-        val None = ModalStyles(
-            transitionDuration = 0,
-            scrimColor = Color.Transparent,
+        /**
+         * ModalStyles with all content set to unspecified to allow for custom user definition
+         */
+        val UserDefinedContent = ModalStyles(
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,

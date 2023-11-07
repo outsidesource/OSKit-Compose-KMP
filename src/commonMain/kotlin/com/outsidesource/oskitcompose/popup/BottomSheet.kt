@@ -43,9 +43,10 @@ data class BottomSheetStyles(
     val contentPadding: PaddingValues = PaddingValues(16.dp),
 ) {
     companion object {
-        val None = BottomSheetStyles(
-            transitionDuration = 0,
-            scrimColor = Color.Transparent,
+        /**
+         * BottomSheetStyles with all content set to unspecified to allow for custom user definition
+         */
+        val UserDefinedContent = BottomSheetStyles(
             maxWidth = Dp.Unspecified,
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,

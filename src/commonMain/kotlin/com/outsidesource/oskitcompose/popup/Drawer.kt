@@ -45,9 +45,10 @@ data class DrawerStyles(
     val contentPadding: PaddingValues = PaddingValues(16.dp),
 ) {
     companion object {
-        val None = DrawerStyles(
-            transitionDuration = 0,
-            scrimColor = Color.Transparent,
+        /**
+         * DrawerStyles with all content set to unspecified to allow for custom user definition
+         */
+        val UserDefinedContent = DrawerStyles(
             width = Dp.Unspecified,
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
