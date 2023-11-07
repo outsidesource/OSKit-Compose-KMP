@@ -1,5 +1,6 @@
 package com.outsidesource.oskitcompose.popup
 
+import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -11,9 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.*
@@ -110,6 +109,47 @@ fun Popover(
                         this.translationY = translate
                     },
                 content = content,
+            )
+        }
+    }
+}
+
+@Composable
+fun <T> Popover(
+    isVisible: Boolean,
+    anchors: PopoverAnchors = PopoverAnchors.ExternalBottomAlignStart,
+    offset: DpOffset = DpOffset(0f.dp, 0f.dp),
+    popupPositionProvider: PopupPositionProvider? = null,
+    onDismissRequest: (() -> Unit)? = null,
+    dismissOnBackKey: Boolean = true,
+    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
+    transitionValueCreator: @Composable (transition: Transition<Boolean>) -> T,
+    content: @Composable BoxScope.(T) -> Unit
+) {
+    val density = LocalDensity.current
+    val popoverPositionProvider = popupPositionProvider ?: remember(anchors, offset, density) {
+        PopoverPositionProvider(anchors, offset, density)
+    }
+    val transition = updateTransition(isVisible)
+    val animationValues = transitionValueCreator(transition)
+
+    if (transition.currentState || transition.targetState) {
+        KMPPopup(
+            popupPositionProvider = popoverPositionProvider,
+            focusable = true,
+            onDismissRequest = onDismissRequest,
+            onPreviewKeyEvent = onPreviewKeyEvent,
+            dismissOnBackPress = dismissOnBackKey,
+            onKeyEvent = onKeyEvent,
+            isFullScreen = false,
+        ) {
+            Box(
+                modifier = Modifier
+                    .disablePointerInput(!LocalWindowInfo.current.isWindowFocused),
+                content = {
+                    content(animationValues)
+                },
             )
         }
     }
