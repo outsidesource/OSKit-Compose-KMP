@@ -19,7 +19,7 @@ actual fun rememberKmpFontFamily(family: KMPFontFamily): FontFamily {
 actual suspend fun resolveKmpFontFamily(family: KMPFontFamily): FontFamily {
     return FontFamily(family.fonts.map {
         val resource = resource(it.path)
-        val bytes = runBlocking { resource.readBytes() }
+        val bytes = resource.readBytes()
 
         Font(
             identity = it.path,
