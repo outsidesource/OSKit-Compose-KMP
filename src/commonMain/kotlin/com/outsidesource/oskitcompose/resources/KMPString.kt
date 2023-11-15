@@ -2,6 +2,7 @@ package com.outsidesource.oskitcompose.resources
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.intl.Locale
+import com.outsidesource.oskitkmp.annotation.ExperimentalOSKitAPI
 import kotlinx.atomicfu.atomic
 
 /**
@@ -16,16 +17,24 @@ import kotlinx.atomicfu.atomic
  *     val hello = kmpStringKey()
  *     val myName = kmpStringKey()
  *
- *     override val strings = mapOf(
- *         "en" to mapOf(
- *             hello to "Hello world!",
- *             myName to "My name is %s",
- *         ),
- *         "es" to mapOf(
- *             hello to "Hola Mundo!",
- *             myName to "Mi nombre es %s",
- *         )
+ *     override val locales = mapOf(
+ *          "en" to StringsEnglish,
+ *          "es" to StringsSpanish,
  *     )
+ * }
+ *
+ * private object StringsEnglish: KMPStringSet() {
+ *      override val strings: Map<KMPStringKey, String> = mapOf(
+ *          Strings.hello to "Hello world!",
+ *          Strings.myName to "My name is %s",
+ *      }
+ * }
+ *
+ * private object StringsSpanish: KMPStringSet() {
+ *      override val strings: Map<KMPStringKey, String> = mapOf(
+ *          Strings.hello to "Hola Mundo!",
+ *          Strings.myName to "Mi nombre es %s",
+ *      }
  * }
  *
  * @Composable
@@ -35,26 +44,32 @@ import kotlinx.atomicfu.atomic
  * }
  * ```
  */
+@ExperimentalOSKitAPI
 abstract class KMPStrings(private val replacementPattern: Regex = Regex("%s")) {
     private val keyId = atomic(0)
-    protected abstract val strings: Map<KMPLocale, Map<KMPStringKey, String>>
+    protected abstract val locales: Map<String, KMPStringSet>
 
-    protected fun kmpStringKey() = KMPStringKey(keyId.incrementAndGet(), ::stringsInternal, replacementPattern)
-    private fun stringsInternal() = strings
+    protected fun kmpStringKey() = KMPStringKey(keyId.incrementAndGet(), ::localesInternal, replacementPattern)
+    private fun localesInternal() = locales
 }
 
-typealias KMPLocale = String
+@ExperimentalOSKitAPI
+abstract class KMPStringSet {
+    abstract val strings: Map<KMPStringKey, String>
+}
 
+@ExperimentalOSKitAPI
 data class KMPStringKey(
     private val id: Int,
-    internal val strings: () -> Map<KMPLocale, Map<KMPStringKey, String>>,
+    internal val locales: () -> Map<String, KMPStringSet>,
     internal val replacementPattern: Regex,
 )
 
 @Composable
+@ExperimentalOSKitAPI
 fun kmpString(key: KMPStringKey, vararg args: String): String {
     val locale = Locale.current.language
-    val string = key.strings()[locale]?.get(key) ?: ""
+    val string = key.locales()[locale]?.strings?.get(key) ?: ""
 
     return if (args.isNotEmpty()) {
         var index = 0
@@ -64,8 +79,9 @@ fun kmpString(key: KMPStringKey, vararg args: String): String {
     }
 }
 
+@ExperimentalOSKitAPI
 fun kmpString(key: KMPStringKey, locale: Locale, vararg args: String): String {
-    val string = key.strings()[locale.language]?.get(key) ?: ""
+    val string = key.locales()[locale.language]?.strings?.get(key) ?: ""
     Locale.current.language
 
     return if (args.isNotEmpty()) {
