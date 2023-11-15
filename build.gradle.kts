@@ -1,3 +1,4 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import java.io.File
 import java.io.FileInputStream
 import java.lang.System.getenv
@@ -18,6 +19,7 @@ plugins {
     id("org.jetbrains.compose") version "1.5.10"
     id("maven-publish")
     id("org.jetbrains.dokka") version "1.9.10"
+    id("com.vanniktech.maven.publish") version "0.25.3"
 }
 
 apply(from = "versioning.gradle.kts")
@@ -36,18 +38,6 @@ repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     maven("https://plugins.gradle.org/m2/")
-    maven {
-        url = uri("https://maven.pkg.github.com/outsidesource/OSKit-KMP")
-        credentials {
-            val credentialProperties = Properties()
-            if (getenv("OS_DEVELOPER") == null) {
-                File(project.rootDir, "credential.properties").reader().use { stream -> credentialProperties.load(stream) }
-            }
-
-            username = getenv("OS_DEVELOPER") ?: credentialProperties["username"].toString()
-            password = getenv("OS_TOKEN") ?: credentialProperties["password"].toString()
-        }
-    }
 }
 
 kotlin {
@@ -59,7 +49,7 @@ kotlin {
     }
     androidTarget {
         jvmToolchain(17)
-        publishLibraryVariants("release", "debug")
+        publishAllLibraryVariants()
     }
 
     listOf(
@@ -119,23 +109,6 @@ kotlin {
             }
         }
     }
-
-    afterEvaluate {
-        getenv("GITHUB_REPOSITORY")?.let { repoName ->
-            publishing {
-                repositories {
-                    maven {
-                        name = "GitHubPackages"
-                        url = uri("https://maven.pkg.github.com/$repoName")
-                        credentials {
-                            username = getenv("OS_DEVELOPER")
-                            password = getenv("OS_TOKEN")
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 android {
@@ -156,6 +129,38 @@ android {
         singleVariant("release") {
             withSourcesJar()
             withJavadocJar()
+        }
+    }
+}
+
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.S01, true)
+    signAllPublications()
+    pom {
+        description.set("An opinionated architecture/library for Compose Multiplatform development")
+        name.set(project.name)
+        url.set("https://github.com/outsidesource/OSKit-KMP")
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://spdx.org/licenses/MIT.html")
+                distribution.set("https://spdx.org/licenses/MIT.html")
+            }
+        }
+        scm {
+            url.set("https://github.com/outsidesource/OSKit-Compose-KMP")
+            connection.set("scm:git:git://github.com/outsidesource/OSKit-Compose-KMP.git")
+            developerConnection.set("scm:git:ssh://git@github.com/outsidesource/OSKit-Compose-KMP.git")
+        }
+        developers {
+            developer {
+                id.set("ryanmitchener")
+                name.set("Ryan Mitchener")
+            }
+            developer {
+                id.set("osddeveloper")
+                name.set("Outside Source")
+            }
         }
     }
 }
