@@ -34,6 +34,7 @@ data class AndroidFullScreenPopupProperties(
     val focusable: Boolean = false,
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     val clippingEnabled: Boolean = false,
+    val dismissOnBackPress: Boolean = true,
 )
 
 /**
@@ -48,7 +49,6 @@ fun AndroidFullScreenPopup(
     properties: AndroidFullScreenPopupProperties = AndroidFullScreenPopupProperties(),
     content: @Composable () -> Unit,
 ) {
-    val focusRequester = remember { FocusRequester() }
     val view = LocalView.current
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
@@ -63,7 +63,6 @@ fun AndroidFullScreenPopup(
             setContent(parent = parentComposition) {
                 Box(
                     modifier = Modifier
-                        .focusRequester(focusRequester)
                         .focusable()
                         .semantics { popup() }
                         .onPreviewKeyEvent(onPreviewKeyEvent)
@@ -74,10 +73,6 @@ fun AndroidFullScreenPopup(
                 }
             }
         }
-    }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
     }
 
     DisposableEffect(fullScreenPopupLayout) {
@@ -167,6 +162,28 @@ internal class FullScreenPopupLayout(
     fun dismiss() {
         windowManager.removeViewImmediate(this)
         setViewTreeLifecycleOwner(null)
+    }
+
+    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        if (event.keyCode == android.view.KeyEvent.KEYCODE_BACK) {
+            if (keyDispatcherState == null) {
+                return super.dispatchKeyEvent(event)
+            }
+            if (event.action == android.view.KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
+                val state = keyDispatcherState
+                state?.startTracking(event, this)
+                return true
+            } else if (event.action == android.view.KeyEvent.ACTION_UP) {
+                if (!properties.dismissOnBackPress) return super.dispatchKeyEvent(event)
+
+                val state = keyDispatcherState
+                if (state != null && state.isTracking(event) && !event.isCanceled) {
+                    onDismissRequest?.invoke()
+                    return true
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     private fun applyNewFlags(flags: Int) {

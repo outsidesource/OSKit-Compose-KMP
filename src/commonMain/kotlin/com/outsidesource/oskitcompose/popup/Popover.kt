@@ -1,5 +1,6 @@
 package com.outsidesource.oskitcompose.popup
 
+import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -9,18 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.geometry.toIntOffset
 import com.outsidesource.oskitcompose.modifier.disablePointerInput
-import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 
 const val popoverAnimDuration = 150
 
@@ -59,7 +56,6 @@ data class PopoverAnchors(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Popover(
     isVisible: Boolean,
@@ -67,7 +63,7 @@ fun Popover(
     offset: DpOffset = DpOffset(0f.dp, 0f.dp),
     popupPositionProvider: PopupPositionProvider? = null,
     onDismissRequest: (() -> Unit)? = null,
-    dismissOnEscapeKey: Boolean = true,
+    dismissOnBackKey: Boolean = true,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
     content: @Composable BoxScope.() -> Unit
@@ -94,16 +90,14 @@ fun Popover(
     )
 
     if (transition.currentState || transition.targetState) {
-        Popup(
+        KMPPopup(
             popupPositionProvider = popoverPositionProvider,
             focusable = true,
             onDismissRequest = onDismissRequest,
             onPreviewKeyEvent = onPreviewKeyEvent,
+            dismissOnBackPress = dismissOnBackKey,
+            onKeyEvent = onKeyEvent,
             isFullScreen = false,
-            onKeyEvent = {
-                if (dismissOnEscapeKey) { if (it.key == Key.Escape || it.key == Key.Back) onDismissRequest?.invoke() }
-                onKeyEvent(it)
-            }
         ) {
             Box(
                 modifier = Modifier
@@ -120,8 +114,52 @@ fun Popover(
     }
 }
 
-private class PopoverPositionProvider(val anchors: PopoverAnchors, val offset: DpOffset, val density: Density) :
-    PopupPositionProvider {
+@Composable
+fun <T> Popover(
+    isVisible: Boolean,
+    anchors: PopoverAnchors = PopoverAnchors.ExternalBottomAlignStart,
+    offset: DpOffset = DpOffset(0f.dp, 0f.dp),
+    popupPositionProvider: PopupPositionProvider? = null,
+    onDismissRequest: (() -> Unit)? = null,
+    dismissOnBackKey: Boolean = true,
+    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
+    transitionValueCreator: @Composable (transition: Transition<Boolean>) -> T,
+    content: @Composable BoxScope.(T) -> Unit
+) {
+    val density = LocalDensity.current
+    val popoverPositionProvider = popupPositionProvider ?: remember(anchors, offset, density) {
+        PopoverPositionProvider(anchors, offset, density)
+    }
+    val transition = updateTransition(isVisible)
+    val animationValues = transitionValueCreator(transition)
+
+    if (transition.currentState || transition.targetState) {
+        KMPPopup(
+            popupPositionProvider = popoverPositionProvider,
+            focusable = true,
+            onDismissRequest = onDismissRequest,
+            onPreviewKeyEvent = onPreviewKeyEvent,
+            dismissOnBackPress = dismissOnBackKey,
+            onKeyEvent = onKeyEvent,
+            isFullScreen = false,
+        ) {
+            Box(
+                modifier = Modifier
+                    .disablePointerInput(!LocalWindowInfo.current.isWindowFocused),
+                content = {
+                    content(animationValues)
+                },
+            )
+        }
+    }
+}
+
+class PopoverPositionProvider(
+    private val anchors: PopoverAnchors,
+    private val offset: DpOffset,
+    private val density: Density
+) : PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
         windowSize: IntSize,
@@ -161,13 +199,13 @@ private class PopoverPositionProvider(val anchors: PopoverAnchors, val offset: D
         return initialOffset + adjust
     }
 
-    fun isOffsetInBounds(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): Boolean =
+    private fun isOffsetInBounds(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): Boolean =
         offset.x > 0 &&
             offset.y > 0 &&
             offset.x + popupContentSize.width < windowSize.width &&
             offset.y + popupContentSize.height < windowSize.height
 
-    fun getAdjustment(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): IntOffset {
+    private fun getAdjustment(offset: IntOffset, windowSize: IntSize, popupContentSize: IntSize): IntOffset {
         var xAdjust = 0
         var yAdjust = 0
 

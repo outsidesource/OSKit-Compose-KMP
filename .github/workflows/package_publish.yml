@@ -24,9 +24,6 @@ jobs:
         distribution: 'adopt'
         architecture: x64
 
-    - name: Publish Package
-      run: ./gradlew publish --no-daemon
-
   create_release:
     needs: build
     runs-on: ubuntu-latest

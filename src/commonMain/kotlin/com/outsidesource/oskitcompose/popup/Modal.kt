@@ -13,15 +13,12 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.*
@@ -45,7 +42,10 @@ data class ModalStyles(
     val contentPadding: PaddingValues = PaddingValues(16.dp),
 ) {
     companion object {
-        val None = ModalStyles(
+        /**
+         * ModalStyles with all content set to unspecified to allow for custom user definition
+         */
+        val UserDefinedContent = ModalStyles(
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,
@@ -61,24 +61,23 @@ data class ModalStyles(
  *
  * @param isVisible Whether the modal is visible or not
  * @param onDismissRequest Executes when the user performs an action to dismiss the [Modal]
- * @param shouldDismissOnExternalClick calls [onDismissRequest] when clicking on the scrim
- * @param shouldDismissOnEscapeKey call [onDismissRequest] when pressing escape or back key
+ * @param dismissOnExternalClick calls [onDismissRequest] when clicking on the scrim
+ * @param dismissOnBackPress call [onDismissRequest] when pressing escape or back key
  * @param onPreviewKeyEvent Handles the onPreviewKey event
  * @param onKeyEvent Handles the onKeyEvent
- * @param isFullScreen Only utilized in Android. Specifies whether to draw behind the system bars or not
+ * @param isFullScreen Utilized in Android and iOS. Specifies whether to draw behind the system bars or not
  * @param styles Styles to modify the look of the [Modal]
  * @param content The content to be displayed inside the popup.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Modal(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
-    shouldDismissOnExternalClick: Boolean = true,
-    shouldDismissOnEscapeKey: Boolean = true,
+    dismissOnExternalClick: Boolean = true,
+    dismissOnBackPress: Boolean = true,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
-    onKeyEvent: ((KeyEvent) -> Boolean)? = null,
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
     isFullScreen: Boolean = true,
     styles: ModalStyles = remember { ModalStyles() },
     content: @Composable BoxScope.() -> Unit,
@@ -102,23 +101,20 @@ fun Modal(
     )
 
     if (transition.currentState || transition.targetState) {
-        Popup(
+        KMPPopup(
             popupPositionProvider = ModalPositionProvider,
+            dismissOnBackPress = dismissOnBackPress,
             onDismissRequest = onDismissRequest,
             onPreviewKeyEvent = onPreviewKeyEvent,
             focusable = true,
             isFullScreen = isFullScreen,
-            onKeyEvent = {
-                if ((it.key == Key.Escape || it.key == Key.Back) && shouldDismissOnEscapeKey) onDismissRequest?.invoke()
-                if (onKeyEvent != null) return@Popup onKeyEvent(it)
-                false
-            }
+            onKeyEvent = onKeyEvent,
         ) {
             Box(
                 modifier = Modifier
                     .disablePointerInput(!LocalWindowInfo.current.isWindowFocused)
                     .clickable(remember { MutableInteractionSource() }, indication = null) {
-                        if (shouldDismissOnExternalClick) onDismissRequest?.invoke()
+                        if (dismissOnExternalClick) onDismissRequest?.invoke()
                     }
                     .fillMaxSize()
                     .graphicsLayer { this.alpha = alpha }

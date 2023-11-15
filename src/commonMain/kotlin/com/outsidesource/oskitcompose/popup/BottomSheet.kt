@@ -2,7 +2,6 @@ package com.outsidesource.oskitcompose.popup
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
-import androidx.compose.animation.core.Spring.StiffnessMediumLow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -11,15 +10,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
@@ -47,7 +43,10 @@ data class BottomSheetStyles(
     val contentPadding: PaddingValues = PaddingValues(16.dp),
 ) {
     companion object {
-        val None = BottomSheetStyles(
+        /**
+         * BottomSheetStyles with all content set to unspecified to allow for custom user definition
+         */
+        val UserDefinedContent = BottomSheetStyles(
             maxWidth = Dp.Unspecified,
             shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
@@ -62,22 +61,21 @@ data class BottomSheetStyles(
  *
  * @param isVisible Whether the modal is visible or not
  * @param onDismissRequest Executes when the user performs an action to dismiss the [BottomSheet]
- * @param shouldDismissOnExternalClick calls [onDismissRequest] when clicking on the scrim
- * @param shouldDismissOnEscapeKey call [onDismissRequest] when pressing escape or back key
- * @param shouldDismissOnSwipe calls [onDismissRequest] when swiping the bottom sheet away
- * @param isFullScreen Only utilized in Android. Specifies whether to draw behind the system bars or not
+ * @param dismissOnExternalClick calls [onDismissRequest] when clicking on the scrim
+ * @param dismissOnBackPress call [onDismissRequest] when pressing escape or back key
+ * @param dismissOnSwipe calls [onDismissRequest] when swiping the bottom sheet away
+ * @param isFullScreen Utilized in Android and iOS. Specifies whether to draw behind the system bars or not
  * @param styles Styles to modify the look of the [BottomSheet]
  * @param content The content to be displayed inside the popup.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BottomSheet(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
-    shouldDismissOnExternalClick: Boolean = true,
-    shouldDismissOnEscapeKey: Boolean = true,
-    shouldDismissOnSwipe: Boolean = true,
+    dismissOnExternalClick: Boolean = true,
+    dismissOnBackPress: Boolean = true,
+    dismissOnSwipe: Boolean = true,
     isFullScreen: Boolean = true,
     styles: BottomSheetStyles = remember { BottomSheetStyles() },
     content: @Composable BoxScope.() -> Unit,
@@ -91,17 +89,12 @@ fun BottomSheet(
         )
 
         if (transition.currentState || transition.targetState) {
-            Popup(
+            KMPPopup(
                 popupPositionProvider = BottomSheetPositionProvider,
                 isFullScreen = isFullScreen,
                 onDismissRequest = onDismissRequest,
+                dismissOnBackPress = dismissOnBackPress,
                 focusable = true,
-                onKeyEvent = {
-                    if ((it.key == Key.Escape || it.key == Key.Back) && shouldDismissOnEscapeKey) {
-                        onDismissRequest?.invoke()
-                    }
-                    false
-                },
             ) {
                 Box(
                     modifier = Modifier
@@ -110,7 +103,7 @@ fun BottomSheet(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
-                            onClick = { if (shouldDismissOnExternalClick) onDismissRequest?.invoke() }
+                            onClick = { if (dismissOnExternalClick) onDismissRequest?.invoke() }
                         )
                         .background(color = styles.scrimColor.copy(styles.scrimColor.alpha * alpha)),
                     contentAlignment = Alignment.BottomCenter,
@@ -147,7 +140,7 @@ fun BottomSheet(
                             modifier = Modifier
                                 .preventClickPropagationToParent()
                                 .onGloballyPositioned { swipeData.size.value = it.size }
-                                .then(if (shouldDismissOnSwipe) Modifier.bottomSheetSwipeToDismiss() else Modifier)
+                                .then(if (dismissOnSwipe) Modifier.bottomSheetSwipeToDismiss() else Modifier)
                                 .offset(y = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
                                 .widthIn(max = styles.maxWidth)
                                 .fillMaxWidth()

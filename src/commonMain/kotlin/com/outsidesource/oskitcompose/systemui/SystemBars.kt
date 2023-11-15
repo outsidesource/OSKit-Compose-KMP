@@ -3,13 +3,42 @@ package com.outsidesource.oskitcompose.systemui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+/**
+ * [SystemBarColorEffect] Configures the system toolbars for Android and iOS. On desktop this effect is a no-op.
+ *
+ * iOS Notes: In order to use [SystemBarColorEffect] in iOS, replace [ComposeUIViewController]
+ * with [OSComposeUIViewController] and use `ignoresSafeArea()` on your primary View.
+ * [navigationBarIconColor] is a no-op in iOS.
+ */
 @Composable
 expect fun SystemBarColorEffect(
     statusBarColor: Color = Color.Transparent,
+    statusBarIconColor: SystemBarIconColor = SystemBarIconColor.Unspecified,
     navigationBarColor: Color = Color.Transparent,
+    navigationBarIconColor: SystemBarIconColor = SystemBarIconColor.Unspecified,
 )
 
+
+interface ISystemBarColorController {
+    fun setStatusBarColor(color: Color)
+//    fun getStatusBarColor(): Color
+    fun setStatusBarIconColor(color: SystemBarIconColor)
+//    fun getStatusBarIconColor(): SystemBarIconColor
+    fun setNavigationBarColor(color: Color)
+//    fun getNavigationBarColor(): Color
+    fun setNavigationBarIconColor(color: SystemBarIconColor)
+//    fun getNavigationBarIconColor(): SystemBarIconColor
+}
+
 @Composable
-expect fun StatusBarIconColorEffect(
-    useDarkIcons: Boolean = true,
-)
+expect fun rememberSystemBarColorController(): ISystemBarColorController
+
+/**
+ * [SystemBarIconColor] defines to change system icons to dark or light. Using [Unspecified] will not change
+ * the current setting.
+ */
+enum class SystemBarIconColor {
+    Unspecified,
+    Dark,
+    Light,
+}
