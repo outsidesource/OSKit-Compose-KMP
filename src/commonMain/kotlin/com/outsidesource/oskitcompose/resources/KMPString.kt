@@ -1,7 +1,10 @@
 package com.outsidesource.oskitcompose.resources
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.text.intl.Locale
+import com.outsidesource.oskitcompose.lib.rememberInject
 import com.outsidesource.oskitkmp.annotation.ExperimentalOSKitAPI
 import kotlinx.atomicfu.atomic
 
@@ -65,8 +68,8 @@ data class KMPStringKey(
     internal val replacementPattern: Regex,
 )
 
-@Composable
 @ExperimentalOSKitAPI
+@Composable
 fun kmpString(key: KMPStringKey, vararg args: String): String {
     val locale = Locale.current.language
     val string = key.locales()[locale]?.strings?.get(key) ?: ""
@@ -89,5 +92,22 @@ fun kmpString(key: KMPStringKey, locale: Locale, vararg args: String): String {
         return string.replace(key.replacementPattern) { args.getOrNull(index++) ?: "" }
     } else {
         string
+    }
+}
+
+@ExperimentalOSKitAPI
+@Composable
+fun rememberKmpString(key: KMPStringKey, vararg args: String): String {
+    val locale = Locale.current.language
+
+    return remember(locale, key, *args) {
+        val string = key.locales()[locale]?.strings?.get(key) ?: ""
+
+        if (args.isNotEmpty()) {
+            var index = 0
+            string.replace(key.replacementPattern) { args.getOrNull(index++) ?: "" }
+        } else {
+            string
+        }
     }
 }
