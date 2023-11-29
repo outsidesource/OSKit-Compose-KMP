@@ -3,6 +3,7 @@ package com.outsidesource.oskitcompose.resources
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.intl.Locale
 import com.outsidesource.oskitcompose.lib.rememberInject
 import com.outsidesource.oskitkmp.annotation.ExperimentalOSKitAPI
@@ -71,7 +72,7 @@ data class KMPStringKey(
 @ExperimentalOSKitAPI
 @Composable
 fun kmpString(key: KMPStringKey, vararg args: String): String {
-    val locale = Locale.current.language
+    val locale = LocalLocaleOverride.current?.language ?: Locale.current.language
     val string = key.locales()[locale]?.strings?.get(key) ?: ""
 
     return if (args.isNotEmpty()) {
@@ -85,7 +86,6 @@ fun kmpString(key: KMPStringKey, vararg args: String): String {
 @ExperimentalOSKitAPI
 fun kmpString(key: KMPStringKey, locale: Locale, vararg args: String): String {
     val string = key.locales()[locale.language]?.strings?.get(key) ?: ""
-    Locale.current.language
 
     return if (args.isNotEmpty()) {
         var index = 0
@@ -98,7 +98,7 @@ fun kmpString(key: KMPStringKey, locale: Locale, vararg args: String): String {
 @ExperimentalOSKitAPI
 @Composable
 fun rememberKmpString(key: KMPStringKey, vararg args: String): String {
-    val locale = Locale.current.language
+    val locale = LocalLocaleOverride.current?.language ?: Locale.current.language
 
     return remember(locale, key, *args) {
         val string = key.locales()[locale]?.strings?.get(key) ?: ""
@@ -111,3 +111,5 @@ fun rememberKmpString(key: KMPStringKey, vararg args: String): String {
         }
     }
 }
+
+val LocalLocaleOverride = staticCompositionLocalOf<Locale?> { null }
