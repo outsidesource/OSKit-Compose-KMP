@@ -16,6 +16,7 @@ internal val localRouteObjectStore = staticCompositionLocalOf { RouteObjectStore
 internal val localCoordinatorObserver = staticCompositionLocalOf<ICoordinatorObserver> {
     object : ICoordinatorObserver {
         override val routeFlow: StateFlow<RouteStackEntry> = MutableStateFlow(RouteStackEntry(object : IRoute {}))
+        override val routeStack: List<RouteStackEntry> = emptyList()
         override fun addRouteLifecycleListener(listener: IRouteLifecycleListener) {}
         override fun hasBackStack() = false
         override fun markTransitionStatus(status: RouteTransitionStatus) {}

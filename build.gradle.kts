@@ -67,11 +67,11 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("com.outsidesource:oskit-kmp:4.0.0")
+                api("com.outsidesource:oskit-kmp:4.2.0")
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                implementation("com.squareup.okio:okio:3.5.0")
+                implementation("com.squareup.okio:okio:3.7.0")
                 implementation("io.insert-koin:koin-core:3.4.3")
                 implementation("org.jetbrains:markdown:0.5.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
