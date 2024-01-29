@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.resource
 import kotlin.math.ceil
 
@@ -38,5 +39,6 @@ data class KMPImage(
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
-expect fun rememberKmpImagePainter(resource: KMPImage): Painter
+fun rememberKmpImagePainter(resource: KMPImage): Painter = painterResource(resource.pathForDensity())
