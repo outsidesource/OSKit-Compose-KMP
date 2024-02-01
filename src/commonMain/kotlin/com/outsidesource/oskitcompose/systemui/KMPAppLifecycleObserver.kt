@@ -6,12 +6,12 @@ import kotlinx.coroutines.flow.StateFlow
  * Allows for retrieving/observing the current application state
  * This is primarily for determining if the application is in the foreground or the background
  */
-interface IKMPApplicationStateObserver {
-    val state: StateFlow<KMPApplicationState>
-    fun init(context: KMPApplicationStateObserverContext)
+interface IKMPAppLifecycleObserver {
+    val lifecycle: StateFlow<KMPAppLifecycle>
+    fun init(context: KMPAppLifecycleObserverContext)
 }
 
-enum class KMPApplicationState {
+enum class KMPAppLifecycle {
     // The application is in the background or minimized
     Background,
 
@@ -22,6 +22,6 @@ enum class KMPApplicationState {
     Active,
 }
 
-expect object KMPApplicationStateObserver : IKMPApplicationStateObserver
+expect object KMPAppLifecycleObserver : IKMPAppLifecycleObserver
 
-expect class KMPApplicationStateObserverContext
+expect class KMPAppLifecycleObserverContext
