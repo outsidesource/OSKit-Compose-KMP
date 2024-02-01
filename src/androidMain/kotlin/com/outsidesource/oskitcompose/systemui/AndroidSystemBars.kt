@@ -18,6 +18,7 @@ import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import com.outsidesource.oskitcompose.context.findWindow
 
 @Composable
 actual fun SystemBarColorEffect(
@@ -86,13 +87,6 @@ private fun rememberSystemUiController(
 private fun findWindow(): Window? =
     (LocalView.current.parent as? DialogWindowProvider)?.window
         ?: LocalView.current.context.findWindow()
-
-private tailrec fun Context.findWindow(): Window? =
-    when (this) {
-        is Activity -> window
-        is ContextWrapper -> baseContext.findWindow()
-        else -> null
-    }
 
 internal class AndroidSystemUiController(
     private val view: View,
