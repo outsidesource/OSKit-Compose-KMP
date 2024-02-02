@@ -49,7 +49,8 @@ Currently supported platforms include:
       * Compose implementation of OSKit Interactor
   * Markdown
     * Markdown renderer
-    * Load local images or url images and specify alignment and size
+    * Customizable styles with sane defaults
+    * Load local or remote images and specify alignment and size
   * Modifier
     * borderTop, borderBottom, borderStart, borderEnd
     * innerShadow, outerShadow
