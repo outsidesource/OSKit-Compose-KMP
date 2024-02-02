@@ -41,8 +41,6 @@ import kotlinx.datetime.Clock
  * 6. Scale while animating
  */
 
-// TODO: Use rememberSaveable for rememberPanAndScaleState() to work on Android
-
 @Stable
 class PanAndScaleState(
     initialScale: Float = 1f,

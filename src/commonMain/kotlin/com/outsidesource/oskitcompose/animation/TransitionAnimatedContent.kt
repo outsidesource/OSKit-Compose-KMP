@@ -9,8 +9,12 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 
+/**
+ * Animate content with a transition for better flexibility when compared to AnimatedContent
+ *
+ * Adapted from CrossFade
+ */
 @Composable
-// Adapted from CrossFade
 fun <T> TransitionAnimatedContent(
     targetState: T,
     modifier: Modifier = Modifier,

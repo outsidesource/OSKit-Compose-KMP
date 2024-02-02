@@ -77,7 +77,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("io.ktor:ktor-client-core:2.3.4")
                 implementation("io.ktor:ktor-client-cio:2.3.4")
-                api("org.jetbrains.kotlinx:atomicfu:0.21.0")
+                api("org.jetbrains.kotlinx:atomicfu:0.23.2")
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
             }

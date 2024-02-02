@@ -16,6 +16,9 @@ import com.outsidesource.oskitcompose.systemui.topInsets
 import kotlinx.coroutines.flow.MutableStateFlow
 import platform.UIKit.*
 
+/**
+ * Used in conjunction with [SystemBarColorEffect] to help set colors for system bars
+ */
 fun OSComposeUIViewController(
     content: @Composable () -> Unit,
 ): UIViewController {

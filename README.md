@@ -1,6 +1,9 @@
 # OSKit Compose
 An opinionated architecture/library for Compose Multiplatform development
 
+# Demo
+<https://github.com/outsidesource/OSKit-Example-App-KMP>
+
 ## Abstract
 OSKit Compose is primarily a tool for us here at Outside Source. That being said, feel free to use this library in your own code.
 We strive to adhere to semantic versioning.
@@ -15,11 +18,58 @@ Currently supported platforms include:
 * JVM (MacOS/Windows/Linux)
 * iOS
 
-## Features
-* Flexible Routing
-* Resources (images/fonts/strings)
-* Flexible Markdown renderer
-* Safe-area management
-* System bar management
-* Customizable popups/drawers/bottomsheets/modals/popovers
-* And more!
+## Feature Highlights
+* Common
+  * Animation
+    * TransitionAnimatedContent (AnimatedContent with flexible transitions)
+    * Common CubicBezier transitions
+  * Canvas
+    * Blur
+    * URL Image painter
+    * Bitmap Painter
+    * Painter to Bitmap converter
+  * Layouts
+    * Arrangement.spacedByWithPadding()
+    * FixedTableRow
+    * FlexRow
+    * PanAndScale
+    * WrappableRow
+  * Popups (able to be placed anywhere in composable tree)
+    * BottomSheet
+    * Drawer
+    * Modal
+    * Popover
+    * Popup
+  * OSKit Integration
+    * Router
+      * Compose implementation of OSKit Router
+      * Backpress handling
+      * Route transitions
+    * Interactor
+      * Compose implementation of OSKit Interactor
+  * Markdown
+    * Markdown renderer
+    * Load local images or url images and specify alignment and size
+  * Modifier
+    * borderTop, borderBottom, borderStart, borderEnd
+    * innerShadow, outerShadow
+    * disablePointerInput, preventClickPropagationToParent
+    * Desktop external drag and drop support
+  * Resources
+    * Fonts
+    * Images
+    * Strings with localization
+  * System UI
+    * Application Lifecycle Observer
+    * Customizable Window Insets
+    * Customizable system bar colors
+    * Window info
+  * Misc
+    * rememberLastNonNullState()
+* Android
+  * Context helpers
+* Desktop
+  * Persisted window state
+  * SizedWindow for windows with enforced minimum size
+
+## Changelog

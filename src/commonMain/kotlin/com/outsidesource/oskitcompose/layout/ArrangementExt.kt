@@ -7,6 +7,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.roundToInt
 
+/**
+ * Similar to spacedBetween but with guaranteed padding in between composables.
+ */
 @Stable
 fun Arrangement.spaceBetweenPadded(padding: Dp) = object : Arrangement.HorizontalOrVertical {
     override val spacing = padding
