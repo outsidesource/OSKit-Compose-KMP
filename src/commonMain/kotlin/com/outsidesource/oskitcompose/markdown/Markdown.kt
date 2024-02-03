@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.canvas.imageLoadErrorPainter
+import com.outsidesource.oskitcompose.canvas.imageLoadingPainter
 import com.outsidesource.oskitcompose.canvas.kmpUrlImagePainter
 import com.outsidesource.oskitcompose.modifier.borderStart
 import com.outsidesource.oskitcompose.scrollbars.KMPHorizontalScrollbar
@@ -443,7 +444,7 @@ private fun MarkdownInlineContent(
                             children = {
                                 Image(
                                     modifier = Modifier.size(dpSize),
-                                    painter = imageLoadErrorPainter(density),
+                                    painter = imageLoadingPainter(density),
                                     contentDescription = image.description,
                                 )
                             }
@@ -534,7 +535,7 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
     val alignment = image.hAlignment
     val resolvedImage by produceState(
         initialValue = Tup2(
-            imageLoadErrorPainter(density),
+            imageLoadingPainter(density),
             DpSize(image.width, image.height)
         ),
         key1 = image.type,

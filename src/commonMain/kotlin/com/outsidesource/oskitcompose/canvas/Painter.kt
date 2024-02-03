@@ -9,11 +9,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import io.ktor.client.*
@@ -84,5 +83,12 @@ internal fun imageLoadErrorPainter(density: Density) = object : Painter() {
             start = Offset(edgeDistance, size.height - edgeDistance),
             end = Offset(size.width - edgeDistance, edgeDistance)
         )
+    }
+}
+
+internal fun imageLoadingPainter(density: Density) = object : Painter() {
+    override val intrinsicSize: Size = with(density) { Size(25.dp.toPx(), 25.dp.toPx()) }
+    override fun DrawScope.onDraw() {
+        drawRoundRect(Color(0x20000000), cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx()))
     }
 }
