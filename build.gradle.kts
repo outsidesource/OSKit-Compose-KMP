@@ -92,8 +92,8 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("androidx.lifecycle:lifecycle-process:2.7.0")
-                implementation("androidx.compose.foundation:foundation:1.6.0")
-                implementation("androidx.compose.ui:ui:1.6.0")
+                implementation("androidx.compose.foundation:foundation:1.5.4")
+                implementation("androidx.compose.ui:ui:1.5.4")
                 implementation("androidx.core:core-ktx:1.12.0")
                 implementation("androidx.activity:activity-compose:1.8.2")
             }

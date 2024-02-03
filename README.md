@@ -51,6 +51,7 @@ Currently supported platforms include:
     * Markdown renderer
     * Customizable styles with sane defaults
     * Load local or remote images and specify alignment and size
+    * Asynchronous image loading
   * Modifier
     * borderTop, borderBottom, borderStart, borderEnd
     * innerShadow, outerShadow
