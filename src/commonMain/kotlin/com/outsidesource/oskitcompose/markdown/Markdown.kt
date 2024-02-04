@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -43,80 +44,12 @@ import com.outsidesource.oskitkmp.tuples.Tup2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
+import okio.buffer
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.parser.MarkdownParser
 import kotlin.math.max
 
 private val LocalMarkdownContext = staticCompositionLocalOf { MarkdownContext() }
-
-@Immutable
-data class MarkdownStyles(
-    // Misc
-    val allowCodeBlockHorizontalScrolling: Boolean = true,
-    val loaderBackgroundColor: Color = Color(0x30000000),
-    val blockGap: Dp = 16.dp,
-
-    // Text Styles
-    val blockQuoteTextStyle: TextStyle = TextStyle(
-        fontSize = 16.sp,
-        lineHeight = 1.4.em,
-        letterSpacing = .5.sp,
-    ),
-    val codeTextStyle: TextStyle = TextStyle(
-        fontFamily = FontFamily.Monospace,
-        fontSize = 14.sp,
-        lineHeight = 1.4.em,
-        letterSpacing = .5.sp,
-    ),
-    val h1TextStyle: TextStyle = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val h2TextStyle: TextStyle = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val h3TextStyle: TextStyle = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val h4TextStyle: TextStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val h5TextStyle: TextStyle = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val h6TextStyle: TextStyle = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val italicTextStyle: TextStyle = TextStyle(fontStyle = FontStyle.Italic),
-    val linkTextStyle: TextStyle = TextStyle(
-        color = Color.Blue,
-        textDecoration = TextDecoration.None,
-        letterSpacing = .5.sp,
-    ),
-    val paragraphTextStyle: TextStyle = TextStyle(
-        fontSize = 16.sp,
-        lineHeight = 1.4.em,
-        letterSpacing = .5.sp,
-    ),
-    val strongTextStyle: TextStyle = TextStyle(fontWeight = FontWeight.Bold),
-
-    // Layout/Decoration Styles
-    val horizontalRuleComposable: @Composable () -> Unit = { DefaultMarkdownHR() },
-    val codeSpanDecoration: DrawScope.(Path) -> Unit = defaultCodeSpanDecoration,
-    val blockQuoteModifier: Modifier = defaultMarkdownBlockQuoteModifier,
-    val codeModifier: Modifier = defaultMarkdownCodeModifier,
-    val headerModifier: (MarkdownHeadingSize) -> Modifier = { Modifier },
-    val listModifier: Modifier = defaultMarkdownListModifier,
-    val listItemPrefixSpacing: Dp = 12.dp,
-    val listItemPrefixComposable: @Composable RowScope.(isOrdered: Boolean, prefixContent: String?) -> Unit =
-        { isOrdered, prefixContent -> DefaultMarkdownListItemPrefix(isOrdered, prefixContent) },
-    val imageModifier: Modifier = Modifier,
-    val paragraphModifier: Modifier = Modifier,
-    val setextModifier: (MarkdownSetextSize) -> Modifier = { Modifier },
-) {
-
-    fun withDefaultTextStyle(defaultTextStyle: TextStyle): MarkdownStyles = copy(
-        paragraphTextStyle = paragraphTextStyle.merge(defaultTextStyle),
-        blockQuoteTextStyle = blockQuoteTextStyle.merge(defaultTextStyle),
-        codeTextStyle = codeTextStyle.merge(defaultTextStyle),
-        linkTextStyle = linkTextStyle.merge(defaultTextStyle),
-        h1TextStyle = h1TextStyle.merge(defaultTextStyle),
-        h2TextStyle = h2TextStyle.merge(defaultTextStyle),
-        h3TextStyle = h3TextStyle.merge(defaultTextStyle),
-        h4TextStyle = h4TextStyle.merge(defaultTextStyle),
-        h5TextStyle = h5TextStyle.merge(defaultTextStyle),
-        h6TextStyle = h6TextStyle.merge(defaultTextStyle),
-        italicTextStyle = italicTextStyle.merge(defaultTextStyle),
-        strongTextStyle = strongTextStyle.merge(defaultTextStyle),
-    )
-}
 
 /**
  * Markdown
@@ -151,17 +84,25 @@ fun Markdown(
     localImageMap: Map<String, Painter> = emptyMap(),
     loadAsync: Boolean = false,
     onLoaded: () -> Unit = {},
-    onLinkClick: ((it: String) -> Unit)? = null,
-) = InternalMarkdown(
-    text = text,
-    modifier = modifier,
-    styles = styles,
-    localImageMap = localImageMap,
-    loadAsync = loadAsync,
-    onLoaded = onLoaded,
-    onLinkClick = onLinkClick,
-    isLazy = false,
-)
+    onLinkClick: (it: String, uriHandler: UriHandler) -> Unit = ::defaultOnLickClickHandler,
+) {
+    val localMarkdownContext = remember(styles, localImageMap, onLinkClick) {
+        MarkdownContext(
+            localImageMap = localImageMap,
+            styles = styles,
+            onLinkClick = onLinkClick,
+        )
+    }
+
+    InternalMarkdown(
+        modifier = modifier,
+        source = MarkdownSource.String(text),
+        context = localMarkdownContext,
+        loadAsync = loadAsync,
+        onLoaded = onLoaded,
+        isLazy = false,
+    )
+}
 
 @Composable
 fun LazyMarkdown(
@@ -172,69 +113,119 @@ fun LazyMarkdown(
     lazyListState: LazyListState = rememberLazyListState(),
     loadAsync: Boolean = false,
     onLoaded: () -> Unit = {},
-    onLinkClick: ((String) -> Unit)? = null,
+    onLinkClick: (it: String, uriHandler: UriHandler) -> Unit = ::defaultOnLickClickHandler,
+) {
+    val localMarkdownContext = remember(styles, localImageMap, onLinkClick) {
+        MarkdownContext(
+            localImageMap = localImageMap,
+            styles = styles,
+            onLinkClick = onLinkClick,
+        )
+    }
+
+    InternalMarkdown(
+        modifier = modifier,
+        source = MarkdownSource.String(text),
+        context = localMarkdownContext,
+        loadAsync = loadAsync,
+        onLoaded = onLoaded,
+        lazyListState = lazyListState,
+        isLazy = true,
+    )
+}
+
+@Composable
+fun Markdown(
+    source: MarkdownSource,
+    context: MarkdownContext,
+    modifier: Modifier = Modifier,
+    loadAsync: Boolean = false,
+    onLoaded: () -> Unit = {},
 ) = InternalMarkdown(
-    text = text,
     modifier = modifier,
-    styles = styles,
-    localImageMap = localImageMap,
+    source = source,
+    context = context,
     loadAsync = loadAsync,
     onLoaded = onLoaded,
-    onLinkClick = onLinkClick,
-    lazyListState = lazyListState,
+    isLazy = false,
+)
+
+@Composable
+fun LazyMarkdown(
+    source: MarkdownSource,
+    context: MarkdownContext,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
+    loadAsync: Boolean = false,
+    onLoaded: () -> Unit = {},
+) = InternalMarkdown(
+    modifier = modifier,
+    source = source,
+    context = context,
+    loadAsync = loadAsync,
+    onLoaded = onLoaded,
     isLazy = true,
+    lazyListState = lazyListState,
 )
 
 @Composable
 private fun InternalMarkdown(
-    text: String,
+    source: MarkdownSource,
+    context: MarkdownContext = remember { MarkdownContext() },
     modifier: Modifier = Modifier,
-    styles: MarkdownStyles = MarkdownStyles(),
-    localImageMap: Map<String, Painter> = emptyMap(),
     lazyListState: LazyListState? = null,
     loadAsync: Boolean = false,
     onLoaded: () -> Unit = {},
-    onLinkClick: ((String) -> Unit)? = null,
     isLazy: Boolean = false,
 ) {
-    val uriHandler = LocalUriHandler.current
-    val localOnLinkClick = onLinkClick ?: {
-        try {
-            uriHandler.openUri(it)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    val localMarkdownContext = remember(styles, localImageMap, onLinkClick) { MarkdownContext(localImageMap, styles = styles, onLinkClick = localOnLinkClick) }
     val density = LocalDensity.current
 
-    val tree by if (loadAsync) {
-        produceState(initialValue = emptyList(), text, localMarkdownContext, density, loadAsync) {
-            value = withContext(Dispatchers.IO) {
-                MarkdownParser(CommonMarkFlavourDescriptor())
-                    .buildMarkdownTreeFromString(text)
-                    .buildBlockItems(text, localMarkdownContext, density)
+    val tree = when (source) {
+        is MarkdownSource.Blocks -> source.items
+        is MarkdownSource.String -> {
+            val tree by if (loadAsync) {
+                produceState(initialValue = emptyList(), source, context, density, loadAsync) {
+                    value = withContext(Dispatchers.IO) {
+                        MarkdownParser(CommonMarkFlavourDescriptor())
+                            .buildMarkdownTreeFromString(source.content)
+                            .buildBlockItems(source.content, context)
+                    }
+                    onLoaded()
+                }
+            } else {
+                remember(source, context, density) {
+                    mutableStateOf(
+                        MarkdownParser(CommonMarkFlavourDescriptor())
+                            .buildMarkdownTreeFromString(source.content)
+                            .buildBlockItems(source.content, context)
+                    )
+                }
             }
-            onLoaded()
+
+            tree
         }
-    } else {
-        remember(text, localMarkdownContext, density) {
-            mutableStateOf(
-                MarkdownParser(CommonMarkFlavourDescriptor())
-                    .buildMarkdownTreeFromString(text)
-                    .buildBlockItems(text, localMarkdownContext, density)
-            )
+        is MarkdownSource.Source -> {
+            val tree by produceState(initialValue = emptyList(), source, context, density, loadAsync) {
+                value = withContext(Dispatchers.IO) {
+                    val content = source.source.buffer().readUtf8()
+                    MarkdownParser(CommonMarkFlavourDescriptor())
+                        .buildMarkdownTreeFromString(content)
+                        .buildBlockItems(content, context)
+                }
+                onLoaded()
+            }
+
+            tree
         }
     }
 
-    CompositionLocalProvider(LocalMarkdownContext provides localMarkdownContext) {
+    CompositionLocalProvider(LocalMarkdownContext provides context) {
         Column(
             modifier = modifier,
             verticalArrangement = if (tree.isEmpty()) {
                 Arrangement.Center
             } else {
-                Arrangement.spacedBy(localMarkdownContext.styles.blockGap)
+                Arrangement.spacedBy(context.styles.blockGap)
             }
         ) {
             if (tree.isEmpty()) {
@@ -242,7 +233,7 @@ private fun InternalMarkdown(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CircularProgressIndicator(color = styles.loaderBackgroundColor)
+                    CircularProgressIndicator(color = context.styles.loaderBackgroundColor)
                 }
             }
 
@@ -251,7 +242,7 @@ private fun InternalMarkdown(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(localMarkdownContext.styles.blockGap),
+                    verticalArrangement = Arrangement.spacedBy(context.styles.blockGap),
                     state = lazyListState ?: rememberLazyListState(),
                 ) {
                     items(tree) {
@@ -389,6 +380,7 @@ private fun MarkdownInlineContent(
     modifier: Modifier = Modifier,
     textStyle: TextStyle = LocalMarkdownContext.current.styles.paragraphTextStyle,
 ) {
+    val uriHandler = LocalUriHandler.current
     val markdownInfo = LocalMarkdownContext.current
     val styles = markdownInfo.styles
     val onLinkClick = markdownInfo.onLinkClick
@@ -479,7 +471,9 @@ private fun MarkdownInlineContent(
                 detectTapGestures { pos ->
                     layoutResult.value?.let { layoutResult ->
                         val offset = layoutResult.getOffsetForPosition(pos)
-                        content.getStringAnnotations(TAG_URL, offset, offset).forEach { annotation -> onLinkClick(annotation.item) }
+                        content.getStringAnnotations(TAG_URL, offset, offset).forEach { annotation ->
+                            onLinkClick(annotation.item, uriHandler)
+                        }
                     }
                 }
             }

@@ -5,6 +5,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -21,19 +22,10 @@ internal const val TAG_URL = "URL"
 internal const val TAG_CODE_SPAN = "CODE_SPAN"
 internal const val TAG_INLINE_IMAGE = "TAG_INLINE_IMAGE"
 
-@Immutable
-data class MarkdownContext(
-    internal val localPainterCache: Map<String, Painter> = emptyMap(),
-    internal val remotePainterCache: MutableMap<String, Painter> = mutableMapOf(),
-    internal val inlineImageMap: MutableMap<String, MarkdownBlock.Image> = mutableMapOf(),
-    internal val styles: MarkdownStyles = MarkdownStyles(),
-    internal val onLinkClick: (it: String) -> Unit = {},
-)
+internal fun ASTNode.buildBlockItems(source: String, markdownContext: MarkdownContext) =
+    children.buildBlockItems(source, markdownContext)
 
-internal fun ASTNode.buildBlockItems(source: String, markdownContext: MarkdownContext, density: Density) =
-    children.buildBlockItems(source, markdownContext, density)
-
-private fun List<ASTNode>.buildBlockItems(source: String, markdownContext: MarkdownContext, density: Density): List<MarkdownBlock> {
+private fun List<ASTNode>.buildBlockItems(source: String, markdownContext: MarkdownContext): List<MarkdownBlock> {
     val items = mutableListOf<MarkdownBlock>()
     val text = AnnotatedString.Builder()
 
@@ -46,56 +38,56 @@ private fun List<ASTNode>.buildBlockItems(source: String, markdownContext: Markd
                 MarkdownElementTypes.ATX_1 -> items.add(
                     MarkdownBlock.Heading(
                         size = MarkdownHeadingSize.H1,
-                        child.buildHeaderContent(source, markdownContext, density)
+                        child.buildHeaderContent(source, markdownContext)
                     )
                 )
 
                 MarkdownElementTypes.ATX_2 -> items.add(
                     MarkdownBlock.Heading(
                         size = MarkdownHeadingSize.H2,
-                        child.buildHeaderContent(source, markdownContext, density)
+                        child.buildHeaderContent(source, markdownContext)
                     )
                 )
 
                 MarkdownElementTypes.ATX_3 -> items.add(
                     MarkdownBlock.Heading(
                         size = MarkdownHeadingSize.H3,
-                        child.buildHeaderContent(source, markdownContext, density)
+                        child.buildHeaderContent(source, markdownContext)
                     )
                 )
 
                 MarkdownElementTypes.ATX_4 -> items.add(
                     MarkdownBlock.Heading(
                         size = MarkdownHeadingSize.H4,
-                        child.buildHeaderContent(source, markdownContext, density)
+                        child.buildHeaderContent(source, markdownContext)
                     )
                 )
 
                 MarkdownElementTypes.ATX_5 -> items.add(
                     MarkdownBlock.Heading(
                         size = MarkdownHeadingSize.H5,
-                        child.buildHeaderContent(source, markdownContext, density)
+                        child.buildHeaderContent(source, markdownContext)
                     )
                 )
 
                 MarkdownElementTypes.ATX_6 -> items.add(
                     MarkdownBlock.Heading(
                         size = MarkdownHeadingSize.H6,
-                        child.buildHeaderContent(source, markdownContext, density)
+                        child.buildHeaderContent(source, markdownContext)
                     )
                 )
 
                 MarkdownElementTypes.SETEXT_1 -> items.add(
                     MarkdownBlock.Setext(
                         size = MarkdownSetextSize.Setext1,
-                        child.buildSetextContent(source, markdownContext, density)
+                        child.buildSetextContent(source, markdownContext)
                     )
                 )
 
                 MarkdownElementTypes.SETEXT_2 -> items.add(
                     MarkdownBlock.Setext(
                         size = MarkdownSetextSize.Setext2,
-                        child.buildSetextContent(source, markdownContext, density)
+                        child.buildSetextContent(source, markdownContext)
                     )
                 )
 
@@ -105,8 +97,7 @@ private fun List<ASTNode>.buildBlockItems(source: String, markdownContext: Markd
                     MarkdownBlock.BlockQuote(
                         child.buildBlockItems(
                             source,
-                            markdownContext,
-                            density
+                            markdownContext
                         )
                     )
                 )
@@ -115,8 +106,7 @@ private fun List<ASTNode>.buildBlockItems(source: String, markdownContext: Markd
                     MarkdownBlock.List(
                         items = child.buildBlockItems(
                             source,
-                            markdownContext,
-                            density
+                            markdownContext
                         ), isOrdered = false
                     )
                 )
@@ -125,8 +115,7 @@ private fun List<ASTNode>.buildBlockItems(source: String, markdownContext: Markd
                     MarkdownBlock.List(
                         items = child.buildBlockItems(
                             source,
-                            markdownContext,
-                            density
+                            markdownContext
                         ), isOrdered = true
                     )
                 )
@@ -141,18 +130,18 @@ private fun List<ASTNode>.buildBlockItems(source: String, markdownContext: Markd
                     items.add(
                         MarkdownBlock.ListItem(
                             prefix = prefix,
-                            content = child.buildBlockItems(source, markdownContext, density)
+                            content = child.buildBlockItems(source, markdownContext)
                         )
                     )
                 }
 
-                MarkdownElementTypes.PARAGRAPH -> items.addAll(child.buildBlockItems(source, markdownContext, density))
+                MarkdownElementTypes.PARAGRAPH -> items.addAll(child.buildBlockItems(source, markdownContext))
                 MarkdownElementTypes.HTML_BLOCK -> {} // Ignore HTML because <br/> cause a lot of extra line breaks and there isn't a great way to render it
                 MarkdownTokenTypes.HORIZONTAL_RULE -> items.add(MarkdownBlock.HR)
 
                 // Inline Content
-                MarkdownElementTypes.STRONG -> text.append(child.buildBoldContent(source, markdownContext, density))
-                MarkdownElementTypes.EMPH -> text.append(child.buildItalicContent(source, markdownContext, density))
+                MarkdownElementTypes.STRONG -> text.append(child.buildBoldContent(source, markdownContext))
+                MarkdownElementTypes.EMPH -> text.append(child.buildItalicContent(source, markdownContext))
                 MarkdownElementTypes.CODE_SPAN -> text.append(child.buildCodeSpanContent(source, markdownContext.styles))
                 MarkdownElementTypes.INLINE_LINK,
                 MarkdownElementTypes.AUTOLINK -> text.append(child.buildLinkContent(source, markdownContext.styles))
@@ -216,9 +205,9 @@ private fun ASTNode.buildCodeFenceContent(source: String) = buildAnnotatedString
     append(source.subSequence(start, end).toString())
 }
 
-private fun ASTNode.buildHeaderContent(source: String, markdownContext: MarkdownContext, density: Density) = buildAnnotatedString {
+private fun ASTNode.buildHeaderContent(source: String, markdownContext: MarkdownContext) = buildAnnotatedString {
     val text = findChildOfType(MarkdownTokenTypes.ATX_CONTENT) ?: return@buildAnnotatedString
-    val items = text.buildBlockItems(source, markdownContext, density)
+    val items = text.buildBlockItems(source, markdownContext)
 
     items.forEach {
         if (it is MarkdownBlock.Paragraph) {
@@ -227,9 +216,9 @@ private fun ASTNode.buildHeaderContent(source: String, markdownContext: Markdown
     }
 }
 
-private fun ASTNode.buildSetextContent(source: String, markdownContext: MarkdownContext, density: Density) = buildAnnotatedString {
+private fun ASTNode.buildSetextContent(source: String, markdownContext: MarkdownContext) = buildAnnotatedString {
     val text = findChildOfType(MarkdownTokenTypes.SETEXT_CONTENT) ?: return@buildAnnotatedString
-    val items = text.buildBlockItems(source, markdownContext, density)
+    val items = text.buildBlockItems(source, markdownContext)
 
     items.forEach {
         if (it is MarkdownBlock.Paragraph) {
@@ -238,11 +227,11 @@ private fun ASTNode.buildSetextContent(source: String, markdownContext: Markdown
     }
 }
 
-private fun ASTNode.buildBoldContent(source: String, markdownContext: MarkdownContext, density: Density): AnnotatedString {
+private fun ASTNode.buildBoldContent(source: String, markdownContext: MarkdownContext): AnnotatedString {
     return buildAnnotatedString {
         val content = children
             .filter { it.type != MarkdownTokenTypes.EMPH }
-            .buildBlockItems(source, markdownContext, density)
+            .buildBlockItems(source, markdownContext)
             .firstOrNull() ?: return@buildAnnotatedString
 
         if (content !is MarkdownBlock.Paragraph) return@buildAnnotatedString
@@ -253,11 +242,11 @@ private fun ASTNode.buildBoldContent(source: String, markdownContext: MarkdownCo
     }
 }
 
-private fun ASTNode.buildItalicContent(source: String, markdownContext: MarkdownContext, density: Density): AnnotatedString {
+private fun ASTNode.buildItalicContent(source: String, markdownContext: MarkdownContext): AnnotatedString {
     return buildAnnotatedString {
         val content = children
             .filter { it.type != MarkdownTokenTypes.EMPH }
-            .buildBlockItems(source, markdownContext, density)
+            .buildBlockItems(source, markdownContext)
             .firstOrNull() ?: return@buildAnnotatedString
 
         if (content !is MarkdownBlock.Paragraph) return@buildAnnotatedString
@@ -368,39 +357,4 @@ private fun ASTNode.buildImage(source: String): MarkdownBlock.Image {
         vAlignment = vAlign,
         scale = scale,
     )
-}
-
-@Immutable
-sealed class MarkdownBlock {
-    data class Paragraph(val content: AnnotatedString): MarkdownBlock()
-    data class Code(val content: AnnotatedString): MarkdownBlock()
-    data class BlockQuote(val content: kotlin.collections.List<MarkdownBlock>): MarkdownBlock()
-    data class List(val items: kotlin.collections.List<MarkdownBlock>, val isOrdered: Boolean): MarkdownBlock()
-    data class ListItem(val prefix: String? = null, val content: kotlin.collections.List<MarkdownBlock>): MarkdownBlock()
-    data class Heading(val size: MarkdownHeadingSize, val content: AnnotatedString): MarkdownBlock()
-    data class Setext(val size: MarkdownSetextSize, val content: AnnotatedString): MarkdownBlock()
-    data object HR: MarkdownBlock()
-    data class Image(
-        val type: MarkdownImageType = MarkdownImageType.Local(""),
-        val description: String = "",
-        val width: Dp = Dp.Unspecified,
-        val height: Dp = Dp.Unspecified,
-        val hAlignment: Alignment.Horizontal = Alignment.Start,
-        val vAlignment: Alignment.Vertical = Alignment.CenterVertically,
-        val scale: ContentScale = ContentScale.Fit,
-    ): MarkdownBlock()
-}
-
-@Immutable
-sealed class MarkdownImageType {
-    data class Remote(val url: String): MarkdownImageType()
-    data class Local(val key: String): MarkdownImageType()
-}
-
-enum class MarkdownHeadingSize {
-    H1, H2, H3, H4, H5, H6
-}
-
-enum class MarkdownSetextSize {
-    Setext1, Setext2
 }
