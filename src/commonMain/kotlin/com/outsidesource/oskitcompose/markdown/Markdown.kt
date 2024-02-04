@@ -47,7 +47,7 @@ import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.parser.MarkdownParser
 import kotlin.math.max
 
-private val LocalMarkdownInfo = staticCompositionLocalOf { MarkdownInfo() }
+private val LocalMarkdownContext = staticCompositionLocalOf { MarkdownContext() }
 
 @Immutable
 data class MarkdownStyles(
@@ -206,35 +206,35 @@ private fun InternalMarkdown(
         }
     }
 
-    val localMarkdownInfo = remember(styles, localImageMap, onLinkClick) { MarkdownInfo(localImageMap, styles = styles, onLinkClick = localOnLinkClick) }
+    val localMarkdownContext = remember(styles, localImageMap, onLinkClick) { MarkdownContext(localImageMap, styles = styles, onLinkClick = localOnLinkClick) }
     val density = LocalDensity.current
 
     val tree by if (loadAsync) {
-        produceState(initialValue = emptyList(), text, localMarkdownInfo, density, loadAsync) {
+        produceState(initialValue = emptyList(), text, localMarkdownContext, density, loadAsync) {
             value = withContext(Dispatchers.IO) {
                 MarkdownParser(CommonMarkFlavourDescriptor())
                     .buildMarkdownTreeFromString(text)
-                    .buildBlockItems(text, localMarkdownInfo, density)
+                    .buildBlockItems(text, localMarkdownContext, density)
             }
             onLoaded()
         }
     } else {
-        remember(text, localMarkdownInfo, density) {
+        remember(text, localMarkdownContext, density) {
             mutableStateOf(
                 MarkdownParser(CommonMarkFlavourDescriptor())
                     .buildMarkdownTreeFromString(text)
-                    .buildBlockItems(text, localMarkdownInfo, density)
+                    .buildBlockItems(text, localMarkdownContext, density)
             )
         }
     }
 
-    CompositionLocalProvider(LocalMarkdownInfo provides localMarkdownInfo) {
+    CompositionLocalProvider(LocalMarkdownContext provides localMarkdownContext) {
         Column(
             modifier = modifier,
             verticalArrangement = if (tree.isEmpty()) {
                 Arrangement.Center
             } else {
-                Arrangement.spacedBy(localMarkdownInfo.styles.blockGap)
+                Arrangement.spacedBy(localMarkdownContext.styles.blockGap)
             }
         ) {
             if (tree.isEmpty()) {
@@ -251,7 +251,7 @@ private fun InternalMarkdown(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(localMarkdownInfo.styles.blockGap),
+                    verticalArrangement = Arrangement.spacedBy(localMarkdownContext.styles.blockGap),
                     state = lazyListState ?: rememberLazyListState(),
                 ) {
                     items(tree) {
@@ -311,10 +311,10 @@ fun DefaultMarkdownListItemPrefix(isOrdered: Boolean, prefixContent: String?) {
         Text(
             text = "${prefixContent}.",
             textAlign = TextAlign.End,
-            style = LocalMarkdownInfo.current.styles.paragraphTextStyle,
+            style = LocalMarkdownContext.current.styles.paragraphTextStyle,
         )
     } else {
-        val color = LocalMarkdownInfo.current.styles.paragraphTextStyle.color
+        val color = LocalMarkdownContext.current.styles.paragraphTextStyle.color
 
         Box(
             modifier = Modifier
@@ -337,13 +337,13 @@ private fun MarkdownBlock(block: MarkdownBlock) {
         is MarkdownBlock.BlockQuote -> MarkdownBlockQuote(block)
         is MarkdownBlock.Setext -> MarkdownSetext(block)
         is MarkdownBlock.Image -> MarkdownImage(block)
-        is MarkdownBlock.HR -> LocalMarkdownInfo.current.styles.horizontalRuleComposable()
+        is MarkdownBlock.HR -> LocalMarkdownContext.current.styles.horizontalRuleComposable()
     }
 }
 
 @Composable
 private fun MarkdownHeading(header: MarkdownBlock.Heading) {
-    val styles = LocalMarkdownInfo.current.styles
+    val styles = LocalMarkdownContext.current.styles
 
     MarkdownInlineContent(
         modifier = styles.headerModifier(header.size),
@@ -362,14 +362,14 @@ private fun MarkdownHeading(header: MarkdownBlock.Heading) {
 @Composable
 private fun MarkdownParagraph(paragraph: MarkdownBlock.Paragraph) {
     MarkdownInlineContent(
-        modifier = LocalMarkdownInfo.current.styles.paragraphModifier,
+        modifier = LocalMarkdownContext.current.styles.paragraphModifier,
         content = paragraph.content
     )
 }
 
 @Composable
 private fun MarkdownBlockQuote(blockQuote: MarkdownBlock.BlockQuote) {
-    val styles = LocalMarkdownInfo.current.styles
+    val styles = LocalMarkdownContext.current.styles
 
     Column(
         modifier = Modifier
@@ -387,9 +387,9 @@ private fun MarkdownBlockQuote(blockQuote: MarkdownBlock.BlockQuote) {
 private fun MarkdownInlineContent(
     content: AnnotatedString,
     modifier: Modifier = Modifier,
-    textStyle: TextStyle = LocalMarkdownInfo.current.styles.paragraphTextStyle,
+    textStyle: TextStyle = LocalMarkdownContext.current.styles.paragraphTextStyle,
 ) {
-    val markdownInfo = LocalMarkdownInfo.current
+    val markdownInfo = LocalMarkdownContext.current
     val styles = markdownInfo.styles
     val onLinkClick = markdownInfo.onLinkClick
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
@@ -530,7 +530,7 @@ private fun resolvePlaceholderInlineImageSize(image: MarkdownBlock.Image, densit
 
 @Composable
 private fun MarkdownImage(image: MarkdownBlock.Image) {
-    val markdownInfo = LocalMarkdownInfo.current
+    val markdownInfo = LocalMarkdownContext.current
     val density = LocalDensity.current
     val alignment = image.hAlignment
     val resolvedImage by produceState(
@@ -563,17 +563,17 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
 private fun resolvePainterAndSizeForImage(
     density: Density,
     image: MarkdownBlock.Image,
-    markdownInfo: MarkdownInfo,
+    markdownContext: MarkdownContext,
 ): Tup2<Painter, DpSize> {
     val painter = when (image.type) {
         is MarkdownImageType.Remote -> {
-            markdownInfo.remoteImageMap[image.type.url] ?: run {
+            markdownContext.remotePainterCache[image.type.url] ?: run {
                 val painter = kmpUrlImagePainter(image.type.url, density)
-                markdownInfo.remoteImageMap[image.type.url] = painter
+                markdownContext.remotePainterCache[image.type.url] = painter
                 return@run painter
             }
         }
-        is MarkdownImageType.Local -> markdownInfo.localImageMap[image.type.key]
+        is MarkdownImageType.Local -> markdownContext.localPainterCache[image.type.key]
     } ?: imageLoadErrorPainter(density)
 
     val ratio = with(density) { painter.intrinsicSize.width.toDp() / painter.intrinsicSize.height.toDp() }
@@ -596,8 +596,8 @@ private fun resolvePainterAndSizeForImage(
 
 @Composable
 private fun MarkdownCodeBlock(codeBlock: MarkdownBlock.Code) {
-    val styles = LocalMarkdownInfo.current.styles
-    val allowHScroll = LocalMarkdownInfo.current.styles.allowCodeBlockHorizontalScrolling
+    val styles = LocalMarkdownContext.current.styles
+    val allowHScroll = LocalMarkdownContext.current.styles.allowCodeBlockHorizontalScrolling
     val scrollState = rememberScrollState()
     val adapter = rememberKmpScrollbarAdapter(scrollState)
 
@@ -624,7 +624,7 @@ private fun MarkdownCodeBlock(codeBlock: MarkdownBlock.Code) {
 
 @Composable
 private fun MarkdownList(list: MarkdownBlock.List) {
-    val styles = LocalMarkdownInfo.current.styles
+    val styles = LocalMarkdownContext.current.styles
 
     Column(
         modifier = Modifier
@@ -656,7 +656,7 @@ private fun MarkdownList(list: MarkdownBlock.List) {
 
 @Composable
 private fun MarkdownListItem(block: MarkdownBlock.ListItem) {
-    val styles = LocalMarkdownInfo.current.styles
+    val styles = LocalMarkdownContext.current.styles
 
     Column(
         verticalArrangement = Arrangement.spacedBy(styles.blockGap)
@@ -667,7 +667,7 @@ private fun MarkdownListItem(block: MarkdownBlock.ListItem) {
 
 @Composable
 private fun MarkdownSetext(setext: MarkdownBlock.Setext) {
-    val styles = LocalMarkdownInfo.current.styles
+    val styles = LocalMarkdownContext.current.styles
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
