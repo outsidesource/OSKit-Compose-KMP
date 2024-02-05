@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -27,15 +29,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.*
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.*
-import com.outsidesource.oskitcompose.canvas.imageLoadErrorPainter
-import com.outsidesource.oskitcompose.canvas.imageLoadingPainter
-import com.outsidesource.oskitcompose.canvas.kmpUrlImagePainter
+import com.outsidesource.oskitcompose.canvas.*
+import com.outsidesource.oskitcompose.canvas.ImageLoadErrorPainter
 import com.outsidesource.oskitcompose.modifier.borderStart
 import com.outsidesource.oskitcompose.scrollbars.KMPHorizontalScrollbar
 import com.outsidesource.oskitcompose.scrollbars.KMPScrollbarStyle
@@ -43,6 +40,7 @@ import com.outsidesource.oskitcompose.scrollbars.rememberKmpScrollbarAdapter
 import com.outsidesource.oskitkmp.tuples.Tup2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okio.buffer
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
@@ -58,7 +56,8 @@ private val LocalMarkdownContext = staticCompositionLocalOf { MarkdownContext() 
  * This composable does not support HTML or links navigating to internal references.
  *
  * Images in Markdown can either be URLs or local resources. Local resources are designated by a user-provided id string
- * and a Painter passed via [localImageMap].
+ * and a Painter passed via [localImageMap]. All images are loaded asynchronously automatically. To prevent content
+ * reflow and/or shifting when loading images specify both height and width parameters.
  *
  * Images also have the option of adding sizing, alignment, and scaling info:
  *   width (in dp)
@@ -71,8 +70,8 @@ private val LocalMarkdownContext = staticCompositionLocalOf { MarkdownContext() 
  *
  * Note: Android and iOS do not support svg images
  *
- * [loadAsync] If true Markdown will parse and load URL images on the IO thread. If there aren't any URL images it is
- * recommended that [loadAsync] is false. If you have URL images, it is recommended that [loadAsync] is true.
+ * [loadAsync] If true Markdown will parse the content string on the IO thread.
+ * [onLoaded] called after the markdown has been parsed if passing in a string
  *
  * TODO: Wrap with SelectionContainer when SelectionContainer does not block clicking of links
  */
@@ -134,6 +133,13 @@ fun LazyMarkdown(
     )
 }
 
+/**
+ * Markdown
+ *
+ * Allows passing in a [MarkdownSource] and a [MarkdownContext]. Reusing a [MarkdownContext] will allow Markdown
+ * to reuse cached images. Using [MarkdownSource.Blocks] will prevent [Markdown] from having to parse the string which
+ * will improve performance.
+ */
 @Composable
 fun Markdown(
     source: MarkdownSource,
@@ -436,7 +442,7 @@ private fun MarkdownInlineContent(
                             children = {
                                 Image(
                                     modifier = Modifier.size(dpSize),
-                                    painter = imageLoadingPainter(density),
+                                    painter = remember { ImagePlaceholderPainter(density) },
                                     contentDescription = image.description,
                                 )
                             }
@@ -529,7 +535,7 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
     val alignment = image.hAlignment
     val resolvedImage by produceState(
         initialValue = Tup2(
-            imageLoadingPainter(density),
+            remember<Painter> { ImagePlaceholderPainter(density) },
             DpSize(image.width, image.height)
         ),
         key1 = image.type,
@@ -568,7 +574,7 @@ private fun resolvePainterAndSizeForImage(
             }
         }
         is MarkdownImageType.Local -> markdownContext.localPainterCache[image.type.key]
-    } ?: imageLoadErrorPainter(density)
+    } ?: ImageLoadErrorPainter(density)
 
     val ratio = with(density) { painter.intrinsicSize.width.toDp() / painter.intrinsicSize.height.toDp() }
     val intrinsicSize = with(density) { painter.intrinsicSize.toDpSize() }
@@ -673,5 +679,12 @@ private fun MarkdownSetext(setext: MarkdownBlock.Setext) {
             },
         )
         styles.horizontalRuleComposable()
+    }
+}
+
+internal class ImagePlaceholderPainter(density: Density) : Painter() {
+    override val intrinsicSize: Size = with(density) { Size(25.dp.toPx(), 25.dp.toPx()) }
+    override fun DrawScope.onDraw() {
+        drawRoundRect(Color(0x20000000), cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx()))
     }
 }

@@ -44,7 +44,7 @@ fun kmpUrlImagePainter(url: String, density: Density): Painter {
             BitmapPainter(buffer.use(::kmpLoadImageBitmap))
         }
     } catch (e: Exception) {
-        imageLoadErrorPainter(density)
+        ImageLoadErrorPainter(density)
     }
 }
 
@@ -62,7 +62,7 @@ fun Painter.asBitmap(density: Density, size: Size): ImageBitmap {
     return bitmap
 }
 
-internal fun imageLoadErrorPainter(density: Density) = object : Painter() {
+internal class ImageLoadErrorPainter(density: Density) : Painter() {
     override val intrinsicSize: Size = with(density) { Size(25.dp.toPx(), 25.dp.toPx()) }
     override fun DrawScope.onDraw() {
         val edgeDistance = 8.dp.toPx()
@@ -83,12 +83,5 @@ internal fun imageLoadErrorPainter(density: Density) = object : Painter() {
             start = Offset(edgeDistance, size.height - edgeDistance),
             end = Offset(size.width - edgeDistance, edgeDistance)
         )
-    }
-}
-
-internal fun imageLoadingPainter(density: Density) = object : Painter() {
-    override val intrinsicSize: Size = with(density) { Size(25.dp.toPx(), 25.dp.toPx()) }
-    override fun DrawScope.onDraw() {
-        drawRoundRect(Color(0x20000000), cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx()))
     }
 }

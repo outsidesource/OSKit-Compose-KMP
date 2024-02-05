@@ -8,4 +8,4 @@ import okio.BufferedSource
 import org.jetbrains.skia.Image
 
 actual fun kmpLoadImageBitmap(source: BufferedSource): ImageBitmap = Image.makeFromEncoded(source.readByteArray()).toComposeImageBitmap()
-actual fun kmpLoadSvgPainter(source: BufferedSource, density: Density): Painter = imageLoadErrorPainter(density)
+actual fun kmpLoadSvgPainter(source: BufferedSource, density: Density): Painter = ImageLoadErrorPainter(density)
