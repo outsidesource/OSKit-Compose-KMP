@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
@@ -19,120 +18,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.*
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.*
-import com.outsidesource.oskitcompose.canvas.kmpUrlImagePainter
+import com.outsidesource.oskitcompose.canvas.*
+import com.outsidesource.oskitcompose.canvas.ImageLoadErrorPainter
 import com.outsidesource.oskitcompose.modifier.borderStart
 import com.outsidesource.oskitcompose.scrollbars.KMPHorizontalScrollbar
 import com.outsidesource.oskitcompose.scrollbars.KMPScrollbarStyle
 import com.outsidesource.oskitcompose.scrollbars.rememberKmpScrollbarAdapter
+import com.outsidesource.oskitkmp.tuples.Tup2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import org.intellij.markdown.MarkdownElementTypes
-import org.intellij.markdown.MarkdownTokenTypes
-import org.intellij.markdown.ast.ASTNode
-import org.intellij.markdown.ast.findChildOfType
-import org.intellij.markdown.ast.getTextInNode
+import okio.buffer
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.parser.MarkdownParser
 import kotlin.math.max
 
-private const val TAG_URL = "URL"
-private const val TAG_CODE_SPAN = "CODE_SPAN"
-private const val TAG_INLINE_IMAGE = "TAG_INLINE_IMAGE"
-
-@Immutable
-private data class MarkdownInfo(
-    val localImageMap: Map<String, Painter> = emptyMap(),
-    val styles: MarkdownStyles = MarkdownStyles(),
-    val inlineImageMap: MutableMap<String, MarkdownBlock.Image> = mutableMapOf(),
-    val onLinkClick: (it: String) -> Unit = {},
-)
-
-private val LocalMarkdownInfo = staticCompositionLocalOf { MarkdownInfo() }
-
-@Immutable
-data class MarkdownStyles(
-    // Misc
-    val allowCodeBlockHorizontalScrolling: Boolean = true,
-    val loaderBackgroundColor: Color = Color(0x30000000),
-    val blockGap: Dp = 16.dp,
-
-    // Text Styles
-    val blockQuoteTextStyle: TextStyle = TextStyle(
-        fontSize = 16.sp,
-        lineHeight = 1.4.em,
-        letterSpacing = .5.sp,
-    ),
-    val codeTextStyle: TextStyle = TextStyle(
-        fontFamily = FontFamily.Monospace,
-        fontSize = 14.sp,
-        lineHeight = 1.4.em,
-        letterSpacing = .5.sp,
-    ),
-    val h1TextStyle: TextStyle = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val h2TextStyle: TextStyle = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val h3TextStyle: TextStyle = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val h4TextStyle: TextStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val h5TextStyle: TextStyle = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val h6TextStyle: TextStyle = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = .5.sp),
-    val italicTextStyle: TextStyle = TextStyle(fontStyle = FontStyle.Italic),
-    val linkTextStyle: TextStyle = TextStyle(
-        color = Color.Blue,
-        textDecoration = TextDecoration.None,
-        letterSpacing = .5.sp,
-    ),
-    val paragraphTextStyle: TextStyle = TextStyle(
-        fontSize = 16.sp,
-        lineHeight = 1.4.em,
-        letterSpacing = .5.sp,
-    ),
-    val strongTextStyle: TextStyle = TextStyle(fontWeight = FontWeight.Bold),
-
-    // Layout/Decoration Styles
-    val horizontalRuleComposable: @Composable () -> Unit = { DefaultMarkdownHR() },
-    val codeSpanDecoration: DrawScope.(Path) -> Unit = defaultCodeSpanDecoration,
-    val blockQuoteModifier: Modifier = defaultMarkdownBlockQuoteModifier,
-    val codeModifier: Modifier = defaultMarkdownCodeModifier,
-    val headerModifier: (MarkdownHeadingSize) -> Modifier = { Modifier },
-    val listModifier: Modifier = defaultMarkdownListModifier,
-    val listItemPrefixSpacing: Dp = 12.dp,
-    val listItemPrefixComposable: @Composable RowScope.(isOrdered: Boolean, prefixContent: String?) -> Unit =
-        { isOrdered, prefixContent -> DefaultMarkdownListItemPrefix(isOrdered, prefixContent) },
-    val imageModifier: Modifier = Modifier,
-    val paragraphModifier: Modifier = Modifier,
-    val setextModifier: (MarkdownSetextSize) -> Modifier = { Modifier },
-) {
-
-    fun withDefaultTextStyle(defaultTextStyle: TextStyle): MarkdownStyles = copy(
-        paragraphTextStyle = paragraphTextStyle.merge(defaultTextStyle),
-        blockQuoteTextStyle = blockQuoteTextStyle.merge(defaultTextStyle),
-        codeTextStyle = codeTextStyle.merge(defaultTextStyle),
-        linkTextStyle = linkTextStyle.merge(defaultTextStyle),
-        h1TextStyle = h1TextStyle.merge(defaultTextStyle),
-        h2TextStyle = h2TextStyle.merge(defaultTextStyle),
-        h3TextStyle = h3TextStyle.merge(defaultTextStyle),
-        h4TextStyle = h4TextStyle.merge(defaultTextStyle),
-        h5TextStyle = h5TextStyle.merge(defaultTextStyle),
-        h6TextStyle = h6TextStyle.merge(defaultTextStyle),
-        italicTextStyle = italicTextStyle.merge(defaultTextStyle),
-        strongTextStyle = strongTextStyle.merge(defaultTextStyle),
-    )
-}
+private val LocalMarkdownContext = staticCompositionLocalOf { MarkdownContext() }
 
 /**
  * Markdown
@@ -141,7 +56,8 @@ data class MarkdownStyles(
  * This composable does not support HTML or links navigating to internal references.
  *
  * Images in Markdown can either be URLs or local resources. Local resources are designated by a user-provided id string
- * and a Painter passed via [localImageMap].
+ * and a Painter passed via [localImageMap]. All images are loaded asynchronously automatically. To prevent content
+ * reflow and/or shifting when loading images specify both height and width parameters.
  *
  * Images also have the option of adding sizing, alignment, and scaling info:
  *   width (in dp)
@@ -154,8 +70,8 @@ data class MarkdownStyles(
  *
  * Note: Android and iOS do not support svg images
  *
- * [loadAsync] If true Markdown will parse and load URL images on the IO thread. If there aren't any URL images it is
- * recommended that [loadAsync] is false. If you have URL images, it is recommended that [loadAsync] is true.
+ * [loadAsync] If true Markdown will parse the content string on the IO thread.
+ * [onLoaded] called after the markdown has been parsed if passing in a string
  *
  * TODO: Wrap with SelectionContainer when SelectionContainer does not block clicking of links
  */
@@ -167,17 +83,25 @@ fun Markdown(
     localImageMap: Map<String, Painter> = emptyMap(),
     loadAsync: Boolean = false,
     onLoaded: () -> Unit = {},
-    onLinkClick: ((it: String) -> Unit)? = null,
-) = InternalMarkdown(
-    text = text,
-    modifier = modifier,
-    styles = styles,
-    localImageMap = localImageMap,
-    loadAsync = loadAsync,
-    onLoaded = onLoaded,
-    onLinkClick = onLinkClick,
-    isLazy = false,
-)
+    onLinkClick: (it: String, uriHandler: UriHandler) -> Unit = ::defaultOnLickClickHandler,
+) {
+    val localMarkdownContext = remember(styles, localImageMap, onLinkClick) {
+        MarkdownContext(
+            localImageMap = localImageMap,
+            styles = styles,
+            onLinkClick = onLinkClick,
+        )
+    }
+
+    InternalMarkdown(
+        modifier = modifier,
+        source = MarkdownSource.String(text),
+        context = localMarkdownContext,
+        loadAsync = loadAsync,
+        onLoaded = onLoaded,
+        isLazy = false,
+    )
+}
 
 @Composable
 fun LazyMarkdown(
@@ -188,69 +112,126 @@ fun LazyMarkdown(
     lazyListState: LazyListState = rememberLazyListState(),
     loadAsync: Boolean = false,
     onLoaded: () -> Unit = {},
-    onLinkClick: ((String) -> Unit)? = null,
+    onLinkClick: (it: String, uriHandler: UriHandler) -> Unit = ::defaultOnLickClickHandler,
+) {
+    val localMarkdownContext = remember(styles, localImageMap, onLinkClick) {
+        MarkdownContext(
+            localImageMap = localImageMap,
+            styles = styles,
+            onLinkClick = onLinkClick,
+        )
+    }
+
+    InternalMarkdown(
+        modifier = modifier,
+        source = MarkdownSource.String(text),
+        context = localMarkdownContext,
+        loadAsync = loadAsync,
+        onLoaded = onLoaded,
+        lazyListState = lazyListState,
+        isLazy = true,
+    )
+}
+
+/**
+ * Markdown
+ *
+ * Allows passing in a [MarkdownSource] and a [MarkdownContext]. Reusing a [MarkdownContext] will allow Markdown
+ * to reuse cached images. Using [MarkdownSource.Blocks] will prevent [Markdown] from having to parse the string which
+ * will improve performance.
+ */
+@Composable
+fun Markdown(
+    source: MarkdownSource,
+    context: MarkdownContext,
+    modifier: Modifier = Modifier,
+    loadAsync: Boolean = false,
+    onLoaded: () -> Unit = {},
 ) = InternalMarkdown(
-    text = text,
     modifier = modifier,
-    styles = styles,
-    localImageMap = localImageMap,
+    source = source,
+    context = context,
     loadAsync = loadAsync,
     onLoaded = onLoaded,
-    onLinkClick = onLinkClick,
-    lazyListState = lazyListState,
+    isLazy = false,
+)
+
+@Composable
+fun LazyMarkdown(
+    source: MarkdownSource,
+    context: MarkdownContext,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
+    loadAsync: Boolean = false,
+    onLoaded: () -> Unit = {},
+) = InternalMarkdown(
+    modifier = modifier,
+    source = source,
+    context = context,
+    loadAsync = loadAsync,
+    onLoaded = onLoaded,
     isLazy = true,
+    lazyListState = lazyListState,
 )
 
 @Composable
 private fun InternalMarkdown(
-    text: String,
+    source: MarkdownSource,
+    context: MarkdownContext = remember { MarkdownContext() },
     modifier: Modifier = Modifier,
-    styles: MarkdownStyles = MarkdownStyles(),
-    localImageMap: Map<String, Painter> = emptyMap(),
     lazyListState: LazyListState? = null,
     loadAsync: Boolean = false,
     onLoaded: () -> Unit = {},
-    onLinkClick: ((String) -> Unit)? = null,
     isLazy: Boolean = false,
 ) {
-    val uriHandler = LocalUriHandler.current
-    val localOnLinkClick = onLinkClick ?: {
-        try {
-            uriHandler.openUri(it)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    val localMarkdownInfo = remember(styles, localImageMap, onLinkClick) { MarkdownInfo(localImageMap, styles, onLinkClick = localOnLinkClick) }
     val density = LocalDensity.current
 
-    val tree by if (loadAsync) {
-        produceState(initialValue = emptyList(), text, localMarkdownInfo, density, loadAsync) {
-            value = withContext(Dispatchers.IO) {
-                MarkdownParser(CommonMarkFlavourDescriptor())
-                    .buildMarkdownTreeFromString(text)
-                    .buildBlockItems(text, localMarkdownInfo, density)
+    val tree = when (source) {
+        is MarkdownSource.Blocks -> source.items
+        is MarkdownSource.String -> {
+            val tree by if (loadAsync) {
+                produceState(initialValue = emptyList(), source, context, density, loadAsync) {
+                    value = withContext(Dispatchers.IO) {
+                        MarkdownParser(CommonMarkFlavourDescriptor())
+                            .buildMarkdownTreeFromString(source.content)
+                            .buildBlockItems(source.content, context)
+                    }
+                    onLoaded()
+                }
+            } else {
+                remember(source, context, density) {
+                    mutableStateOf(
+                        MarkdownParser(CommonMarkFlavourDescriptor())
+                            .buildMarkdownTreeFromString(source.content)
+                            .buildBlockItems(source.content, context)
+                    )
+                }
             }
-            onLoaded()
+
+            tree
         }
-    } else {
-        remember(text, localMarkdownInfo, density) {
-            mutableStateOf(
-                MarkdownParser(CommonMarkFlavourDescriptor())
-                    .buildMarkdownTreeFromString(text)
-                    .buildBlockItems(text, localMarkdownInfo, density)
-            )
+        is MarkdownSource.Source -> {
+            val tree by produceState(initialValue = emptyList(), source, context, density, loadAsync) {
+                value = withContext(Dispatchers.IO) {
+                    val content = source.source.buffer().readUtf8()
+                    MarkdownParser(CommonMarkFlavourDescriptor())
+                        .buildMarkdownTreeFromString(content)
+                        .buildBlockItems(content, context)
+                }
+                onLoaded()
+            }
+
+            tree
         }
     }
 
-    CompositionLocalProvider(LocalMarkdownInfo provides localMarkdownInfo) {
+    CompositionLocalProvider(LocalMarkdownContext provides context) {
         Column(
             modifier = modifier,
             verticalArrangement = if (tree.isEmpty()) {
                 Arrangement.Center
             } else {
-                Arrangement.spacedBy(localMarkdownInfo.styles.blockGap)
+                Arrangement.spacedBy(context.styles.blockGap)
             }
         ) {
             if (tree.isEmpty()) {
@@ -258,7 +239,7 @@ private fun InternalMarkdown(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CircularProgressIndicator(color = styles.loaderBackgroundColor)
+                    CircularProgressIndicator(color = context.styles.loaderBackgroundColor)
                 }
             }
 
@@ -267,7 +248,7 @@ private fun InternalMarkdown(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(localMarkdownInfo.styles.blockGap),
+                    verticalArrangement = Arrangement.spacedBy(context.styles.blockGap),
                     state = lazyListState ?: rememberLazyListState(),
                 ) {
                     items(tree) {
@@ -327,10 +308,10 @@ fun DefaultMarkdownListItemPrefix(isOrdered: Boolean, prefixContent: String?) {
         Text(
             text = "${prefixContent}.",
             textAlign = TextAlign.End,
-            style = LocalMarkdownInfo.current.styles.paragraphTextStyle,
+            style = LocalMarkdownContext.current.styles.paragraphTextStyle,
         )
     } else {
-        val color = LocalMarkdownInfo.current.styles.paragraphTextStyle.color
+        val color = LocalMarkdownContext.current.styles.paragraphTextStyle.color
 
         Box(
             modifier = Modifier
@@ -353,13 +334,13 @@ private fun MarkdownBlock(block: MarkdownBlock) {
         is MarkdownBlock.BlockQuote -> MarkdownBlockQuote(block)
         is MarkdownBlock.Setext -> MarkdownSetext(block)
         is MarkdownBlock.Image -> MarkdownImage(block)
-        is MarkdownBlock.HR -> LocalMarkdownInfo.current.styles.horizontalRuleComposable()
+        is MarkdownBlock.HR -> LocalMarkdownContext.current.styles.horizontalRuleComposable()
     }
 }
 
 @Composable
 private fun MarkdownHeading(header: MarkdownBlock.Heading) {
-    val styles = LocalMarkdownInfo.current.styles
+    val styles = LocalMarkdownContext.current.styles
 
     MarkdownInlineContent(
         modifier = styles.headerModifier(header.size),
@@ -378,14 +359,14 @@ private fun MarkdownHeading(header: MarkdownBlock.Heading) {
 @Composable
 private fun MarkdownParagraph(paragraph: MarkdownBlock.Paragraph) {
     MarkdownInlineContent(
-        modifier = LocalMarkdownInfo.current.styles.paragraphModifier,
+        modifier = LocalMarkdownContext.current.styles.paragraphModifier,
         content = paragraph.content
     )
 }
 
 @Composable
 private fun MarkdownBlockQuote(blockQuote: MarkdownBlock.BlockQuote) {
-    val styles = LocalMarkdownInfo.current.styles
+    val styles = LocalMarkdownContext.current.styles
 
     Column(
         modifier = Modifier
@@ -403,24 +384,40 @@ private fun MarkdownBlockQuote(blockQuote: MarkdownBlock.BlockQuote) {
 private fun MarkdownInlineContent(
     content: AnnotatedString,
     modifier: Modifier = Modifier,
-    textStyle: TextStyle = LocalMarkdownInfo.current.styles.paragraphTextStyle,
+    textStyle: TextStyle = LocalMarkdownContext.current.styles.paragraphTextStyle,
 ) {
-    val styles = LocalMarkdownInfo.current.styles
-    val onLinkClick = LocalMarkdownInfo.current.onLinkClick
+    val uriHandler = LocalUriHandler.current
+    val markdownInfo = LocalMarkdownContext.current
+    val styles = markdownInfo.styles
+    val onLinkClick = markdownInfo.onLinkClick
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
     var codeSpans by remember(content) { mutableStateOf(emptyList<Path>()) }
-    val inlineImageMap = LocalMarkdownInfo.current.inlineImageMap
+    val inlineImageMap = markdownInfo.inlineImageMap
     val density = LocalDensity.current
     var maxImageHeight = 0f
 
-    val inlineContent = remember(content) {
+    val imageSizes by produceState(initialValue = emptyMap(), key1 = content) {
+        withContext(Dispatchers.IO) {
+            value = buildMap {
+                content.getStringAnnotations(TAG_INLINE_IMAGE, 0, content.length).forEach {
+                    val id = it.item
+                    val image = inlineImageMap[id] ?: return@forEach
+                    val (_, size) = resolvePainterAndSizeForImage(density, image, markdownInfo)
+                    val (_, height) = with(density) { Pair(size.width.toSp(), size.height.toSp()) }
+                    maxImageHeight = max(height.value, maxImageHeight)
+
+                    put(id, size)
+                }
+            }
+        }
+    }
+
+    val inlineContent = remember(imageSizes) {
         buildMap {
             content.getStringAnnotations(TAG_INLINE_IMAGE, 0, content.length).forEach {
                 val id = it.item
                 val image = inlineImageMap[id] ?: return@forEach
-                val size = resolveDimensionsForImage(density, image)
-                val (width, height) = with(density) { Pair(size.width.toSp(), size.height.toSp()) }
-                maxImageHeight = max(height.value, maxImageHeight)
+                val size = imageSizes[id]
 
                 val alignment = when (image.vAlignment) {
                     Alignment.Top -> PlaceholderVerticalAlign.Top
@@ -429,8 +426,37 @@ private fun MarkdownInlineContent(
                     else -> PlaceholderVerticalAlign.Center
                 }
 
-                put(id,
-                    InlineTextContent(
+                if (size == null) {
+                    val (width, height) = resolvePlaceholderInlineImageSize(image, density)
+                    val dpSize = with(density) { DpSize(width.toDp(), height.toDp()) }
+                    maxImageHeight = max(height.value, maxImageHeight)
+
+                    put(
+                        key = id,
+                        value = InlineTextContent(
+                            placeholder = Placeholder(
+                                width = width,
+                                height = height,
+                                placeholderVerticalAlign = alignment
+                            ),
+                            children = {
+                                Image(
+                                    modifier = Modifier.size(dpSize),
+                                    painter = remember { ImagePlaceholderPainter(density) },
+                                    contentDescription = image.description,
+                                )
+                            }
+                        ),
+                    )
+                    return@forEach
+                }
+
+                val (width, height) = with(density) { Pair(size.width.toSp(), size.height.toSp()) }
+                maxImageHeight = max(height.value, maxImageHeight)
+
+                put(
+                    key = id,
+                    value = InlineTextContent(
                         placeholder = Placeholder(
                             width = width,
                             height = height,
@@ -451,7 +477,9 @@ private fun MarkdownInlineContent(
                 detectTapGestures { pos ->
                     layoutResult.value?.let { layoutResult ->
                         val offset = layoutResult.getOffsetForPosition(pos)
-                        content.getStringAnnotations(TAG_URL, offset, offset).forEach { annotation -> onLinkClick(annotation.item) }
+                        content.getStringAnnotations(TAG_URL, offset, offset).forEach { annotation ->
+                            onLinkClick(annotation.item, uriHandler)
+                        }
                     }
                 }
             }
@@ -460,13 +488,7 @@ private fun MarkdownInlineContent(
                     styles.codeSpanDecoration(this, it)
                 }
             }.then(modifier),
-        style = textStyle.copy(
-            lineHeight = if (maxImageHeight == 0f) {
-                textStyle.lineHeight
-            } else {
-                maxImageHeight.sp
-            }
-        ),
+        style = textStyle.copy(lineHeight = if (maxImageHeight == 0f) textStyle.lineHeight else maxImageHeight.sp),
         text = content,
         onTextLayout = { lr ->
             layoutResult.value = lr
@@ -491,21 +513,45 @@ private fun MarkdownInlineContent(
     )
 }
 
+private fun resolvePlaceholderInlineImageSize(image: MarkdownBlock.Image, density: Density): Pair<TextUnit, TextUnit> =
+    with(density) {
+        val width = when {
+            image.width != Dp.Unspecified -> image.width.toSp()
+            else -> 20.dp.toSp()
+        }
+
+        val height = when {
+            image.height != Dp.Unspecified -> image.height.toSp()
+            else -> 10.sp
+        }
+
+        Pair(width, height)
+    }
+
 @Composable
 private fun MarkdownImage(image: MarkdownBlock.Image) {
-    val styles = LocalMarkdownInfo.current.styles
+    val markdownInfo = LocalMarkdownContext.current
     val density = LocalDensity.current
-    val painter = image.painter ?: return Text(image.description)
     val alignment = image.hAlignment
+    val resolvedImage by produceState(
+        initialValue = Tup2(
+            remember<Painter> { ImagePlaceholderPainter(density) },
+            DpSize(image.width, image.height)
+        ),
+        key1 = image.type,
+    ) {
+        withContext(Dispatchers.IO) {
+            value = resolvePainterAndSizeForImage(density, image, markdownInfo)
+        }
+    }
+    val (painter, size) = resolvedImage
 
     Column(modifier = Modifier.fillMaxWidth()) {
         BoxWithConstraints(modifier = Modifier.align(alignment)) {
-            val size = resolveDimensionsForImage(density, image)
-
             Image(
                 modifier = Modifier
                     .size(width = size.width, height = size.height)
-                    .then(styles.imageModifier),
+                    .then(markdownInfo.styles.imageModifier),
                 painter = painter,
                 contentScale = image.scale,
                 contentDescription = image.description,
@@ -514,14 +560,24 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
     }
 }
 
-private fun resolveDimensionsForImage(
+private fun resolvePainterAndSizeForImage(
     density: Density,
     image: MarkdownBlock.Image,
-): DpSize {
-    if (image.painter == null) return DpSize.Zero
+    markdownContext: MarkdownContext,
+): Tup2<Painter, DpSize> {
+    val painter = when (image.type) {
+        is MarkdownImageType.Remote -> {
+            markdownContext.remotePainterCache[image.type.url] ?: run {
+                val painter = kmpUrlImagePainter(image.type.url, density)
+                markdownContext.remotePainterCache[image.type.url] = painter
+                return@run painter
+            }
+        }
+        is MarkdownImageType.Local -> markdownContext.localPainterCache[image.type.key]
+    } ?: ImageLoadErrorPainter(density)
 
-    val ratio = with(density) { image.painter.intrinsicSize.width.toDp() / image.painter.intrinsicSize.height.toDp() }
-    val intrinsicSize = with(density) { image.painter.intrinsicSize.toDpSize() }
+    val ratio = with(density) { painter.intrinsicSize.width.toDp() / painter.intrinsicSize.height.toDp() }
+    val intrinsicSize = with(density) { painter.intrinsicSize.toDpSize() }
 
     val width = when {
         image.width != Dp.Unspecified -> image.width
@@ -535,13 +591,13 @@ private fun resolveDimensionsForImage(
         else -> intrinsicSize.height
     }
 
-    return DpSize(width, height)
+    return Tup2(painter, DpSize(width, height))
 }
 
 @Composable
 private fun MarkdownCodeBlock(codeBlock: MarkdownBlock.Code) {
-    val styles = LocalMarkdownInfo.current.styles
-    val allowHScroll = LocalMarkdownInfo.current.styles.allowCodeBlockHorizontalScrolling
+    val styles = LocalMarkdownContext.current.styles
+    val allowHScroll = LocalMarkdownContext.current.styles.allowCodeBlockHorizontalScrolling
     val scrollState = rememberScrollState()
     val adapter = rememberKmpScrollbarAdapter(scrollState)
 
@@ -568,7 +624,7 @@ private fun MarkdownCodeBlock(codeBlock: MarkdownBlock.Code) {
 
 @Composable
 private fun MarkdownList(list: MarkdownBlock.List) {
-    val styles = LocalMarkdownInfo.current.styles
+    val styles = LocalMarkdownContext.current.styles
 
     Column(
         modifier = Modifier
@@ -600,7 +656,7 @@ private fun MarkdownList(list: MarkdownBlock.List) {
 
 @Composable
 private fun MarkdownListItem(block: MarkdownBlock.ListItem) {
-    val styles = LocalMarkdownInfo.current.styles
+    val styles = LocalMarkdownContext.current.styles
 
     Column(
         verticalArrangement = Arrangement.spacedBy(styles.blockGap)
@@ -611,7 +667,7 @@ private fun MarkdownListItem(block: MarkdownBlock.ListItem) {
 
 @Composable
 private fun MarkdownSetext(setext: MarkdownBlock.Setext) {
-    val styles = LocalMarkdownInfo.current.styles
+    val styles = LocalMarkdownContext.current.styles
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
@@ -626,377 +682,9 @@ private fun MarkdownSetext(setext: MarkdownBlock.Setext) {
     }
 }
 
-/**
- * ASTNode to MarkdownBlock converters
- * ----------------------------------------------------------------------------
- */
-private fun ASTNode.buildBlockItems(source: String, markdownInfo: MarkdownInfo, density: Density) =
-    children.buildBlockItems(source, markdownInfo, density)
-
-private fun List<ASTNode>.buildBlockItems(source: String, markdownInfo: MarkdownInfo, density: Density): List<MarkdownBlock> {
-    val items = mutableListOf<MarkdownBlock>()
-    val text = AnnotatedString.Builder()
-
-    forEachIndexed { i, child ->
-        try {
-            val previousChild = getOrNull(i - 1)
-
-            when (child.type) {
-                // Block Level Content
-                MarkdownElementTypes.ATX_1 -> items.add(
-                    MarkdownBlock.Heading(
-                        size = MarkdownHeadingSize.H1,
-                        child.buildHeaderContent(source, markdownInfo, density)
-                    )
-                )
-
-                MarkdownElementTypes.ATX_2 -> items.add(
-                    MarkdownBlock.Heading(
-                        size = MarkdownHeadingSize.H2,
-                        child.buildHeaderContent(source, markdownInfo, density)
-                    )
-                )
-
-                MarkdownElementTypes.ATX_3 -> items.add(
-                    MarkdownBlock.Heading(
-                        size = MarkdownHeadingSize.H3,
-                        child.buildHeaderContent(source, markdownInfo, density)
-                    )
-                )
-
-                MarkdownElementTypes.ATX_4 -> items.add(
-                    MarkdownBlock.Heading(
-                        size = MarkdownHeadingSize.H4,
-                        child.buildHeaderContent(source, markdownInfo, density)
-                    )
-                )
-
-                MarkdownElementTypes.ATX_5 -> items.add(
-                    MarkdownBlock.Heading(
-                        size = MarkdownHeadingSize.H5,
-                        child.buildHeaderContent(source, markdownInfo, density)
-                    )
-                )
-
-                MarkdownElementTypes.ATX_6 -> items.add(
-                    MarkdownBlock.Heading(
-                        size = MarkdownHeadingSize.H6,
-                        child.buildHeaderContent(source, markdownInfo, density)
-                    )
-                )
-
-                MarkdownElementTypes.SETEXT_1 -> items.add(
-                    MarkdownBlock.Setext(
-                        size = MarkdownSetextSize.Setext1,
-                        child.buildSetextContent(source, markdownInfo, density)
-                    )
-                )
-
-                MarkdownElementTypes.SETEXT_2 -> items.add(
-                    MarkdownBlock.Setext(
-                        size = MarkdownSetextSize.Setext2,
-                        child.buildSetextContent(source, markdownInfo, density)
-                    )
-                )
-
-                MarkdownElementTypes.CODE_BLOCK -> items.add(MarkdownBlock.Code(child.buildCodeBlockContent(source)))
-                MarkdownElementTypes.CODE_FENCE -> items.add(MarkdownBlock.Code(child.buildCodeFenceContent(source)))
-                MarkdownElementTypes.BLOCK_QUOTE -> items.add(
-                    MarkdownBlock.BlockQuote(
-                        child.buildBlockItems(
-                            source,
-                            markdownInfo,
-                            density
-                        )
-                    )
-                )
-
-                MarkdownElementTypes.UNORDERED_LIST -> items.add(
-                    MarkdownBlock.List(
-                        items = child.buildBlockItems(
-                            source,
-                            markdownInfo,
-                            density
-                        ), isOrdered = false
-                    )
-                )
-
-                MarkdownElementTypes.ORDERED_LIST -> items.add(
-                    MarkdownBlock.List(
-                        items = child.buildBlockItems(
-                            source,
-                            markdownInfo,
-                            density
-                        ), isOrdered = true
-                    )
-                )
-
-                MarkdownElementTypes.LIST_ITEM -> {
-                    val prefixNode = child.children.firstOrNull()
-                    val prefix = if (prefixNode?.type == MarkdownTokenTypes.LIST_NUMBER) {
-                        prefixNode.getTextInNode(source).toString().removeSuffix(". ")
-                    } else {
-                        null
-                    }
-                    items.add(
-                        MarkdownBlock.ListItem(
-                            prefix = prefix,
-                            content = child.buildBlockItems(source, markdownInfo, density)
-                        )
-                    )
-                }
-
-                MarkdownElementTypes.PARAGRAPH -> items.addAll(child.buildBlockItems(source, markdownInfo, density))
-                MarkdownElementTypes.HTML_BLOCK -> {} // Ignore HTML because <br/> cause a lot of extra line breaks and there isn't a great way to render it
-                MarkdownTokenTypes.HORIZONTAL_RULE -> items.add(MarkdownBlock.HR)
-
-                // Inline Content
-                MarkdownElementTypes.STRONG -> text.append(child.buildBoldContent(source, markdownInfo, density))
-                MarkdownElementTypes.EMPH -> text.append(child.buildItalicContent(source, markdownInfo, density))
-                MarkdownElementTypes.CODE_SPAN -> text.append(child.buildCodeSpanContent(source, markdownInfo.styles))
-                MarkdownElementTypes.INLINE_LINK,
-                MarkdownElementTypes.AUTOLINK -> text.append(child.buildLinkContent(source, markdownInfo.styles))
-
-                MarkdownElementTypes.IMAGE -> {
-                    if (size == 1) { // Handle Block images (paragraphs with only an image)
-                        items.add(child.buildImage(source, markdownInfo, density))
-                    } else { // Handle inline images
-                        val id = (markdownInfo.inlineImageMap.size + 1).toString()
-                        val imageInfo = child.buildImage(source, markdownInfo, density)
-                        text.pushStringAnnotation(TAG_INLINE_IMAGE, id)
-                        text.appendInlineContent(id, "inlineImage")
-                        text.pop()
-                        markdownInfo.inlineImageMap[id] = imageInfo
-                    }
-                }
-
-                // Tokens
-                MarkdownTokenTypes.BLOCK_QUOTE -> {}
-                MarkdownTokenTypes.LIST_BULLET -> {}
-                MarkdownTokenTypes.LIST_NUMBER -> {}
-                MarkdownTokenTypes.WHITE_SPACE -> {
-                    if (previousChild == null) return@forEachIndexed
-                    when (previousChild.type) {
-                        MarkdownTokenTypes.EOL,
-                        MarkdownTokenTypes.ATX_HEADER,
-                        MarkdownTokenTypes.BLOCK_QUOTE -> return@forEachIndexed
-                    }
-                    text.append(' ')
-                }
-
-                else -> text.append(child.getTextInNode(source).toString())
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+internal class ImagePlaceholderPainter(density: Density) : Painter() {
+    override val intrinsicSize: Size = with(density) { Size(25.dp.toPx(), 25.dp.toPx()) }
+    override fun DrawScope.onDraw() {
+        drawRoundRect(Color(0x20000000), cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx()))
     }
-
-    val annotatedString = text.toAnnotatedString()
-    if (annotatedString.text.trim('\n').isNotBlank()) items.add(MarkdownBlock.Paragraph(annotatedString))
-
-    return items
-}
-
-private fun ASTNode.buildCodeBlockContent(source: String) = buildAnnotatedString {
-    append(getTextInNode(source).toString().trimIndent())
-}
-
-private fun ASTNode.buildCodeFenceContent(source: String) = buildAnnotatedString {
-    val startChildIndex = children.indexOfFirst {
-        it.type !== MarkdownTokenTypes.CODE_FENCE_START &&
-                it.type !== MarkdownTokenTypes.FENCE_LANG &&
-                it.type !== MarkdownTokenTypes.EOL
-    }
-    val endChildIndex = children.indexOfLast {
-        it.type !== MarkdownTokenTypes.CODE_FENCE_END &&
-                it.type !== MarkdownTokenTypes.EOL
-    }
-    val start = children[startChildIndex].startOffset
-    val end = children[endChildIndex].endOffset
-    append(source.subSequence(start, end).toString())
-}
-
-private fun ASTNode.buildHeaderContent(source: String, markdownInfo: MarkdownInfo, density: Density) = buildAnnotatedString {
-    val text = findChildOfType(MarkdownTokenTypes.ATX_CONTENT) ?: return@buildAnnotatedString
-    val items = text.buildBlockItems(source, markdownInfo, density)
-
-    items.forEach {
-        if (it is MarkdownBlock.Paragraph) {
-            append(it.content)
-        }
-    }
-}
-
-private fun ASTNode.buildSetextContent(source: String, markdownInfo: MarkdownInfo, density: Density) = buildAnnotatedString {
-    val text = findChildOfType(MarkdownTokenTypes.SETEXT_CONTENT) ?: return@buildAnnotatedString
-    val items = text.buildBlockItems(source, markdownInfo, density)
-
-    items.forEach {
-        if (it is MarkdownBlock.Paragraph) {
-            append(it.content)
-        }
-    }
-}
-
-private fun ASTNode.buildBoldContent(source: String, markdownInfo: MarkdownInfo, density: Density): AnnotatedString {
-    return buildAnnotatedString {
-        val content = children
-            .filter { it.type != MarkdownTokenTypes.EMPH }
-            .buildBlockItems(source, markdownInfo, density)
-            .firstOrNull() ?: return@buildAnnotatedString
-
-        if (content !is MarkdownBlock.Paragraph) return@buildAnnotatedString
-
-        withStyle(markdownInfo.styles.strongTextStyle.toSpanStyle()) {
-            append(content.content)
-        }
-    }
-}
-
-private fun ASTNode.buildItalicContent(source: String, markdownInfo: MarkdownInfo, density: Density): AnnotatedString {
-    return buildAnnotatedString {
-        val content = children
-            .filter { it.type != MarkdownTokenTypes.EMPH }
-            .buildBlockItems(source, markdownInfo, density)
-            .firstOrNull() ?: return@buildAnnotatedString
-
-        if (content !is MarkdownBlock.Paragraph) return@buildAnnotatedString
-
-        withStyle(markdownInfo.styles.italicTextStyle.toSpanStyle()) {
-            append(content.content)
-        }
-    }
-}
-
-private fun ASTNode.buildCodeSpanContent(source: String, styles: MarkdownStyles): AnnotatedString {
-    return buildAnnotatedString {
-        val startChildIndex = children.indexOfFirst { it.type != MarkdownTokenTypes.BACKTICK }
-        val endChildIndex = children.indexOfLast { it.type != MarkdownTokenTypes.BACKTICK }
-        val start = children[startChildIndex].startOffset
-        val end = children[endChildIndex].endOffset
-
-        withStyle(styles.codeTextStyle.toSpanStyle()) {
-            pushStringAnnotation(TAG_CODE_SPAN, "")
-            append(' ')
-            append(source.subSequence(start, end).toString())
-            append(' ')
-            pop()
-        }
-    }
-}
-
-private fun ASTNode.buildLinkContent(source: String, styles: MarkdownStyles): AnnotatedString {
-    return buildAnnotatedString {
-        val (text, destination) = if (this@buildLinkContent.type == MarkdownElementTypes.AUTOLINK) {
-            val text = findChildOfType(MarkdownTokenTypes.AUTOLINK)?.getTextInNode(source) ?: return@buildAnnotatedString
-            Pair(text, text)
-        } else {
-            val text = findChildOfType(MarkdownElementTypes.LINK_TEXT)?.getTextInNode(source)?.let { it.substring(1, it.length - 1) } ?: return@buildAnnotatedString
-            val destination = findChildOfType(MarkdownElementTypes.LINK_DESTINATION)?.getTextInNode(source) ?: return@buildAnnotatedString
-            Pair(text, destination)
-        }
-
-        withStyle(styles.linkTextStyle.toSpanStyle()) {
-            pushStringAnnotation(TAG_URL, destination.toString())
-            append(text.toString())
-            pop()
-        }
-    }
-}
-
-private fun ASTNode.buildImage(source: String, markdownInfo: MarkdownInfo, density: Density): MarkdownBlock.Image {
-    val link = findChildOfType(MarkdownElementTypes.INLINE_LINK) ?: return MarkdownBlock.Image()
-    val description = link.findChildOfType(MarkdownElementTypes.LINK_TEXT)?.getTextInNode(source)?.let { it.substring(1, it.length - 1) } ?: ""
-    val destination = link.findChildOfType(MarkdownElementTypes.LINK_DESTINATION)?.getTextInNode(source)?.toString() ?: ""
-
-    var parsedDescription = description
-    var width = Dp.Unspecified
-    var height = Dp.Unspecified
-    var hAlign = Alignment.Start
-    var vAlign = Alignment.CenterVertically
-    var scale = ContentScale.Fit
-
-    if (description.startsWith("attrs(")) {
-        val attrsStart = 6
-        val attrsEnd = description.indexOf(')', attrsStart)
-        val attributes = description.substring(attrsStart..< attrsEnd)
-        parsedDescription = description.substring(attrsEnd + 1 ..< description.length)
-
-        attributes.split(",").forEach { attribute ->
-            val pair = attribute.split("=")
-            if (pair.size != 2) return@forEach
-
-            when (pair[0].trim()) {
-                "width" -> width = pair[1].toFloatOrNull()?.dp ?: Dp.Unspecified
-                "height" -> height = pair[1].toFloatOrNull()?.dp ?: Dp.Unspecified
-                "hAlign" -> hAlign = when (pair[1]) {
-                    "start" -> Alignment.Start
-                    "center" -> Alignment.CenterHorizontally
-                    "end" -> Alignment.End
-                    else -> Alignment.Start
-                }
-                "vAlign" -> vAlign = when (pair[1]) {
-                    "top" -> Alignment.Top
-                    "center" -> Alignment.CenterVertically
-                    "bottom" -> Alignment.Bottom
-                    else -> Alignment.CenterVertically
-                }
-                "scale" -> scale = when (pair[1]) {
-                    "fit" -> ContentScale.Fit
-                    "inside" -> ContentScale.Inside
-                    "none" -> ContentScale.None
-                    "fillBounds" -> ContentScale.FillBounds
-                    "fillHeight" -> ContentScale.FillHeight
-                    "fillWidth" -> ContentScale.FillWidth
-                    "crop" -> ContentScale.Crop
-                    else -> ContentScale.Fit
-                }
-            }
-        }
-    }
-
-    val painter = if (destination.startsWith("local:")) {
-        markdownInfo.localImageMap[destination.split(":").getOrElse(1) { "" }]
-    } else {
-        kmpUrlImagePainter(destination, density)
-    }
-
-    return MarkdownBlock.Image(
-        painter = painter,
-        description = parsedDescription,
-        width = width,
-        height = height,
-        hAlignment = hAlign,
-        vAlignment = vAlign,
-        scale = scale,
-    )
-}
-
-@Immutable
-private sealed class MarkdownBlock {
-    data class Paragraph(val content: AnnotatedString): MarkdownBlock()
-    data class Code(val content: AnnotatedString): MarkdownBlock()
-    data class BlockQuote(val content: kotlin.collections.List<MarkdownBlock>): MarkdownBlock()
-    data class List(val items: kotlin.collections.List<MarkdownBlock>, val isOrdered: Boolean): MarkdownBlock()
-    data class ListItem(val prefix: String? = null, val content: kotlin.collections.List<MarkdownBlock>): MarkdownBlock()
-    data class Heading(val size: MarkdownHeadingSize, val content: AnnotatedString): MarkdownBlock()
-    data class Setext(val size: MarkdownSetextSize, val content: AnnotatedString): MarkdownBlock()
-    data object HR: MarkdownBlock()
-    data class Image(
-        val painter: Painter? = null,
-        val description: String = "",
-        val width: Dp = Dp.Unspecified,
-        val height: Dp = Dp.Unspecified,
-        val hAlignment: Alignment.Horizontal = Alignment.Start,
-        val vAlignment: Alignment.Vertical = Alignment.CenterVertically,
-        val scale: ContentScale = ContentScale.Fit,
-    ): MarkdownBlock()
-}
-
-enum class MarkdownHeadingSize {
-    H1, H2, H3, H4, H5, H6
-}
-
-enum class MarkdownSetextSize {
-    Setext1, Setext2
 }

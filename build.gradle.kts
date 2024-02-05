@@ -92,8 +92,8 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("androidx.lifecycle:lifecycle-process:2.7.0")
-                implementation("androidx.compose.foundation:foundation:1.6.0")
-                implementation("androidx.compose.ui:ui:1.6.0")
+                implementation("androidx.compose.foundation:foundation:1.5.4")
+                implementation("androidx.compose.ui:ui:1.5.4")
                 implementation("androidx.core:core-ktx:1.12.0")
                 implementation("androidx.activity:activity-compose:1.8.2")
             }
@@ -162,6 +162,24 @@ mavenPublishing {
                 id.set("osddeveloper")
                 name.set("Outside Source")
             }
+        }
+    }
+}
+
+// To get compose compiler metrics run: ./gradlew publishToMavenLocal -PcomposeCompilerReports=true
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions {
+        if (project.findProperty("composeCompilerReports") == "true") {
+            freeCompilerArgs += listOf(
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${project.buildDir.absolutePath}/compose_compiler"
+            )
+        }
+        if (project.findProperty("composeCompilerMetrics") == "true") {
+            freeCompilerArgs += listOf(
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${project.buildDir.absolutePath}/compose_compiler"
+            )
         }
     }
 }

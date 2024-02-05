@@ -2,7 +2,6 @@ package com.outsidesource.oskitcompose.lib
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.node.Ref
 
 /**
  * Remembers the last state that was not null even if the state is set to null. If the initial value is set to null,
