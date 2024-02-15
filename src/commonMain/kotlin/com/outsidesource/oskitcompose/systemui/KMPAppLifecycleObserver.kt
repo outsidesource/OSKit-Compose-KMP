@@ -15,7 +15,7 @@ enum class KMPAppLifecycle {
     // The application is in the background or minimized
     Background,
 
-    // The application is unfocused or not ready to receive events
+    // The application is unfocused (desktop) or not ready to receive events (iOS)
     Inactive,
 
     // The application is in the foreground
