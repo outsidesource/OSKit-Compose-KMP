@@ -1,8 +1,5 @@
 # OSKit Compose
-An opinionated architecture/library for Compose Multiplatform development
-
-# Demo
-<https://github.com/outsidesource/OSKit-Example-App-KMP>
+An opinionated architecture/library for Jetbrains Compose Multiplatform development with an implementation of the [VISCE architecture](https://ryanmitchener.notion.site/VISCE-va-s-Architecture-d0878313b4154d2999bf3bf36cb072ff)
 
 ## Abstract
 OSKit Compose is primarily a tool for us here at Outside Source. That being said, feel free to use this library in your own code.
@@ -11,12 +8,6 @@ We strive to adhere to semantic versioning.
 ## Contributions
 Contributions are appreciated and welcome, but we are a small team and make no guarantees that your changes will be
 implemented.
-
-## Supported Platforms
-Currently supported platforms include:
-* Android
-* JVM (MacOS/Windows/Linux)
-* iOS
 
 ## Feature Highlights
 * Common
@@ -74,4 +65,34 @@ Currently supported platforms include:
   * Persisted window state
   * SizedWindow for windows with enforced minimum size
 
+## Supported Platforms
+Currently supported platforms include:
+* Android
+* JVM (MacOS/Windows/Linux)
+* iOS
+
+## Installation
+```
+implementation("com.outsidesource:oskit-compose:3.3.0")
+```
+
+## Example App
+<https://github.com/outsidesource/OSKit-Example-App-KMP>
+
 ## Changelog
+### 3.3.0 - 2024-02-16
+#### Added
+* `rememberKMPWindowInfo()`
+* `createInteractor()`
+* `KMPAppLifecycleObserver`
+* `Context` helper functions
+* `rememberLastNonNullState()`
+* Fallback locale for `KMPString`
+* Markdown
+  * Async image loading
+  * Loading Markdown from other sources
+* `PopupShapeCaretPosition`
+#### Fixed
+* iOS window insets issues
+#### Breaking Changes
+* Markdown `onLinkClick` now accepts a second parameter
