@@ -2,11 +2,8 @@ package com.outsidesource.oskitcompose.resources
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.intl.Locale
-import com.outsidesource.oskitcompose.lib.rememberInject
-import com.outsidesource.oskitkmp.annotation.ExperimentalOSKitAPI
 import kotlinx.atomicfu.atomic
 
 /**
@@ -15,7 +12,21 @@ import kotlinx.atomicfu.atomic
  * Runtime replacements are supported with the `replacementPattern` parameter. By default, it is set to '%s'.
  * Replacements are not formatted in any way.
  *
- * Example:
+ * If a key is not found in the current locale, the first provided locale will be used as the fallback unless
+ * [useFallbackLocale] is set to false. An empty string will be returned if no string matches the key.
+ *
+ * Note: The string keys need to be declared before the locales due to the way [KMPStrings] is set up. If you would
+ * like to declare the locales you may declare your locales using the [lazy] builder:
+ * ```
+ * override val locales by lazy {
+ *     mapOf(
+ *          "en" to StringsEnglish,
+ *          "es" to StringsSpanish,*
+ *     )
+ * }
+ * ```
+ *
+ * Example Usage:
  * ```
  * object Strings: KMPStrings() {
  *     val hello = kmpStringKey()
@@ -43,72 +54,65 @@ import kotlinx.atomicfu.atomic
  *
  * @Composable
  * fun Test() {
- *     Text(kmpString(Strings.hello))
- *     Text(kmpString(Strings.myName, "Tom"))
+ *     Text(rememberKmpString(Strings.hello))
+ *     Text(rememberKmpString(Strings.myName, "Tom"))
  * }
  * ```
  */
-@ExperimentalOSKitAPI
-abstract class KMPStrings(private val replacementPattern: Regex = Regex("%s")) {
+abstract class KMPStrings(
+    private val replacementPattern: Regex = Regex("%s"),
+    private val useFallbackLocale: Boolean = true,
+) {
     private val keyId = atomic(0)
     protected abstract val locales: Map<String, KMPStringSet>
 
-    protected fun kmpStringKey() = KMPStringKey(keyId.incrementAndGet(), ::localesInternal, replacementPattern)
+    protected fun kmpStringKey() = KMPStringKey(
+        keyId.incrementAndGet(),
+        ::localesInternal,
+        replacementPattern,
+        useFallbackLocale,
+    )
     private fun localesInternal() = locales
 }
 
-@ExperimentalOSKitAPI
 abstract class KMPStringSet {
     abstract val strings: Map<KMPStringKey, String>
 }
 
-@ExperimentalOSKitAPI
 data class KMPStringKey(
     private val id: Int,
     internal val locales: () -> Map<String, KMPStringSet>,
     internal val replacementPattern: Regex,
+    internal val useDefaultLocale: Boolean,
 )
 
-@ExperimentalOSKitAPI
 @Composable
 fun kmpString(key: KMPStringKey, vararg args: String): String {
     val locale = LocalLocaleOverride.current?.language ?: Locale.current.language
-    val string = key.locales()[locale]?.strings?.get(key) ?: ""
-
-    return if (args.isNotEmpty()) {
-        var index = 0
-        return string.replace(key.replacementPattern) { args.getOrNull(index++) ?: "" }
-    } else {
-        string
-    }
+    return getAndReplacePlaceholders(key, locale, args)
 }
 
-@ExperimentalOSKitAPI
 fun kmpString(key: KMPStringKey, locale: Locale, vararg args: String): String {
-    val string = key.locales()[locale.language]?.strings?.get(key) ?: ""
-
-    return if (args.isNotEmpty()) {
-        var index = 0
-        return string.replace(key.replacementPattern) { args.getOrNull(index++) ?: "" }
-    } else {
-        string
-    }
+    return getAndReplacePlaceholders(key, locale.language, args)
 }
 
-@ExperimentalOSKitAPI
 @Composable
 fun rememberKmpString(key: KMPStringKey, vararg args: String): String {
     val locale = LocalLocaleOverride.current?.language ?: Locale.current.language
+    return remember(locale, key, *args) { getAndReplacePlaceholders(key, locale, args) }
+}
 
-    return remember(locale, key, *args) {
-        val string = key.locales()[locale]?.strings?.get(key) ?: ""
+private inline fun getAndReplacePlaceholders(key: KMPStringKey, locale: String, args: Array<out String>): String {
+    val locales = key.locales()
+    val string = locales[locale]?.strings?.get(key)
+        ?: (if (key.useDefaultLocale) locales.values.firstOrNull()?.strings?.get(key) else null)
+        ?: ""
 
-        if (args.isNotEmpty()) {
-            var index = 0
-            string.replace(key.replacementPattern) { args.getOrNull(index++) ?: "" }
-        } else {
-            string
-        }
+    return if (args.isNotEmpty()) {
+        var index = 0
+        string.replace(key.replacementPattern) { args.getOrNull(index++) ?: "" }
+    } else {
+        string
     }
 }
 

@@ -9,11 +9,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import io.ktor.client.*
@@ -45,7 +44,7 @@ fun kmpUrlImagePainter(url: String, density: Density): Painter {
             BitmapPainter(buffer.use(::kmpLoadImageBitmap))
         }
     } catch (e: Exception) {
-        imageLoadErrorPainter(density)
+        ImageLoadErrorPainter(density)
     }
 }
 
@@ -63,7 +62,7 @@ fun Painter.asBitmap(density: Density, size: Size): ImageBitmap {
     return bitmap
 }
 
-internal fun imageLoadErrorPainter(density: Density) = object : Painter() {
+internal class ImageLoadErrorPainter(density: Density) : Painter() {
     override val intrinsicSize: Size = with(density) { Size(25.dp.toPx(), 25.dp.toPx()) }
     override fun DrawScope.onDraw() {
         val edgeDistance = 8.dp.toPx()
