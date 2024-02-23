@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -66,8 +67,8 @@ fun <T : Any> KMPWheelPicker(
     enabled : Boolean = true,
     onChange: (T) -> Unit,
     onImmediateChange: (T) -> Unit = {},
-    scrollEffect: KMPWheelPickerScrollEffect = KMPWheelPickerDefaults.ScrollEffectMagnify,
-    indicator: KMPWheelPickerIndicator = remember { KMPWheelPickerDefaults.indicatorWindow() },
+    scrollEffect: KMPWheelPickerScrollEffect = remember { KMPWheelPickerScrollEffects.magnify() },
+    indicator: KMPWheelPickerIndicator = remember { KMPWheelPickerIndicators.window() },
     content: @Composable LazyItemScope.(T) -> Unit,
 ) {
     val internalSelectedIndex = remember(selectedIndex, state) { if (state.isInfinite) selectedIndex + INFINITE_OFFSET else selectedIndex }
@@ -316,26 +317,8 @@ typealias KMPWheelPickerScrollEffect =
 typealias KMPWheelPickerIndicator =
         ContentDrawScope.(state: KMPWheelPickerState) -> Unit
 
-object KMPWheelPickerDefaults {
-    val ScrollEffectWheel: KMPWheelPickerScrollEffect =
-        fun GraphicsLayerScope.(_: Int, multiplier: Float, _: KMPWheelPickerState) {
-            rotationX = (90f * multiplier).coerceIn(-360f..360f)
-            scaleX = (1f - .1f * abs(multiplier)).coerceIn(0f..1f)
-            scaleY = (1f - .1f * abs(multiplier)).coerceIn(0f..1f)
-            alpha = (1f - .5f * abs(multiplier)).coerceIn(0f..1f)
-            transformOrigin = TransformOrigin(.5f, (.5f - multiplier).coerceIn(0f..1f))
-        }
-
-    val ScrollEffectMagnify: KMPWheelPickerScrollEffect =
-        fun GraphicsLayerScope.(_: Int, multiplier: Float, state: KMPWheelPickerState) {
-            val selectionIndicatorMult =
-                (multiplier / (1f / (((state.viewportHeight / state.itemHeight) + 1f) / 2f))).coerceIn(-1f..1f)
-            scaleX = (1f - .25f * abs(selectionIndicatorMult)).coerceIn(0f..1f)
-            scaleY = (1f - .25f * abs(selectionIndicatorMult)).coerceIn(0f..1f)
-            alpha = 1f - 1f * abs(multiplier)
-        }
-
-    fun indicatorWindow(
+object KMPWheelPickerIndicators {
+    fun window(
         color: Color = Color(0x14747480),
         shape: Shape = RoundedCornerShape(8.dp),
     ): KMPWheelPickerIndicator =
@@ -354,7 +337,7 @@ object KMPWheelPickerDefaults {
             drawContent()
         }
 
-    fun indicatorBars(
+    fun bars(
         color: Color = Color(0x14747480),
         thickness: Dp = 2.dp,
     ): KMPWheelPickerIndicator =
@@ -377,6 +360,40 @@ object KMPWheelPickerDefaults {
                 cap = StrokeCap.Round,
             )
             drawContent()
+        }
+}
+
+object KMPWheelPickerScrollEffects {
+    fun wheel(): KMPWheelPickerScrollEffect =
+        fun GraphicsLayerScope.(_: Int, multiplier: Float, _: KMPWheelPickerState) {
+            rotationX = (90f * multiplier).coerceIn(-360f..360f)
+            scaleX = (1f - .1f * abs(multiplier)).coerceIn(0f..1f)
+            scaleY = (1f - .1f * abs(multiplier)).coerceIn(0f..1f)
+            alpha = (1f - .5f * abs(multiplier)).coerceIn(0f..1f)
+            transformOrigin = TransformOrigin(.5f, (.5f - multiplier).coerceIn(0f..1f))
+        }
+
+    fun magnify(
+        alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+        horizontalPadding: Dp = 0.dp,
+    ): KMPWheelPickerScrollEffect =
+        fun GraphicsLayerScope.(_: Int, multiplier: Float, state: KMPWheelPickerState) {
+            val selectionIndicatorMult =
+                (multiplier / (1f / (((state.viewportHeight / state.itemHeight) + 1f) / 2f))).coerceIn(-1f..1f)
+            scaleX = (1f - .25f * abs(selectionIndicatorMult)).coerceIn(0f..1f)
+            scaleY = (1f - .25f * abs(selectionIndicatorMult)).coerceIn(0f..1f)
+            alpha = 1f - 1f * abs(multiplier)
+
+            when (alignment) {
+                Alignment.Start -> {
+                    transformOrigin = TransformOrigin(0f, .5f)
+                    translationX = ((horizontalPadding.toPx() - (horizontalPadding.toPx() * scaleX)))
+                }
+                Alignment.End -> {
+                    transformOrigin = TransformOrigin(1f, .5f)
+                    translationX = -((horizontalPadding.toPx() - (horizontalPadding.toPx() * scaleX)))
+                }
+            }
         }
 }
 
