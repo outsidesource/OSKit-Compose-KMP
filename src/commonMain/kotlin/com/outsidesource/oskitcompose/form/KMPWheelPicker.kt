@@ -61,7 +61,7 @@ import kotlin.math.abs
 fun <T : Any> KMPWheelPicker(
     selectedIndex: Int,
     items: List<T>,
-    itemKey: (T) -> Any = { it },
+    itemKey: (T, Int) -> Any = { _, index -> index },
     state: KMPWheelPickerState = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedIndex),
     modifier: Modifier = Modifier,
     enabled : Boolean = true,
@@ -176,7 +176,7 @@ fun <T : Any> KMPWheelPicker(
     ) {
         items(
             count = if (state.isInfinite) Int.MAX_VALUE else items.size,
-            key = { itemKey(items[getItemsIndex(it, state, items.size)]) }
+            key = { itemKey(items[getItemsIndex(it, state, items.size)], it) }
         ) { index ->
             Box(
                 modifier = Modifier

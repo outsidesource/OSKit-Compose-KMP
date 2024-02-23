@@ -8,10 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -27,11 +24,16 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.outsidesource.oskitcompose.date.DateTextFormat
 import com.outsidesource.oskitcompose.date.getDisplayName
 import com.outsidesource.oskitcompose.date.lengthInDays
-import com.outsidesource.oskitcompose.popup.*
+import com.outsidesource.oskitcompose.popup.Modal
+import com.outsidesource.oskitcompose.popup.ModalStyles
+import com.outsidesource.oskitcompose.popup.Popover
+import com.outsidesource.oskitcompose.popup.PopoverAnchors
 import kotlinx.coroutines.delay
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
@@ -335,28 +337,29 @@ private fun DatePickerYearView(
                 modifier = Modifier
                     .height(daySize * 5)
                     .weight(1f),
-                selectedIndex = 0,
+                selectedIndex = currentDate.value.month.ordinal,
                 items = remember { Month.values().toList() },
                 state = rememberKmpWheelPickerState(isInfinite = true, currentDate.value.month.ordinal),
                 indicator = remember { KMPWheelPickerIndicators.window(shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)) },
                 scrollEffect = remember { KMPWheelPickerScrollEffects.magnify(alignment = Alignment.Start, horizontalPadding = pickerHPadding) },
                 onChange = { month ->
-//                    selectedDate.value = LocalDate(
-//                        month = month,
-//                        dayOfMonth = min(
-//                            selectedDate.value.dayOfMonth,
-//                            selectedDate.value.month.lengthInDays(selectedDate.value.year)
-//                        ),
-//                        year = selectedDate.value.year
-//                    )
-//                    currentDate.value = LocalDate(
-//                        month = month,
-//                        dayOfMonth = min(
-//                            currentDate.value.dayOfMonth,
-//                            currentDate.value.month.lengthInDays(selectedDate.value.year)
-//                        ),
-//                        year = selectedDate.value.year
-//                    )
+                    selectedDate.value = LocalDate(
+                        month = month,
+                        dayOfMonth = min(
+                            selectedDate.value.dayOfMonth,
+                            month.lengthInDays(selectedDate.value.year)
+                        ),
+                        year = selectedDate.value.year
+                    )
+
+                    currentDate.value = LocalDate(
+                        month = month,
+                        dayOfMonth = min(
+                            currentDate.value.dayOfMonth,
+                            month.lengthInDays(currentDate.value.year)
+                        ),
+                        year = currentDate.value.year
+                    )
                 }
             ) { month ->
                 val isSelectedMonth = month == selectedDate.value.month
