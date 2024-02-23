@@ -61,7 +61,7 @@ fun <T : Any> KMPWheelPicker(
     selectedIndex: Int,
     items: List<T>,
     itemKey: (T) -> Any = { it },
-    state: KMPWheelPickerState = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = 0),
+    state: KMPWheelPickerState = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedIndex),
     modifier: Modifier = Modifier,
     enabled : Boolean = true,
     onChange: (T) -> Unit,
