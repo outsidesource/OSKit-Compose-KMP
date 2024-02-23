@@ -1,6 +1,7 @@
 package com.outsidesource.oskitcompose.form
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,13 +23,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.date.DateTextFormat
 import com.outsidesource.oskitcompose.date.getDisplayName
 import com.outsidesource.oskitcompose.date.lengthInDays
+import com.outsidesource.oskitcompose.layout.FlexRowLayoutScope.weight
 import com.outsidesource.oskitcompose.popup.*
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
@@ -136,38 +141,67 @@ private fun DatePickerContent(
             .shadow(16.dp, RoundedCornerShape(8.dp))
             .background(Color.White)
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.primary)
-                .padding(top = 12.dp, bottom = 12.dp, start = 8.dp, end = 16.dp),
+                .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(
+            Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(4.dp))
-                    .clickable { viewType.value = DatePickerViewType.Year }
+                    .clickable {
+                        viewType.value = when (viewType.value) {
+                            DatePickerViewType.Month -> DatePickerViewType.Year
+                            else -> DatePickerViewType.Month
+                        }
+                    }
                     .padding(vertical = 4.dp, horizontal = 8.dp),
-                text = selectedDate.value.year.toString(),
-                style = androidx.compose.ui.text.TextStyle(
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colors.onPrimary
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    text = "${currentDate.value.month.getDisplayName(DateTextFormat.Full)} ${currentDate.value.year}",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colors.onPrimary,
+                        fontWeight = FontWeight.SemiBold,
+                    )
                 )
-            )
-            Text(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(4.dp))
-                    .clickable { viewType.value = DatePickerViewType.Month }
-                    .padding(vertical = 4.dp, horizontal = 8.dp),
-                text = "${
-                    selectedDate.value.dayOfWeek.getDisplayName(DateTextFormat.Short)
-                }, " +
-                        "${selectedDate.value.month.getDisplayName(DateTextFormat.Full)} " +
-                        "${selectedDate.value.dayOfMonth}",
-                style = androidx.compose.ui.text.TextStyle(
-                    fontSize = 24.sp,
-                    color = MaterialTheme.colors.onPrimary
+
+                val rotation by animateFloatAsState(if (viewType.value == DatePickerViewType.Year) 90f else 0f, tween())
+
+                Icon(
+                    modifier = Modifier
+                        .size(18.dp)
+                        .graphicsLayer { rotationZ = rotation },
+                    imageVector = Icons.Filled.KeyboardArrowRight,
+                    tint = Color.White,
+                    contentDescription = "Change View",
                 )
-            )
+            }
+            Row {
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable { currentDate.value -= DatePeriod(months = 1) }
+                        .size(daySize),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(imageVector = Icons.Filled.KeyboardArrowLeft, tint = Color.White, contentDescription = "Previous month")
+                }
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable { currentDate.value += DatePeriod(months = 1) }
+                        .size(daySize),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(imageVector = Icons.Filled.KeyboardArrowRight, tint = Color.White, contentDescription = "Next month")
+                }
+            }
         }
 
         Box {
@@ -203,46 +237,17 @@ private fun DatePickerMonthView(
                 modifier = Modifier
                     .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 0.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable { currentDate.value -= DatePeriod(months = 1) }
-                            .size(daySize),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(imageVector = Icons.Filled.KeyboardArrowLeft, contentDescription = "Previous month")
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(currentDate.value.month.getDisplayName(DateTextFormat.Full))
-                        Text(currentDate.value.year.toString())
-                    }
-                    Box(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable { currentDate.value += DatePeriod(months = 1) }
-                            .size(daySize),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = "Next month")
-                    }
-                }
-
                 Row {
                     val dayStyle = remember {
-                        androidx.compose.ui.text.TextStyle(color = Color.Black.copy(alpha = .5f))
+                        TextStyle(color = Color.Black.copy(alpha = .5f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     }
-                    DatePickerDay("S", style = dayStyle)
-                    DatePickerDay("M", style = dayStyle)
-                    DatePickerDay("T", style = dayStyle)
-                    DatePickerDay("W", style = dayStyle)
-                    DatePickerDay("T", style = dayStyle)
-                    DatePickerDay("F", style = dayStyle)
-                    DatePickerDay("S", style = dayStyle)
+                    DatePickerDay("SUN", style = dayStyle)
+                    DatePickerDay("MON", style = dayStyle)
+                    DatePickerDay("TUE", style = dayStyle)
+                    DatePickerDay("WED", style = dayStyle)
+                    DatePickerDay("THU", style = dayStyle)
+                    DatePickerDay("FRI", style = dayStyle)
+                    DatePickerDay("SAT", style = dayStyle)
                 }
 
                 AnimatedContent(
@@ -301,17 +306,63 @@ private fun DatePickerYearView(
     currentDate: MutableState<LocalDate>,
     selectedDate: MutableState<LocalDate>,
 ) {
-    Column {
-        AnimatedVisibility(viewType.value == DatePickerViewType.Year, enter = fadeIn(), exit = fadeOut()) {
-            val count = 200
+    AnimatedVisibility(viewType.value == DatePickerViewType.Year, enter = fadeIn(), exit = fadeOut()) {
+        val count = 200
+
+        Row(
+            modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 0.dp)
+        ) {
+            KMPWheelPicker(
+                modifier = Modifier
+                    .height(daySize * 7)
+                    .weight(1f),
+                selectedIndex = currentDate.value.month.ordinal,
+                items = remember { Month.values().toList() },
+                state = rememberKmpWheelPickerState(isInfinite = true, currentDate.value.month.ordinal),
+                indicator = remember { KMPWheelPickerDefaults.indicatorWindow(shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)) },
+                onChange = { month ->
+//                    selectedDate.value = LocalDate(
+//                        month = month,
+//                        dayOfMonth = min(
+//                            selectedDate.value.dayOfMonth,
+//                            selectedDate.value.month.lengthInDays(selectedDate.value.year)
+//                        ),
+//                        year = selectedDate.value.year
+//                    )
+//                    currentDate.value = LocalDate(
+//                        month = month,
+//                        dayOfMonth = min(
+//                            currentDate.value.dayOfMonth,
+//                            currentDate.value.month.lengthInDays(selectedDate.value.year)
+//                        ),
+//                        year = selectedDate.value.year
+//                    )
+                }
+            ) { month ->
+                val isSelectedMonth = month == selectedDate.value.month
+
+                Box(
+                    modifier = Modifier.height(daySize).padding(start = 32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = month.getDisplayName(DateTextFormat.Full),
+                        style = TextStyle(
+                            color = if (isSelectedMonth) MaterialTheme.colors.primary else Color.Black,
+                            fontSize = 18.sp,
+                        ),
+                    )
+                }
+            }
 
             KMPWheelPicker(
                 modifier = Modifier
-                    .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 0.dp)
-                    .height(daySize * 8)
-                    .fillMaxWidth(),
+                    .height(daySize * 7)
+                    .weight(1f),
                 selectedIndex = 100,
                 items = ((currentDate.value.year - count / 2)..(currentDate.value.year + count / 2)).toList(),
+                indicator = remember { KMPWheelPickerDefaults.indicatorWindow(shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)) },
                 onChange = { year ->
                     selectedDate.value = LocalDate(
                         month = selectedDate.value.month,
@@ -340,7 +391,7 @@ private fun DatePickerYearView(
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = year.toString(),
-                        style = androidx.compose.ui.text.TextStyle(
+                        style = TextStyle(
                             color = if (isSelectedYear) MaterialTheme.colors.primary else Color.Black,
                             fontSize = 18.sp,
                         ),
@@ -356,7 +407,7 @@ private fun DatePickerYearView(
 private fun DatePickerDay(
     label: String,
     isSelected: Boolean = false,
-    style: androidx.compose.ui.text.TextStyle = androidx.compose.ui.text.TextStyle(),
+    style: TextStyle = TextStyle(),
     onClick: (() -> Unit)? = null
 ) {
     Box(
