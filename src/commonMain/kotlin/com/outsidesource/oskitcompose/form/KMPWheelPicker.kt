@@ -210,10 +210,10 @@ fun <T : Any> KMPWheelPicker(
 fun rememberKmpWheelPickerState(
     isInfinite: Boolean = false,
     initiallySelectedItemIndex: Int = 0,
-) = rememberSaveable(initiallySelectedItemIndex, isInfinite, saver = KMPWheelPickerState.Saver()) {
+) = rememberSaveable(saver = KMPWheelPickerState.Saver()) {
     KMPWheelPickerState(
         initiallySelectedItemIndex = initiallySelectedItemIndex,
-        isInfinite = isInfinite
+        isInfinite = isInfinite,
     )
 }
 
