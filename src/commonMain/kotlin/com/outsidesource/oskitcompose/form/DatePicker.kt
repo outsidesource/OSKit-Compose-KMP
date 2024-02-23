@@ -6,8 +6,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
@@ -33,8 +31,8 @@ import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.date.DateTextFormat
 import com.outsidesource.oskitcompose.date.getDisplayName
 import com.outsidesource.oskitcompose.date.lengthInDays
-import com.outsidesource.oskitcompose.layout.FlexRowLayoutScope.weight
 import com.outsidesource.oskitcompose.popup.*
+import kotlinx.coroutines.delay
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
 import kotlin.math.min
@@ -145,12 +143,13 @@ private fun DatePickerContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.primary)
-                .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
+                .padding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(
                 modifier = Modifier
+                    .height(daySize)
                     .clip(RoundedCornerShape(4.dp))
                     .clickable {
                         viewType.value = when (viewType.value) {
@@ -182,24 +181,35 @@ private fun DatePickerContent(
                     contentDescription = "Change View",
                 )
             }
-            Row {
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable { currentDate.value -= DatePeriod(months = 1) }
-                        .size(daySize),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(imageVector = Icons.Filled.KeyboardArrowLeft, tint = Color.White, contentDescription = "Previous month")
-                }
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable { currentDate.value += DatePeriod(months = 1) }
-                        .size(daySize),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(imageVector = Icons.Filled.KeyboardArrowRight, tint = Color.White, contentDescription = "Next month")
+
+            AnimatedVisibility(visible = viewType.value == DatePickerViewType.Month, enter = fadeIn(), exit = fadeOut()) {
+                Row {
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable { currentDate.value -= DatePeriod(months = 1) }
+                            .size(daySize),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.KeyboardArrowLeft,
+                            tint = Color.White,
+                            contentDescription = "Previous month"
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable { currentDate.value += DatePeriod(months = 1) }
+                            .size(daySize),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.KeyboardArrowRight,
+                            tint = Color.White,
+                            contentDescription = "Next month"
+                        )
+                    }
                 }
             }
         }
@@ -231,65 +241,62 @@ private fun DatePickerMonthView(
     currentDate: MutableState<LocalDate>,
     selectedDate: MutableState<LocalDate>,
 ) {
-    Column {
-        AnimatedVisibility(viewType == DatePickerViewType.Month, enter = fadeIn(), exit = fadeOut()) {
-            Column(
-                modifier = Modifier
-                    .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 0.dp)
+    AnimatedVisibility(viewType == DatePickerViewType.Month, enter = fadeIn(), exit = fadeOut()) {
+        Column(
+            modifier = Modifier
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 0.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(bottom = 8.dp)
             ) {
-                Row {
-                    val dayStyle = remember {
-                        TextStyle(color = Color.Black.copy(alpha = .5f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                DayName("SUN")
+                DayName("MON")
+                DayName("TUE")
+                DayName("WED")
+                DayName("THU")
+                DayName("FRI")
+                DayName("SAT")
+            }
+
+            AnimatedContent(
+                targetState = currentDate.value,
+                transitionSpec = {
+                    slideInHorizontally {
+                        if (initialState.month == Month.JANUARY && targetState.month == Month.DECEMBER) return@slideInHorizontally -it
+                        if (targetState.month > initialState.month || (initialState.month == Month.DECEMBER && targetState.month == Month.JANUARY)) it else -it
+                    } togetherWith slideOutHorizontally {
+                        if (initialState.month == Month.JANUARY && targetState.month == Month.DECEMBER) return@slideOutHorizontally it
+                        if (targetState.month > initialState.month || (initialState.month == Month.DECEMBER && targetState.month == Month.JANUARY)) -it else it
                     }
-                    DatePickerDay("SUN", style = dayStyle)
-                    DatePickerDay("MON", style = dayStyle)
-                    DatePickerDay("TUE", style = dayStyle)
-                    DatePickerDay("WED", style = dayStyle)
-                    DatePickerDay("THU", style = dayStyle)
-                    DatePickerDay("FRI", style = dayStyle)
-                    DatePickerDay("SAT", style = dayStyle)
                 }
+            ) {currentDateValue ->
+                val dayOne = currentDateValue - DatePeriod(days = currentDateValue.dayOfMonth - 1)
+                val startIndex = dayOne.dayOfWeek.sundayFirstOrdinal() + 1
+                val maxIndex = (dayOne.month.lengthInDays(dayOne.year) + startIndex)
 
-                AnimatedContent(
-                    targetState = currentDate.value,
-                    transitionSpec = {
-                        slideInHorizontally {
-                            if (initialState.month == Month.JANUARY && targetState.month == Month.DECEMBER) return@slideInHorizontally -it
-                            if (targetState.month > initialState.month || (initialState.month == Month.DECEMBER && targetState.month == Month.JANUARY)) it else -it
-                        } togetherWith slideOutHorizontally {
-                            if (initialState.month == Month.JANUARY && targetState.month == Month.DECEMBER) return@slideOutHorizontally it
-                            if (targetState.month > initialState.month || (initialState.month == Month.DECEMBER && targetState.month == Month.JANUARY)) -it else it
-                        }
-                    }
-                ) {currentDateValue ->
-                    val dayOne = currentDateValue - DatePeriod(days = currentDateValue.dayOfMonth - 1)
-                    val startIndex = dayOne.dayOfWeek.sundayFirstOrdinal() + 1
-                    val maxIndex = (dayOne.month.lengthInDays(dayOne.year) + startIndex)
+                Column(
+                    modifier = Modifier.height(daySize * 6),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    for (i in 0 until 6) {
+                        Row {
+                            for (j in 0..7) {
+                                val index = (i * 7) + j
 
-                    Column(
-                        modifier = Modifier.height(daySize * 6),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        for (i in 0 until 6) {
-                            Row {
-                                for (j in 0..7) {
-                                    val index = (i * 7) + j
-
-                                    if (index < startIndex) {
-                                        DatePickerDay("")
-                                    } else if (index < maxIndex) {
-                                        val day = index - startIndex + 1
-                                        DatePickerDay(
-                                            label = day.toString(),
-                                            isSelected = currentDateValue.year == selectedDate.value.year &&
-                                                    currentDateValue.month == selectedDate.value.month &&
-                                                    selectedDate.value.dayOfMonth == day,
-                                            onClick = {
-                                                selectedDate.value =
-                                                    LocalDate(currentDateValue.year, currentDateValue.month, day)
-                                            }
-                                        )
-                                    }
+                                if (index < startIndex) {
+                                    DatePickerDay("")
+                                } else if (index < maxIndex) {
+                                    val day = index - startIndex + 1
+                                    DatePickerDay(
+                                        label = day.toString(),
+                                        isSelected = currentDateValue.year == selectedDate.value.year &&
+                                                currentDateValue.month == selectedDate.value.month &&
+                                                selectedDate.value.dayOfMonth == day,
+                                        onClick = {
+                                            selectedDate.value =
+                                                LocalDate(currentDateValue.year, currentDateValue.month, day)
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -301,6 +308,14 @@ private fun DatePickerMonthView(
 }
 
 @Composable
+private fun DayName(text: String) {
+    val dayNameTextStyle = remember {
+        TextStyle(color = Color.Black.copy(alpha = .5f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+    }
+    Text(modifier = Modifier.width(daySize), text = text, style = dayNameTextStyle, textAlign = TextAlign.Center)
+}
+
+@Composable
 private fun DatePickerYearView(
     viewType: MutableState<DatePickerViewType>,
     currentDate: MutableState<LocalDate>,
@@ -308,18 +323,23 @@ private fun DatePickerYearView(
 ) {
     AnimatedVisibility(viewType.value == DatePickerViewType.Year, enter = fadeIn(), exit = fadeOut()) {
         val count = 200
+        val pickerHPadding = 40.dp
 
         Row(
-            modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 0.dp)
+            modifier = Modifier
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 0.dp)
+                .height(daySize * 6 + 22.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             KMPWheelPicker(
                 modifier = Modifier
-                    .height(daySize * 7)
+                    .height(daySize * 5)
                     .weight(1f),
-                selectedIndex = currentDate.value.month.ordinal,
+                selectedIndex = 0,
                 items = remember { Month.values().toList() },
                 state = rememberKmpWheelPickerState(isInfinite = true, currentDate.value.month.ordinal),
-                indicator = remember { KMPWheelPickerDefaults.indicatorWindow(shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)) },
+                indicator = remember { KMPWheelPickerIndicators.window(shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)) },
+                scrollEffect = remember { KMPWheelPickerScrollEffects.magnify(alignment = Alignment.Start, horizontalPadding = pickerHPadding) },
                 onChange = { month ->
 //                    selectedDate.value = LocalDate(
 //                        month = month,
@@ -342,11 +362,12 @@ private fun DatePickerYearView(
                 val isSelectedMonth = month == selectedDate.value.month
 
                 Box(
-                    modifier = Modifier.height(daySize).padding(start = 32.dp),
+                    modifier = Modifier
+                        .height(daySize)
+                        .padding(start = pickerHPadding),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        modifier = Modifier.fillMaxWidth(),
                         text = month.getDisplayName(DateTextFormat.Full),
                         style = TextStyle(
                             color = if (isSelectedMonth) MaterialTheme.colors.primary else Color.Black,
@@ -357,12 +378,10 @@ private fun DatePickerYearView(
             }
 
             KMPWheelPicker(
-                modifier = Modifier
-                    .height(daySize * 7)
-                    .weight(1f),
+                modifier = Modifier.height(daySize * 5),
                 selectedIndex = 100,
                 items = ((currentDate.value.year - count / 2)..(currentDate.value.year + count / 2)).toList(),
-                indicator = remember { KMPWheelPickerDefaults.indicatorWindow(shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)) },
+                indicator = remember { KMPWheelPickerIndicators.window(shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)) },
                 onChange = { year ->
                     selectedDate.value = LocalDate(
                         month = selectedDate.value.month,
@@ -385,17 +404,17 @@ private fun DatePickerYearView(
                 val isSelectedYear = year == selectedDate.value.year
 
                 Box(
-                    modifier = Modifier.height(daySize),
+                    modifier = Modifier
+                        .height(daySize)
+                        .padding(horizontal = pickerHPadding),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        modifier = Modifier.fillMaxWidth(),
                         text = year.toString(),
                         style = TextStyle(
                             color = if (isSelectedYear) MaterialTheme.colors.primary else Color.Black,
                             fontSize = 18.sp,
                         ),
-                        textAlign = TextAlign.Center,
                     )
                 }
             }
