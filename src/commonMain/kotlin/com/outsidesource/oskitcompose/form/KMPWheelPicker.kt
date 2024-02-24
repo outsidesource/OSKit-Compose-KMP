@@ -324,7 +324,7 @@ typealias KMPWheelPickerIndicator =
         ContentDrawScope.(state: KMPWheelPickerState) -> Unit
 
 object KMPWheelPickerIndicators {
-    val none: KMPWheelPickerScrollEffect = { _, _, _ -> }
+    val none: KMPWheelPickerIndicator = { _ -> drawContent() }
 
     fun window(
         color: Color = Color(0x14747480),
