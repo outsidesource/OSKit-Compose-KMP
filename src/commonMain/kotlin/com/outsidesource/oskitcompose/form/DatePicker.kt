@@ -34,7 +34,6 @@ import com.outsidesource.oskitcompose.popup.Modal
 import com.outsidesource.oskitcompose.popup.ModalStyles
 import com.outsidesource.oskitcompose.popup.Popover
 import com.outsidesource.oskitcompose.popup.PopoverAnchors
-import kotlinx.coroutines.delay
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
 import kotlin.math.min
@@ -57,13 +56,11 @@ fun DatePicker(
     onChange: (date: LocalDate) -> Unit,
 ) {
     val viewType = remember { mutableStateOf(DatePickerViewType.Month) }
-    val currentDate = remember(date) { mutableStateOf(date) }
-    val selectedDate = remember(date) { mutableStateOf(date) }
 
     if (centerInWindow) {
-        DatePickerModal(isVisible, onDismissRequest, isFullScreen, date, onChange, viewType, currentDate, selectedDate)
+        DatePickerModal(isVisible, onDismissRequest, isFullScreen, date, onChange, viewType)
     } else {
-        DatePickerPopover(isVisible, onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
+        DatePickerPopover(isVisible, onDismissRequest, date, onChange, viewType)
     }
 }
 
@@ -75,8 +72,6 @@ private fun DatePickerModal(
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     onChange: (date: LocalDate) -> Unit,
     viewType: MutableState<DatePickerViewType>,
-    currentDate: MutableState<LocalDate>,
-    selectedDate: MutableState<LocalDate>,
 ) {
     Modal(
         isVisible = isVisible,
@@ -89,7 +84,7 @@ private fun DatePickerModal(
             false
         },
     ) {
-        DatePickerContent(onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
+        DatePickerContent(onDismissRequest, date, onChange, viewType)
     }
 }
 
@@ -100,8 +95,6 @@ private fun DatePickerPopover(
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     onChange: (date: LocalDate) -> Unit,
     viewType: MutableState<DatePickerViewType>,
-    currentDate: MutableState<LocalDate>,
-    selectedDate: MutableState<LocalDate>,
 ) {
     Popover(
         isVisible = isVisible,
@@ -113,7 +106,7 @@ private fun DatePickerPopover(
         },
         offset = DpOffset(0.dp, (-16f).dp),
     ) {
-        DatePickerContent(onDismissRequest, date, onChange, viewType, currentDate, selectedDate)
+        DatePickerContent(onDismissRequest, date, onChange, viewType)
     }
 }
 
@@ -123,13 +116,14 @@ private fun DatePickerContent(
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     onChange: (date: LocalDate) -> Unit,
     viewType: MutableState<DatePickerViewType>,
-    currentDate: MutableState<LocalDate>,
-    selectedDate: MutableState<LocalDate>,
 ) {
+    val viewDate = remember(date) { mutableStateOf(date) }
+    val selectedDate = remember(date) { mutableStateOf(date) }
+
     DisposableEffect(Unit) {
         onDispose {
             viewType.value = DatePickerViewType.Month
-            currentDate.value = date
+            viewDate.value = date
             selectedDate.value = date
         }
     }
@@ -164,11 +158,11 @@ private fun DatePickerContent(
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(
-                    text = "${currentDate.value.month.getDisplayName(DateTextFormat.Full)} ${currentDate.value.year}",
+                    text = "${viewDate.value.month.getDisplayName(DateTextFormat.Full)} ${viewDate.value.year}",
                     style = TextStyle(
                         fontSize = 16.sp,
                         color = MaterialTheme.colors.onPrimary,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Medium,
                     )
                 )
 
@@ -189,7 +183,7 @@ private fun DatePickerContent(
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .clickable { currentDate.value -= DatePeriod(months = 1) }
+                            .clickable { viewDate.value -= DatePeriod(months = 1) }
                             .size(daySize),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -202,7 +196,7 @@ private fun DatePickerContent(
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .clickable { currentDate.value += DatePeriod(months = 1) }
+                            .clickable { viewDate.value += DatePeriod(months = 1) }
                             .size(daySize),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -217,8 +211,8 @@ private fun DatePickerContent(
         }
 
         Box {
-            DatePickerMonthView(viewType.value, currentDate, selectedDate)
-            DatePickerYearView(viewType, currentDate, selectedDate)
+            DatePickerMonthView(viewType.value, viewDate, selectedDate)
+            DatePickerYearView(viewType, viewDate, selectedDate)
         }
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
