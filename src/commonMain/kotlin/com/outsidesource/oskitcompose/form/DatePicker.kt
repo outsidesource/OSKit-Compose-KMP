@@ -3,6 +3,7 @@ package com.outsidesource.oskitcompose.form
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
@@ -176,12 +178,12 @@ private fun DatePickerContent(
 
                 val rotation by animateFloatAsState(if (viewType.value == DatePickerViewType.Year) 90f else 0f, tween())
 
-                Icon(
+                Image(
                     modifier = Modifier
                         .size(18.dp)
                         .graphicsLayer { rotationZ = rotation },
                     imageVector = Icons.Filled.KeyboardArrowRight,
-                    tint = Color.White,
+                    colorFilter = ColorFilter.tint(Color.White),
                     contentDescription = "Change View",
                 )
             }
@@ -327,7 +329,7 @@ private fun DatePickerMonthView(
 @Composable
 private fun DayName(text: String) {
     val dayNameTextStyle = remember {
-        TextStyle(color = Color.Black.copy(alpha = .25f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        TextStyle(color = Color.Black.copy(alpha = .5f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
     }
     Text(modifier = Modifier.width(daySize), text = text, style = dayNameTextStyle, textAlign = TextAlign.Center)
 }
@@ -478,7 +480,7 @@ private fun DatePickerDay(
     Box(
         modifier = Modifier
             .clip(CircleShape)
-            .graphicsLayer { alpha = if (isEnabled) 1f else .5f }
+            .graphicsLayer { alpha = if (isEnabled) 1f else .25f }
             .clickable(onClick = onClick, enabled = isEnabled)
             .size(daySize)
             .background(if (isSelected) MaterialTheme.colors.primary else Color.Transparent, CircleShape),
