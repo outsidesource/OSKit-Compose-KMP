@@ -185,7 +185,6 @@ fun DatePickerInline(
         ) {
             Row(
                 modifier = Modifier
-                    .offset(-(4).dp)
                     .clip(RoundedCornerShape(4.dp))
                     .clickable {
                         viewType.value = when (viewType.value) {
@@ -220,9 +219,7 @@ fun DatePickerInline(
             }
 
             AnimatedVisibility(visible = viewType.value == DatePickerViewType.Month, enter = fadeIn(), exit = fadeOut()) {
-                Row(
-                    modifier = Modifier.offset(x = 16.dp)
-                ) {
+                Row {
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
