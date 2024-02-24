@@ -40,7 +40,6 @@ import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
 import kotlin.math.min
 
-private val hPadding = 16.dp
 private val daySize = 40.dp
 
 private enum class DatePickerViewType {
@@ -59,12 +58,10 @@ fun DatePicker(
     isFullScreen: Boolean = true,
     onChange: (date: LocalDate) -> Unit,
 ) {
-    val viewType = remember { mutableStateOf(DatePickerViewType.Month) }
-
     if (centerInWindow) {
-        DatePickerModal(isVisible, onDismissRequest, isFullScreen, date, minDate, maxDate, onChange, viewType)
+        DatePickerModal(isVisible, onDismissRequest, isFullScreen, date, minDate, maxDate, onChange)
     } else {
-        DatePickerPopover(isVisible, onDismissRequest, date, minDate, maxDate, onChange, viewType)
+        DatePickerPopover(isVisible, onDismissRequest, date, minDate, maxDate, onChange)
     }
 }
 
@@ -77,7 +74,6 @@ private fun DatePickerModal(
     minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
     maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
     onChange: (date: LocalDate) -> Unit,
-    viewType: MutableState<DatePickerViewType>,
 ) {
     Modal(
         isVisible = isVisible,
@@ -90,7 +86,23 @@ private fun DatePickerModal(
             false
         },
     ) {
-        DatePickerContent(onDismissRequest, date, minDate, maxDate, onChange, viewType)
+        Column {
+            DatePickerInline(date, minDate, maxDate, onChange)
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton({
+                    onDismissRequest?.invoke()
+                }) {
+                    Text("CANCEL", style = MaterialTheme.typography.button)
+                }
+                TextButton({
+                    onDismissRequest?.invoke()
+                    onChange(date)
+                }) {
+                    Text("OK", style = MaterialTheme.typography.button)
+                }
+            }
+        }
     }
 }
 
@@ -102,7 +114,6 @@ private fun DatePickerPopover(
     minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
     maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
     onChange: (date: LocalDate) -> Unit,
-    viewType: MutableState<DatePickerViewType>,
 ) {
     Popover(
         isVisible = isVisible,
@@ -114,19 +125,42 @@ private fun DatePickerPopover(
         },
         offset = DpOffset(0.dp, (-16f).dp),
     ) {
-        DatePickerContent(onDismissRequest, date, minDate, maxDate, onChange, viewType)
+        Box(
+            modifier = Modifier
+                .shadow(16.dp, RoundedCornerShape(8.dp))
+                .background(color = Color.White)
+                .padding(16.dp)
+        ) {
+            Column {
+                DatePickerInline(date, minDate, maxDate, onChange)
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton({
+                        onDismissRequest?.invoke()
+                    }) {
+                        Text("CANCEL", style = MaterialTheme.typography.button)
+                    }
+                    TextButton({
+                        onDismissRequest?.invoke()
+                        onChange(date)
+                    }) {
+                        Text("OK", style = MaterialTheme.typography.button)
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun DatePickerContent(
-    onDismissRequest: (() -> Unit)? = null,
+fun DatePickerInline(
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
     maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
     onChange: (date: LocalDate) -> Unit,
-    viewType: MutableState<DatePickerViewType>,
+    modifier: Modifier = Modifier,
 ) {
+    val viewType = remember { mutableStateOf(DatePickerViewType.Month) }
     val viewDate = remember(date) { mutableStateOf(date) }
     val selectedDate = remember(date) { mutableStateOf(date) }
 
@@ -140,22 +174,18 @@ private fun DatePickerContent(
 
     Column(
         modifier = Modifier
-            .width(((hPadding * 2) * 2) + (daySize * 7))
-            .padding(16.dp)
-            .shadow(16.dp, RoundedCornerShape(8.dp))
-            .background(Color.White)
+            .widthIn(min = daySize * 7)
+            .then(modifier)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colors.primary)
-                .padding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(
                 modifier = Modifier
-                    .height(daySize)
+                    .offset(-(4).dp)
                     .clip(RoundedCornerShape(4.dp))
                     .clickable {
                         viewType.value = when (viewType.value) {
@@ -163,7 +193,8 @@ private fun DatePickerContent(
                             else -> DatePickerViewType.Month
                         }
                     }
-                    .padding(vertical = 4.dp, horizontal = 8.dp),
+                    .padding(horizontal = 4.dp)
+                    .height(40.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
@@ -171,7 +202,7 @@ private fun DatePickerContent(
                     text = "${viewDate.value.month.getDisplayName(DateTextFormat.Full)} ${viewDate.value.year}",
                     style = TextStyle(
                         fontSize = 16.sp,
-                        color = MaterialTheme.colors.onPrimary,
+                        color = MaterialTheme.colors.primary,
                         fontWeight = FontWeight.Medium,
                     )
                 )
@@ -183,13 +214,15 @@ private fun DatePickerContent(
                         .size(18.dp)
                         .graphicsLayer { rotationZ = rotation },
                     imageVector = Icons.Filled.KeyboardArrowRight,
-                    colorFilter = ColorFilter.tint(Color.White),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colors.primary),
                     contentDescription = "Change View",
                 )
             }
 
             AnimatedVisibility(visible = viewType.value == DatePickerViewType.Month, enter = fadeIn(), exit = fadeOut()) {
-                Row {
+                Row(
+                    modifier = Modifier.offset(x = 16.dp)
+                ) {
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
@@ -199,7 +232,7 @@ private fun DatePickerContent(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowLeft,
-                            tint = Color.White,
+                            tint = MaterialTheme.colors.primary,
                             contentDescription = "Previous month"
                         )
                     }
@@ -212,7 +245,7 @@ private fun DatePickerContent(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowRight,
-                            tint = Color.White,
+                            tint = MaterialTheme.colors.primary,
                             contentDescription = "Next month"
                         )
                     }
@@ -220,23 +253,9 @@ private fun DatePickerContent(
             }
         }
 
-        Box {
+        Box(modifier = Modifier.padding(top = 4.dp)) {
             DatePickerMonthView(viewType.value, viewDate, selectedDate, minDate, maxDate)
             DatePickerYearView(viewType, viewDate, selectedDate, minDate, maxDate)
-        }
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            TextButton({
-                onDismissRequest?.invoke()
-            }) {
-                Text("CANCEL", style = MaterialTheme.typography.button)
-            }
-            TextButton({
-                onDismissRequest?.invoke()
-                onChange(selectedDate.value)
-            }) {
-                Text("OK", style = MaterialTheme.typography.button)
-            }
         }
     }
 }
@@ -250,12 +269,12 @@ private fun DatePickerMonthView(
     maxDate: LocalDate,
 ) {
     AnimatedVisibility(viewType == DatePickerViewType.Month, enter = fadeIn(), exit = fadeOut()) {
-        Column(
-            modifier = Modifier
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 0.dp)
-        ) {
+        Column {
             Row(
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier
+                    .padding(bottom = 6.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 DayName("SUN")
                 DayName("MON")
@@ -283,17 +302,23 @@ private fun DatePickerMonthView(
                 val maxIndex = (dayOne.month.lengthInDays(dayOne.year) + startIndex)
 
                 Column(
-                    modifier = Modifier.height(daySize * 6),
                     verticalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.height(daySize * 6)
                 ) {
                     for (i in 0 until 6) {
-                        Row {
-                            for (j in 0..7) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            var hasOneInRow = false
+
+                            for (j in 0..< 7) {
                                 val index = (i * 7) + j
 
                                 if (index < startIndex) {
                                     DatePickerDay("")
                                 } else if (index < maxIndex) {
+                                    hasOneInRow = true
                                     val day = index - startIndex + 1
                                     val isEnabled = run {
                                         if (currentDateValue.year < minDate.year) return@run false
@@ -316,6 +341,8 @@ private fun DatePickerMonthView(
                                                 LocalDate(currentDateValue.year, currentDateValue.month, day)
                                         }
                                     )
+                                } else if (hasOneInRow) {
+                                    DatePickerDay("")
                                 }
                             }
                         }
@@ -347,8 +374,8 @@ private fun DatePickerYearView(
 
         Row(
             modifier = Modifier
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 0.dp)
-                .height(daySize * 6 + 22.dp),
+                .height(daySize * 6 + 20.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val monthItems = remember(minDate, maxDate, viewDate.value.year) {
@@ -475,13 +502,13 @@ private fun DatePickerDay(
     isSelected: Boolean = false,
     isEnabled: Boolean = true,
     style: TextStyle = TextStyle(),
-    onClick: (() -> Unit) = { },
+    onClick: (() -> Unit)? = null,
 ) {
     Box(
         modifier = Modifier
             .clip(CircleShape)
             .graphicsLayer { alpha = if (isEnabled) 1f else .25f }
-            .clickable(onClick = onClick, enabled = isEnabled)
+            .run { if (onClick != null) clickable(onClick = onClick, enabled = isEnabled) else this }
             .size(daySize)
             .background(if (isSelected) MaterialTheme.colors.primary else Color.Transparent, CircleShape),
         contentAlignment = Alignment.Center,
