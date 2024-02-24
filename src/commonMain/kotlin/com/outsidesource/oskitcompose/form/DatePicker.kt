@@ -51,6 +51,8 @@ fun DatePicker(
     isVisible: Boolean,
     onDismissRequest: (() -> Unit)? = null,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
+    minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
+    maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
     centerInWindow: Boolean = false,
     isFullScreen: Boolean = true,
     onChange: (date: LocalDate) -> Unit,
@@ -58,9 +60,9 @@ fun DatePicker(
     val viewType = remember { mutableStateOf(DatePickerViewType.Month) }
 
     if (centerInWindow) {
-        DatePickerModal(isVisible, onDismissRequest, isFullScreen, date, onChange, viewType)
+        DatePickerModal(isVisible, onDismissRequest, isFullScreen, date, minDate, maxDate, onChange, viewType)
     } else {
-        DatePickerPopover(isVisible, onDismissRequest, date, onChange, viewType)
+        DatePickerPopover(isVisible, onDismissRequest, date, minDate, maxDate, onChange, viewType)
     }
 }
 
@@ -70,6 +72,8 @@ private fun DatePickerModal(
     onDismissRequest: (() -> Unit)? = null,
     isFullScreen: Boolean = true,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
+    minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
+    maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
     onChange: (date: LocalDate) -> Unit,
     viewType: MutableState<DatePickerViewType>,
 ) {
@@ -84,7 +88,7 @@ private fun DatePickerModal(
             false
         },
     ) {
-        DatePickerContent(onDismissRequest, date, onChange, viewType)
+        DatePickerContent(onDismissRequest, date, minDate, maxDate, onChange, viewType)
     }
 }
 
@@ -93,6 +97,8 @@ private fun DatePickerPopover(
     isVisible: Boolean,
     onDismissRequest: (() -> Unit)? = null,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
+    minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
+    maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
     onChange: (date: LocalDate) -> Unit,
     viewType: MutableState<DatePickerViewType>,
 ) {
@@ -106,7 +112,7 @@ private fun DatePickerPopover(
         },
         offset = DpOffset(0.dp, (-16f).dp),
     ) {
-        DatePickerContent(onDismissRequest, date, onChange, viewType)
+        DatePickerContent(onDismissRequest, date, minDate, maxDate, onChange, viewType)
     }
 }
 
@@ -114,6 +120,8 @@ private fun DatePickerPopover(
 private fun DatePickerContent(
     onDismissRequest: (() -> Unit)? = null,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
+    minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
+    maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
     onChange: (date: LocalDate) -> Unit,
     viewType: MutableState<DatePickerViewType>,
 ) {
@@ -183,7 +191,7 @@ private fun DatePickerContent(
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .clickable { viewDate.value -= DatePeriod(months = 1) }
+                            .clickable { viewDate.value = (viewDate.value - DatePeriod(months = 1)).coerceIn(minDate, maxDate) }
                             .size(daySize),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -196,7 +204,7 @@ private fun DatePickerContent(
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .clickable { viewDate.value += DatePeriod(months = 1) }
+                            .clickable { viewDate.value = (viewDate.value + DatePeriod(months = 1)).coerceIn(minDate, maxDate) }
                             .size(daySize),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -211,8 +219,8 @@ private fun DatePickerContent(
         }
 
         Box {
-            DatePickerMonthView(viewType.value, viewDate, selectedDate)
-            DatePickerYearView(viewType, viewDate, selectedDate)
+            DatePickerMonthView(viewType.value, viewDate, selectedDate, minDate, maxDate)
+            DatePickerYearView(viewType, viewDate, selectedDate, minDate, maxDate)
         }
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
@@ -234,8 +242,10 @@ private fun DatePickerContent(
 @Composable
 private fun DatePickerMonthView(
     viewType: DatePickerViewType,
-    currentDate: MutableState<LocalDate>,
+    viewDate: MutableState<LocalDate>,
     selectedDate: MutableState<LocalDate>,
+    minDate: LocalDate,
+    maxDate: LocalDate,
 ) {
     AnimatedVisibility(viewType == DatePickerViewType.Month, enter = fadeIn(), exit = fadeOut()) {
         Column(
@@ -255,7 +265,7 @@ private fun DatePickerMonthView(
             }
 
             AnimatedContent(
-                targetState = currentDate.value,
+                targetState = viewDate.value,
                 transitionSpec = {
                     slideInHorizontally {
                         if (initialState.month == Month.JANUARY && targetState.month == Month.DECEMBER) return@slideInHorizontally -it
@@ -283,8 +293,19 @@ private fun DatePickerMonthView(
                                     DatePickerDay("")
                                 } else if (index < maxIndex) {
                                     val day = index - startIndex + 1
+                                    val isEnabled = run {
+                                        if (currentDateValue.year < minDate.year) return@run false
+                                        if (currentDateValue.year == minDate.year && currentDateValue.month < minDate.month) return@run false
+                                        if (currentDateValue.year == minDate.year && currentDateValue.month == minDate.month && day < minDate.dayOfMonth) return@run false
+                                        if (currentDateValue.year > maxDate.year) return@run false
+                                        if (currentDateValue.year == maxDate.year && currentDateValue.month > maxDate.month) return@run false
+                                        if (currentDateValue.year == maxDate.year && currentDateValue.month == maxDate.month && day > maxDate.dayOfMonth) return@run false
+                                        true
+                                    }
+
                                     DatePickerDay(
                                         label = day.toString(),
+                                        isEnabled = isEnabled,
                                         isSelected = currentDateValue.year == selectedDate.value.year &&
                                                 currentDateValue.month == selectedDate.value.month &&
                                                 selectedDate.value.dayOfMonth == day,
@@ -306,7 +327,7 @@ private fun DatePickerMonthView(
 @Composable
 private fun DayName(text: String) {
     val dayNameTextStyle = remember {
-        TextStyle(color = Color.Black.copy(alpha = .5f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        TextStyle(color = Color.Black.copy(alpha = .25f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
     }
     Text(modifier = Modifier.width(daySize), text = text, style = dayNameTextStyle, textAlign = TextAlign.Center)
 }
@@ -314,11 +335,12 @@ private fun DayName(text: String) {
 @Composable
 private fun DatePickerYearView(
     viewType: MutableState<DatePickerViewType>,
-    currentDate: MutableState<LocalDate>,
+    viewDate: MutableState<LocalDate>,
     selectedDate: MutableState<LocalDate>,
+    minDate: LocalDate,
+    maxDate: LocalDate,
 ) {
     AnimatedVisibility(viewType.value == DatePickerViewType.Year, enter = fadeIn(), exit = fadeOut()) {
-        val count = 200
         val pickerHPadding = 40.dp
 
         Row(
@@ -327,13 +349,37 @@ private fun DatePickerYearView(
                 .height(daySize * 6 + 22.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            val monthItems = remember(minDate, maxDate, viewDate.value.year) {
+                if (viewDate.value.year > minDate.year && viewDate.value.year < maxDate.year) {
+                    return@remember Month.values().toList()
+                }
+
+                Month.values().toList().mapNotNull {
+                    if (viewDate.value.year == minDate.year && it < minDate.month) return@mapNotNull null
+                    if (viewDate.value.year == maxDate.year && it > maxDate.month) return@mapNotNull null
+                    it
+                }
+            }
+
+            val selectedMonth = remember(viewDate.value, monthItems) {
+                monthItems.indexOfFirst { it == viewDate.value.month }.coerceAtLeast(0)
+            }
+
+            val yearItems = remember(minDate, maxDate) {
+                (minDate.year..maxDate.year).toList()
+            }
+
+            val selectedYear = remember(viewDate.value, yearItems, minDate) {
+                viewDate.value.year - minDate.year
+            }
+
             KMPWheelPicker(
                 modifier = Modifier
                     .height(daySize * 5)
                     .weight(1f),
-                selectedIndex = currentDate.value.month.ordinal,
-                items = remember { Month.values().toList() },
-                state = rememberKmpWheelPickerState(isInfinite = true, currentDate.value.month.ordinal),
+                selectedIndex = selectedMonth,
+                items = monthItems,
+                state = rememberKmpWheelPickerState(isInfinite = true, initiallySelectedItemIndex = selectedMonth),
                 indicator = remember { KMPWheelPickerIndicators.window(shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)) },
                 scrollEffect = remember { KMPWheelPickerScrollEffects.magnify(alignment = Alignment.Start, horizontalPadding = pickerHPadding) },
                 onChange = { month ->
@@ -344,16 +390,16 @@ private fun DatePickerYearView(
                             month.lengthInDays(selectedDate.value.year)
                         ),
                         year = selectedDate.value.year
-                    )
+                    ).coerceIn(minDate, maxDate)
 
-                    currentDate.value = LocalDate(
+                    viewDate.value = LocalDate(
                         month = month,
                         dayOfMonth = min(
-                            currentDate.value.dayOfMonth,
-                            month.lengthInDays(currentDate.value.year)
+                            viewDate.value.dayOfMonth,
+                            month.lengthInDays(viewDate.value.year)
                         ),
-                        year = currentDate.value.year
-                    )
+                        year = viewDate.value.year
+                    ).coerceIn(minDate, maxDate)
                 }
             ) { month ->
                 val isSelectedMonth = month == selectedDate.value.month
@@ -376,8 +422,9 @@ private fun DatePickerYearView(
 
             KMPWheelPicker(
                 modifier = Modifier.height(daySize * 5),
-                selectedIndex = 100,
-                items = ((currentDate.value.year - count / 2)..(currentDate.value.year + count / 2)).toList(),
+                selectedIndex = selectedYear,
+                state = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedYear),
+                items = yearItems,
                 indicator = remember { KMPWheelPickerIndicators.window(shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)) },
                 onChange = { year ->
                     selectedDate.value = LocalDate(
@@ -387,15 +434,16 @@ private fun DatePickerYearView(
                             selectedDate.value.month.lengthInDays(year)
                         ),
                         year = year
-                    )
-                    currentDate.value = LocalDate(
-                        month = currentDate.value.month,
+                    ).coerceIn(minDate, maxDate)
+
+                    viewDate.value = LocalDate(
+                        month = viewDate.value.month,
                         dayOfMonth = min(
-                            currentDate.value.dayOfMonth,
-                            currentDate.value.month.lengthInDays(year)
+                            viewDate.value.dayOfMonth,
+                            viewDate.value.month.lengthInDays(year)
                         ),
                         year = year
-                    )
+                    ).coerceIn(minDate, maxDate)
                 }
             ) { year ->
                 val isSelectedYear = year == selectedDate.value.year
@@ -423,13 +471,15 @@ private fun DatePickerYearView(
 private fun DatePickerDay(
     label: String,
     isSelected: Boolean = false,
+    isEnabled: Boolean = true,
     style: TextStyle = TextStyle(),
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit) = { },
 ) {
     Box(
         modifier = Modifier
             .clip(CircleShape)
-            .run { return@run if (onClick != null) clickable(onClick = onClick) else this }
+            .graphicsLayer { alpha = if (isEnabled) 1f else .5f }
+            .clickable(onClick = onClick, enabled = isEnabled)
             .size(daySize)
             .background(if (isSelected) MaterialTheme.colors.primary else Color.Transparent, CircleShape),
         contentAlignment = Alignment.Center,
