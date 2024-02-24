@@ -95,6 +95,12 @@ fun <T : Any> KMPWheelPicker(
         }
     }
 
+    // This fixes an issue with non-infinite wheels set to the last index in the list not showing the selection properly due to padding not being calculated initially.
+    LaunchedEffect(paddingValues) {
+        state.scrollToItem(selectedIndex)
+    }
+
+    // Handle onImmediateChange callback
     LaunchedEffect(state, items) {
         state.selectedItemRawIndexFlow.collect {
             onImmediateChange(items[getItemsIndex(it, state, items.size)])
