@@ -201,7 +201,6 @@ fun DatePickerInline(
                     text = "${viewDate.value.month.getDisplayName(DateTextFormat.Full)} ${viewDate.value.year}",
                     style = TextStyle(
                         fontSize = 16.sp,
-                        color = MaterialTheme.colors.primary,
                         fontWeight = FontWeight.Medium,
                     )
                 )
