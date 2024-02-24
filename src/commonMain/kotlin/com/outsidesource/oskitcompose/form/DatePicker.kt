@@ -306,6 +306,8 @@ private fun DatePickerMonthView(
                     modifier = Modifier.height(daySize * 6)
                 ) {
                     for (i in 0 until 6) {
+                        if (startIndex == 7 && i == 0) continue
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
