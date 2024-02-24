@@ -324,6 +324,8 @@ typealias KMPWheelPickerIndicator =
         ContentDrawScope.(state: KMPWheelPickerState) -> Unit
 
 object KMPWheelPickerIndicators {
+    val none: KMPWheelPickerScrollEffect = { _, _, _ -> }
+
     fun window(
         color: Color = Color(0x14747480),
         shape: Shape = RoundedCornerShape(8.dp),
@@ -370,6 +372,8 @@ object KMPWheelPickerIndicators {
 }
 
 object KMPWheelPickerScrollEffects {
+    val none: KMPWheelPickerScrollEffect = { _, _ ,_ -> }
+
     fun wheel(): KMPWheelPickerScrollEffect =
         fun GraphicsLayerScope.(_: Int, multiplier: Float, _: KMPWheelPickerState) {
             rotationX = (90f * multiplier).coerceIn(-360f..360f)
