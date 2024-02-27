@@ -24,8 +24,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,9 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.outsidesource.oskitcompose.date.DateTextFormat
 import com.outsidesource.oskitcompose.date.getDisplayName
 import com.outsidesource.oskitcompose.date.lengthInDays
-import com.outsidesource.oskitcompose.popup.Modal
-import com.outsidesource.oskitcompose.popup.Popover
-import com.outsidesource.oskitcompose.popup.PopoverAnchors
+import com.outsidesource.oskitcompose.popup.*
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
 import kotlin.math.min
@@ -51,54 +48,20 @@ private enum class DatePickerViewType {
 }
 
 @Composable
-fun DatePicker(
-    isVisible: Boolean,
-    modifier: Modifier = Modifier,
-    onDismissRequest: (() -> Unit)? = null,
-    date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
-    minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
-    maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
-    centerInWindow: Boolean = false,
-    isFullScreen: Boolean = true,
-    styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
-    onChange: (date: LocalDate) -> Unit,
-) {
-    if (centerInWindow) {
-        DatePickerModal(
-            modifier = modifier,
-            isVisible = isVisible,
-            onDismissRequest = onDismissRequest,
-            isFullScreen = isFullScreen,
-            styles = styles,
-            date = date,
-            minDate = minDate,
-            maxDate = maxDate,
-            onChange = onChange,
-        )
-    } else {
-        DatePickerPopover(
-            modifier = modifier,
-            isVisible = isVisible,
-            onDismissRequest = onDismissRequest,
-            styles = styles,
-            date = date,
-            minDate = minDate,
-            maxDate = maxDate,
-            onChange = onChange,
-        )
-    }
-}
-
-@Composable
 private fun DatePickerModal(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
     isFullScreen: Boolean = true,
-    styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
+    modalStyles: ModalStyles = remember { ModalStyles() },
+    datePickerStyles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
+    dismissOnBackPress: Boolean = true,
+    dismissOnExternalClick: Boolean = true,
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
+    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
-    minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
-    maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
+    minDate: LocalDate = remember { LocalDate(0, Month.JANUARY, 1) },
+    maxDate: LocalDate = remember { LocalDate(3000, Month.DECEMBER, 31) },
     onChange: (date: LocalDate) -> Unit,
 ) {
     val selectedDate = remember(date) { mutableStateOf(date) }
@@ -106,30 +69,36 @@ private fun DatePickerModal(
     Modal(
         modifier = modifier,
         isVisible = isVisible,
-        dismissOnExternalClick = true,
+        dismissOnExternalClick = dismissOnExternalClick,
+        dismissOnBackPress = dismissOnBackPress,
         onDismissRequest = onDismissRequest,
         isFullScreen = isFullScreen,
-        onKeyEvent = {
-            if (it.key == Key.Escape || it.key == Key.Back) onDismissRequest?.invoke()
-            false
-        },
+        styles = modalStyles,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent,
     ) {
         Column(
-            modifier = Modifier.background(styles.backgroundColor)
+            modifier = Modifier.background(datePickerStyles.backgroundColor)
         ) {
-            DatePickerInline(date, minDate, maxDate, styles) { selectedDate.value = it }
+            DatePickerInline(
+                date = date,
+                minDate = minDate,
+                maxDate = maxDate,
+                styles = datePickerStyles,
+                onChange = { selectedDate.value = it },
+            )
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton({
                     onDismissRequest?.invoke()
                 }) {
-                    Text("CANCEL", style = styles.buttonStyle)
+                    Text("CANCEL", style = datePickerStyles.buttonStyle)
                 }
                 TextButton({
                     onDismissRequest?.invoke()
                     onChange(selectedDate.value)
                 }) {
-                    Text("OK", style = styles.buttonStyle)
+                    Text("OK", style = datePickerStyles.buttonStyle)
                 }
             }
         }
@@ -139,34 +108,45 @@ private fun DatePickerModal(
 @Composable
 private fun DatePickerPopover(
     isVisible: Boolean,
-    modifier: Modifier = Modifier,
-    onDismissRequest: (() -> Unit)? = null,
     styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
+    modifier: Modifier = Modifier
+        .shadow(16.dp, RoundedCornerShape(8.dp))
+        .background(color = styles.backgroundColor)
+        .padding(16.dp),
+    onDismissRequest: (() -> Unit)? = null,
+    anchors: PopoverAnchors = PopoverAnchors.ExternalBottomAlignCenter,
+    popupPositionProvider: PopupPositionProvider? = null,
+    dismissOnBackPress: Boolean = true,
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
+    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
+    offset: DpOffset = DpOffset(0.dp, (-16f).dp),
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
-    minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
-    maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
+    minDate: LocalDate = remember { LocalDate(0, Month.JANUARY, 1) },
+    maxDate: LocalDate = remember { LocalDate(3000, Month.DECEMBER, 31) },
     onChange: (date: LocalDate) -> Unit,
 ) {
     val selectedDate = remember(date) { mutableStateOf(date) }
 
     Popover(
         isVisible = isVisible,
-        anchors = PopoverAnchors.ExternalBottomAlignCenter,
+        anchors = anchors,
         onDismissRequest = onDismissRequest,
-        onKeyEvent = {
-            if (it.key == Key.Escape) onDismissRequest?.invoke()
-            false
-        },
-        offset = DpOffset(0.dp, (-16f).dp),
+        dismissOnBackKey = dismissOnBackPress,
+        onKeyEvent = onKeyEvent,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        popupPositionProvider = popupPositionProvider,
+        offset = offset,
     ) {
         Column(
-            modifier = Modifier
-                .shadow(16.dp, RoundedCornerShape(8.dp))
-                .background(color = styles.backgroundColor)
-                .padding(16.dp)
-                .then(modifier)
+            modifier = modifier
         ) {
-            DatePickerInline(date, minDate, maxDate, styles) { selectedDate.value = it }
+            DatePickerInline(
+                date = date,
+                minDate = minDate,
+                maxDate = maxDate,
+                styles = styles,
+                onChange = { selectedDate.value = it },
+            )
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton({
@@ -187,11 +167,11 @@ private fun DatePickerPopover(
 
 @Composable
 fun DatePickerInline(
-    date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
-    minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
-    maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
-    styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
     modifier: Modifier = Modifier,
+    date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
+    minDate: LocalDate = remember { LocalDate(0, Month.JANUARY, 1) },
+    maxDate: LocalDate = remember { LocalDate(3000, Month.DECEMBER, 31) },
+    styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
     onChange: (date: LocalDate) -> Unit,
 ) {
     val viewType = remember { mutableStateOf(DatePickerViewType.Month) }
