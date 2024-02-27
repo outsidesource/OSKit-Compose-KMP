@@ -48,7 +48,7 @@ private enum class DatePickerViewType {
 }
 
 @Composable
-private fun DatePickerModal(
+fun DatePickerModal(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
@@ -106,7 +106,7 @@ private fun DatePickerModal(
 }
 
 @Composable
-private fun DatePickerPopover(
+fun DatePickerPopover(
     isVisible: Boolean,
     styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
     modifier: Modifier = Modifier
