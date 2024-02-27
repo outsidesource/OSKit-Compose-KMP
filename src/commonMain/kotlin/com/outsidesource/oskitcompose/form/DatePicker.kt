@@ -60,6 +60,7 @@ fun DatePicker(
     maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
     centerInWindow: Boolean = false,
     isFullScreen: Boolean = true,
+    styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
     onChange: (date: LocalDate) -> Unit,
 ) {
     if (centerInWindow) {
@@ -68,6 +69,7 @@ fun DatePicker(
             isVisible = isVisible,
             onDismissRequest = onDismissRequest,
             isFullScreen = isFullScreen,
+            styles = styles,
             date = date,
             minDate = minDate,
             maxDate = maxDate,
@@ -78,6 +80,7 @@ fun DatePicker(
             modifier = modifier,
             isVisible = isVisible,
             onDismissRequest = onDismissRequest,
+            styles = styles,
             date = date,
             minDate = minDate,
             maxDate = maxDate,
@@ -92,6 +95,7 @@ private fun DatePickerModal(
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
     isFullScreen: Boolean = true,
+    styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
     maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
@@ -110,20 +114,22 @@ private fun DatePickerModal(
             false
         },
     ) {
-        Column {
-            DatePickerInline(date, minDate, maxDate) { selectedDate.value = it }
+        Column(
+            modifier = Modifier.background(styles.backgroundColor)
+        ) {
+            DatePickerInline(date, minDate, maxDate, styles) { selectedDate.value = it }
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton({
                     onDismissRequest?.invoke()
                 }) {
-                    Text("CANCEL", style = MaterialTheme.typography.button)
+                    Text("CANCEL", style = styles.buttonStyle)
                 }
                 TextButton({
                     onDismissRequest?.invoke()
                     onChange(selectedDate.value)
                 }) {
-                    Text("OK", style = MaterialTheme.typography.button)
+                    Text("OK", style = styles.buttonStyle)
                 }
             }
         }
@@ -135,6 +141,7 @@ private fun DatePickerPopover(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
+    styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
     maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
@@ -155,23 +162,23 @@ private fun DatePickerPopover(
         Column(
             modifier = Modifier
                 .shadow(16.dp, RoundedCornerShape(8.dp))
-                .background(color = Color.White)
+                .background(color = styles.backgroundColor)
                 .padding(16.dp)
                 .then(modifier)
         ) {
-            DatePickerInline(date, minDate, maxDate) { selectedDate.value = it }
+            DatePickerInline(date, minDate, maxDate, styles) { selectedDate.value = it }
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton({
                     onDismissRequest?.invoke()
                 }) {
-                    Text("CANCEL", style = MaterialTheme.typography.button)
+                    Text("CANCEL", style = styles.buttonStyle)
                 }
                 TextButton({
                     onDismissRequest?.invoke()
                     onChange(selectedDate.value)
                 }) {
-                    Text("OK", style = MaterialTheme.typography.button)
+                    Text("OK", style = styles.buttonStyle)
                 }
             }
         }
@@ -183,6 +190,7 @@ fun DatePickerInline(
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     minDate: LocalDate = LocalDate(0, Month.JANUARY, 1),
     maxDate: LocalDate = LocalDate(3000, Month.DECEMBER, 31),
+    styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
     modifier: Modifier = Modifier,
     onChange: (date: LocalDate) -> Unit,
 ) {
@@ -198,86 +206,102 @@ fun DatePickerInline(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .widthIn(min = DATE_PICKER_MIN_WIDTH)
-            .then(modifier)
-    ) {
-        Row(
+    CompositionLocalProvider(LocalKMPDatePickerStyles provides styles) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .widthIn(min = DATE_PICKER_MIN_WIDTH)
+                .then(modifier)
         ) {
             Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(4.dp))
-                    .clickable {
-                        viewType.value = when (viewType.value) {
-                            DatePickerViewType.Month -> DatePickerViewType.Year
-                            else -> DatePickerViewType.Month
-                        }
-                    }
-                    .padding(horizontal = 4.dp)
-                    .height(40.dp),
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(
-                    text = "${viewDate.value.month.getDisplayName(DateTextFormat.Full)} ${viewDate.value.year}",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                    )
-                )
-
-                val rotation by animateFloatAsState(if (viewType.value == DatePickerViewType.Year) 90f else 0f, tween())
-
-                Image(
+                Row(
                     modifier = Modifier
-                        .size(18.dp)
-                        .graphicsLayer { rotationZ = rotation },
-                    imageVector = Icons.Filled.KeyboardArrowRight,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colors.primary),
-                    contentDescription = "Change View",
-                )
-            }
+                        .clip(RoundedCornerShape(4.dp))
+                        .clickable {
+                            viewType.value = when (viewType.value) {
+                                DatePickerViewType.Month -> DatePickerViewType.Year
+                                else -> DatePickerViewType.Month
+                            }
+                        }
+                        .padding(horizontal = 4.dp)
+                        .height(40.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text(
+                        text = "${viewDate.value.month.getDisplayName(DateTextFormat.Full)} ${viewDate.value.year}",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = styles.fontColor,
+                        )
+                    )
 
-            AnimatedVisibility(visible = viewType.value == DatePickerViewType.Month, enter = fadeIn(), exit = fadeOut()) {
-                Row {
-                    Box(
+                    val rotation by animateFloatAsState(
+                        if (viewType.value == DatePickerViewType.Year) 90f else 0f,
+                        tween()
+                    )
+
+                    Image(
                         modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable { viewDate.value = (viewDate.value - DatePeriod(months = 1)).coerceIn(minDate, maxDate) }
-                            .size(daySize),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.KeyboardArrowLeft,
-                            tint = MaterialTheme.colors.primary,
-                            contentDescription = "Previous month"
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable { viewDate.value = (viewDate.value + DatePeriod(months = 1)).coerceIn(minDate, maxDate) }
-                            .size(daySize),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.KeyboardArrowRight,
-                            tint = MaterialTheme.colors.primary,
-                            contentDescription = "Next month"
-                        )
+                            .size(18.dp)
+                            .graphicsLayer { rotationZ = rotation },
+                        imageVector = Icons.Filled.KeyboardArrowRight,
+                        colorFilter = ColorFilter.tint(styles.accentColor),
+                        contentDescription = "Change View",
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = viewType.value == DatePickerViewType.Month,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Row {
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .clickable {
+                                    viewDate.value =
+                                        (viewDate.value - DatePeriod(months = 1)).coerceIn(minDate, maxDate)
+                                }
+                                .size(daySize),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.KeyboardArrowLeft,
+                                tint = styles.accentColor,
+                                contentDescription = "Previous month"
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .clickable {
+                                    viewDate.value =
+                                        (viewDate.value + DatePeriod(months = 1)).coerceIn(minDate, maxDate)
+                                }
+                                .size(daySize),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.KeyboardArrowRight,
+                                tint = styles.accentColor,
+                                contentDescription = "Next month"
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        Box(modifier = Modifier.padding(top = 4.dp)) {
-            DatePickerMonthView(viewType.value, viewDate, selectedDate, minDate, maxDate, onChange)
-            DatePickerYearView(viewType, viewDate, selectedDate, minDate, maxDate, onChange)
+            Box(modifier = Modifier.padding(top = 4.dp)) {
+                DatePickerMonthView(viewType.value, viewDate, selectedDate, minDate, maxDate, onChange)
+                DatePickerYearView(viewType, viewDate, selectedDate, minDate, maxDate, onChange)
+            }
         }
     }
 }
@@ -381,8 +405,9 @@ private fun DatePickerMonthView(
 
 @Composable
 private fun DayName(text: String) {
+    val styles = LocalKMPDatePickerStyles.current
     val dayNameTextStyle = remember {
-        TextStyle(color = Color.Black.copy(alpha = .5f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        TextStyle(color = styles.fontColor.copy(alpha = .5f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
     }
     Text(modifier = Modifier.width(daySize), text = text, style = dayNameTextStyle, textAlign = TextAlign.Center)
 }
@@ -396,6 +421,8 @@ private fun DatePickerYearView(
     maxDate: LocalDate,
     onChange: (date: LocalDate) -> Unit,
 ) {
+    val styles = LocalKMPDatePickerStyles.current
+
     AnimatedVisibility(viewType.value == DatePickerViewType.Year, enter = fadeIn(), exit = fadeOut()) {
         val pickerHPadding = 40.dp
 
@@ -471,7 +498,7 @@ private fun DatePickerYearView(
                     Text(
                         text = month.getDisplayName(DateTextFormat.Full),
                         style = TextStyle(
-                            color = if (isSelectedMonth) MaterialTheme.colors.primary else Color.Black,
+                            color = if (isSelectedMonth) styles.accentColor else styles.fontColor,
                             fontSize = 18.sp,
                         ),
                     )
@@ -517,7 +544,7 @@ private fun DatePickerYearView(
                     Text(
                         text = year.toString(),
                         style = TextStyle(
-                            color = if (isSelectedYear) MaterialTheme.colors.primary else Color.Black,
+                            color = if (isSelectedYear) styles.accentColor else styles.fontColor,
                             fontSize = 18.sp,
                         ),
                     )
@@ -532,9 +559,10 @@ private fun DatePickerDay(
     label: String,
     isSelected: Boolean = false,
     isEnabled: Boolean = true,
-    style: TextStyle = TextStyle(),
     onClick: (() -> Unit)? = null,
 ) {
+    val styles = LocalKMPDatePickerStyles.current
+
     Box(
         modifier = Modifier
             .clip(CircleShape)
@@ -544,11 +572,46 @@ private fun DatePickerDay(
             .background(if (isSelected) MaterialTheme.colors.primary else Color.Transparent, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text = label, style = style.copy(if (isSelected) MaterialTheme.colors.onPrimary else style.color))
+        Text(text = label, style = TextStyle(color = if (isSelected) styles.fontColorOnAccent else styles.fontColor))
     }
 }
 
 private fun DayOfWeek.sundayFirstOrdinal(): Int = when (this.ordinal) {
     7 -> 0
     else -> this.ordinal
+}
+
+@Immutable
+data class KMPDatePickerStyles(
+    val accentColor: Color,
+    val fontColor: Color,
+    val backgroundColor: Color,
+    val fontColorOnAccent: Color,
+    val buttonStyle: TextStyle,
+)
+
+@Composable
+fun rememberKmpDatePickerStyles(): KMPDatePickerStyles {
+    val colors = MaterialTheme.colors
+    val typography = MaterialTheme.typography
+
+    return remember {
+        KMPDatePickerStyles(
+            accentColor = colors.primary,
+            fontColor = typography.body1.color,
+            fontColorOnAccent = colors.onPrimary,
+            backgroundColor = Color.White,
+            buttonStyle = typography.button,
+        )
+    }
+}
+
+val LocalKMPDatePickerStyles = staticCompositionLocalOf {
+    KMPDatePickerStyles(
+        accentColor = Color.Black,
+        fontColor = Color.Black,
+        backgroundColor = Color.White,
+        fontColorOnAccent = Color.Black,
+        buttonStyle = TextStyle(),
+    )
 }
