@@ -408,7 +408,7 @@ private fun DatePickerYearView(
                 items = monthItems,
                 state = rememberKmpWheelPickerState(isInfinite = true, initiallySelectedItemIndex = selectedMonth),
                 indicator = remember { KMPWheelPickerIndicators.window(shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)) },
-                scrollEffect = remember { KMPWheelPickerScrollEffects.magnify(alignment = Alignment.Start, horizontalPadding = pickerHPadding) },
+                scrollEffect = remember { KMPWheelPickerScrollEffects.magnify(alignment = Alignment.Start, itemHorizontalPadding = pickerHPadding) },
                 onChange = { month ->
                     selectedDate.value = LocalDate(
                         month = month,

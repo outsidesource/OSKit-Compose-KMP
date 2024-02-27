@@ -116,7 +116,9 @@ fun <T : Any> KMPWheelPicker(
     }
 
     LazyColumn(
-        modifier = modifier
+        modifier = Modifier
+            .drawWithContent { indicator(state) }
+            .then(modifier)
             .kmpMouseScrollFilter(state, handleOnChange) { _, _ ->
                 if (!enabled) return@kmpMouseScrollFilter
 
@@ -173,8 +175,7 @@ fun <T : Any> KMPWheelPicker(
                         }
                     },
                 )
-            }
-            .drawWithContent { indicator(state) },
+            },
         userScrollEnabled = Platform.current.isDesktop, // Allow wheel scroll if Desktop, otherwise the scrolling is handled via the pointerInput modifier
         state = state.lazyListState,
         contentPadding = paddingValues,
@@ -383,9 +384,13 @@ object KMPWheelPickerScrollEffects {
             transformOrigin = TransformOrigin(.5f, (.5f - multiplier).coerceIn(0f..1f))
         }
 
+    /**
+     * @param itemHorizontalPadding Any horizontal padding applied to the items. This needs to be accounted for when
+     * scaling the item horizontally. It is recommended to instead apply the padding on the wheel picker itself
+     */
     fun magnify(
         alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-        horizontalPadding: Dp = 0.dp,
+        itemHorizontalPadding: Dp = 0.dp,
     ): KMPWheelPickerScrollEffect =
         fun GraphicsLayerScope.(_: Int, multiplier: Float, state: KMPWheelPickerState) {
             val selectionIndicatorMult =
@@ -397,11 +402,11 @@ object KMPWheelPickerScrollEffects {
             when (alignment) {
                 Alignment.Start -> {
                     transformOrigin = TransformOrigin(0f, .5f)
-                    translationX = ((horizontalPadding.toPx() - (horizontalPadding.toPx() * scaleX)))
+                    translationX = ((itemHorizontalPadding.toPx() - (itemHorizontalPadding.toPx() * scaleX)))
                 }
                 Alignment.End -> {
                     transformOrigin = TransformOrigin(1f, .5f)
-                    translationX = -((horizontalPadding.toPx() - (horizontalPadding.toPx() * scaleX)))
+                    translationX = -((itemHorizontalPadding.toPx() - (itemHorizontalPadding.toPx() * scaleX)))
                 }
             }
         }
