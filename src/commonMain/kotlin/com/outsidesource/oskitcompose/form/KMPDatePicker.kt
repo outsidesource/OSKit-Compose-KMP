@@ -48,7 +48,7 @@ private enum class DatePickerViewType {
 }
 
 @Composable
-fun DatePickerModal(
+fun KMPDatePickerModal(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
@@ -80,7 +80,7 @@ fun DatePickerModal(
         Column(
             modifier = Modifier.background(datePickerStyles.backgroundColor)
         ) {
-            DatePickerInline(
+            KMPDatePickerInline(
                 date = date,
                 minDate = minDate,
                 maxDate = maxDate,
@@ -106,7 +106,7 @@ fun DatePickerModal(
 }
 
 @Composable
-fun DatePickerPopover(
+fun KMPDatePickerPopover(
     isVisible: Boolean,
     styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
     modifier: Modifier = Modifier
@@ -140,7 +140,7 @@ fun DatePickerPopover(
         Column(
             modifier = modifier
         ) {
-            DatePickerInline(
+            KMPDatePickerInline(
                 date = date,
                 minDate = minDate,
                 maxDate = maxDate,
@@ -166,7 +166,7 @@ fun DatePickerPopover(
 }
 
 @Composable
-fun DatePickerInline(
+fun KMPDatePickerInline(
     modifier: Modifier = Modifier,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     minDate: LocalDate = remember { LocalDate(0, Month.JANUARY, 1) },
