@@ -377,11 +377,11 @@ object KMPWheelPickerScrollEffects {
 
     fun wheel(): KMPWheelPickerScrollEffect =
         fun GraphicsLayerScope.(_: Int, multiplier: Float, _: KMPWheelPickerState) {
-            rotationX = (90f * multiplier).coerceIn(-360f..360f)
-            scaleX = (1f - .1f * abs(multiplier)).coerceIn(0f..1f)
-            scaleY = (1f - .1f * abs(multiplier)).coerceIn(0f..1f)
+            rotationX = (70f * multiplier).coerceIn(-360f..360f)
+            scaleX = (1f - .15f * abs(multiplier)).coerceIn(0f..1f)
+            scaleY = (1f - .15f * abs(multiplier)).coerceIn(0f..1f)
             alpha = (1f - .5f * abs(multiplier)).coerceIn(0f..1f)
-            transformOrigin = TransformOrigin(.5f, (.5f - multiplier).coerceIn(0f..1f))
+            transformOrigin = TransformOrigin(.5f, (.5f - (.7f * multiplier)).coerceIn(0f..1f))
         }
 
     /**
