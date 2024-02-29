@@ -68,6 +68,7 @@ fun <T : Any> KMPWheelPicker(
     onChange: (T) -> Unit,
     onImmediateChange: (T) -> Unit = {},
     scrollEffect: KMPWheelPickerScrollEffect = remember { KMPWheelPickerScrollEffects.magnify() },
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     indicator: KMPWheelPickerIndicator = remember { KMPWheelPickerIndicators.window() },
     content: @Composable LazyItemScope.(T) -> Unit,
 ) {
@@ -112,19 +113,18 @@ fun <T : Any> KMPWheelPicker(
         // If the new value equals the old value don't do anything
         if (isDragging.value || getItemsIndex(state.lastOnChangeIndex, state, items.size) == selectedIndex) return@LaunchedEffect
         state.lastOnChangeIndex = internalSelectedIndex
-        state.animateScrollToItem(getItemsIndex(internalSelectedIndex, state, items.size))
+        state.animateScrollToItem(getItemsIndex(internalSelectedIndex, state, items.size), items.size)
     }
 
     LazyColumn(
         modifier = Modifier
             .drawWithContent { indicator(state) }
-            .then(modifier)
             .kmpMouseScrollFilter(state, handleOnChange) { _, _ ->
                 if (!enabled) return@kmpMouseScrollFilter
 
                 scrollDebouncer.emit {
                     val index = if (state.isInfinite) state.selectedItemRawIndex - INFINITE_OFFSET else state.selectedItemRawIndex
-                    state.animateScrollToItem(index)
+                    state.animateScrollToItem(index, items.size)
                     handleOnChange(state.selectedItemRawIndex)
                 }
             }
@@ -175,7 +175,9 @@ fun <T : Any> KMPWheelPicker(
                         }
                     },
                 )
-            },
+            }
+            .then(modifier),
+        horizontalAlignment = horizontalAlignment,
         userScrollEnabled = Platform.current.isDesktop, // Allow wheel scroll if Desktop, otherwise the scrolling is handled via the pointerInput modifier
         state = state.lazyListState,
         contentPadding = paddingValues,
@@ -287,16 +289,32 @@ data class KMPWheelPickerState(
         lazyListState.scrollToItem(if (isInfinite) index + INFINITE_OFFSET else index)
     }
 
-    suspend fun animateScrollToItem(index: Int) {
-        lazyListState.animateScrollToItem(if (isInfinite) index + INFINITE_OFFSET else index)
+    /**
+     * Animates scrolling to the given index. If the wheel picker is infinite, passing the itemCount will allow the
+     * picker to scroll to the nearest matching index
+     */
+    suspend fun animateScrollToItem(index: Int, itemCount: Int? = null) {
+        if (isInfinite && itemCount != null) {
+            val indexMultiplier = (selectedItemRawIndex / itemCount)
+            val lesser = (indexMultiplier * itemCount) - (itemCount - index)
+            val greater = (indexMultiplier * itemCount) + index
+            val target = if (abs(selectedItemRawIndex - lesser) < abs(selectedItemRawIndex - greater)) {
+                lesser
+            } else {
+                greater
+            }
+            lazyListState.animateScrollToItem(target)
+        } else {
+            lazyListState.animateScrollToItem(if (isInfinite) index + INFINITE_OFFSET else index)
+        }
     }
 
     /**
      * [resetToIndex] Resets internal picker state to the given index and animate scrolls the picker to the correct value
      */
-    suspend fun resetToIndex(index: Int) {
+    suspend fun resetToIndex(index: Int, itemCount: Int? = null) {
         lastOnChangeIndex = if (isInfinite) index + INFINITE_OFFSET else index
-        animateScrollToItem(index)
+        animateScrollToItem(index, itemCount)
     }
 
     companion object {
