@@ -12,11 +12,13 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.outsidesource.oskitcompose.lib.VarRef
-import com.outsidesource.oskitcompose.popup.*
+import com.outsidesource.oskitcompose.popup.ModalStyles
 import com.outsidesource.oskitkmp.lib.snapTo
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
+import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun KMPTimePickerModal(
@@ -159,7 +161,6 @@ fun KMPTimePickerInline(
     CompositionLocalProvider(LocalKMPTimePickerStyles provides styles) {
         val state = rememberKmpWheelPickerState(isInfinite = true, initiallySelectedItemIndex = selectedHourIndex)
         val pickerIndicator = remember { KMPWheelPickerIndicators.window() }
-        val lastHour = remember { VarRef(selectedHourIndex + 1)}
 
         Row(
             modifier = Modifier
@@ -178,14 +179,6 @@ fun KMPTimePickerInline(
                 state = state,
                 horizontalAlignment = Alignment.End,
                 indicator = KMPWheelPickerIndicators.none,
-                onImmediateChange = {
-//                    if (it == 12 && lastHour.value == 11) {
-////                        onChange()
-//                    } else if (it == 11 && lastHour.value == 12) {
-//                        // Move back
-//                    }
-//                    lastHour.value = it
-                },
                 onChange = { hour ->
                     val currentHour = selectedTime.value.hour
                     val newHour = if (currentHour >= 12) {
@@ -193,6 +186,7 @@ fun KMPTimePickerInline(
                     } else {
                         hour
                     }
+
                     val newTime = LocalTime(newHour, selectedTime.value.minute)
                     selectedTime.value = newTime
                     onChange(newTime)
