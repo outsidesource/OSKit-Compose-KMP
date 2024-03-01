@@ -260,8 +260,8 @@ fun KMPTimePickerInline(
                         TimeMeridian.AM -> if (currentHour >= 12) currentHour - 12 else currentHour
                         TimeMeridian.PM -> if (currentHour < 12) currentHour + 12 else currentHour
                     }
-                    val newTime = LocalTime(newHour, selectedTime.value.minute)
-                    onChange(newTime)
+                    selectedTime.value = LocalTime(newHour, selectedTime.value.minute)
+                    onChange(selectedTime.value)
                 }
             ) { meridian ->
                 val isSelectedMeridian = when (meridian) {
