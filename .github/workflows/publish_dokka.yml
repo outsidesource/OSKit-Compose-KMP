@@ -22,4 +22,4 @@ jobs:
         with:
           BRANCH: gh-pages
           FOLDER: build/dokka/html
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.OS_TOKEN }}
