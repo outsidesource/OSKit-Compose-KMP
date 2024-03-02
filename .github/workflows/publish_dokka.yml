@@ -1,0 +1,24 @@
+name: Publish Dokka
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+      - name: Build documentation
+        run: ./gradlew dokkaHtml
+      - name: Publish documentation
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: build/dokka/html
