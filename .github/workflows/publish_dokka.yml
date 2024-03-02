@@ -18,7 +18,7 @@ jobs:
       - name: Build documentation
         run: ./gradlew dokkaHtml
       - name: Publish documentation
-        uses: JamesIves/github-pages-deploy-action@releases/v4.5.0
+        uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           BRANCH: gh-pages
           FOLDER: build/dokka/html
