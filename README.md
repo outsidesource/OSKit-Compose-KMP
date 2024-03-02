@@ -9,6 +9,9 @@ We strive to adhere to semantic versioning.
 Contributions are appreciated and welcome, but we are a small team and make no guarantees that your changes will be
 implemented.
 
+## Documentation
+<https://outsidesource.github.io/OSKit-Compose-KMP/>
+
 ## Feature Highlights
 * Common
   * Animation
