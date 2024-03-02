@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import com.outsidesource.oskitcompose.date.DateTextFormat
 import com.outsidesource.oskitcompose.date.getDisplayName
 import com.outsidesource.oskitcompose.date.lengthInDays
-import com.outsidesource.oskitcompose.lib.rememberValRef
 import com.outsidesource.oskitcompose.popup.*
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
@@ -79,7 +78,9 @@ fun KMPDatePickerModal(
         onKeyEvent = onKeyEvent,
     ) {
         Column(
-            modifier = Modifier.background(datePickerStyles.backgroundColor)
+            modifier = Modifier
+                .width(DATE_PICKER_MIN_WIDTH)
+                .background(datePickerStyles.backgroundColor)
         ) {
             KMPDatePickerInline(
                 date = date,
@@ -109,10 +110,10 @@ fun KMPDatePickerModal(
 @Composable
 fun KMPDatePickerPopover(
     isVisible: Boolean,
-    styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
+    datePickerStyles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
     modifier: Modifier = Modifier
         .shadow(16.dp, RoundedCornerShape(8.dp))
-        .background(styles.backgroundColor)
+        .background(datePickerStyles.backgroundColor)
         .padding(16.dp)
         .width(DATE_PICKER_MIN_WIDTH),
     onDismissRequest: (() -> Unit)? = null,
@@ -140,14 +141,14 @@ fun KMPDatePickerPopover(
         offset = offset,
     ) {
         Column(
-            modifier = Modifier.background(styles.backgroundColor).then(modifier)
+            modifier = Modifier.background(datePickerStyles.backgroundColor).then(modifier)
         ) {
             KMPDatePickerInline(
                 modifier = Modifier.fillMaxWidth(),
                 date = date,
                 minDate = minDate,
                 maxDate = maxDate,
-                styles = styles,
+                styles = datePickerStyles,
                 onChange = { selectedDate.value = it },
             )
 
@@ -155,13 +156,13 @@ fun KMPDatePickerPopover(
                 TextButton({
                     onDismissRequest?.invoke()
                 }) {
-                    Text("CANCEL", style = styles.buttonStyle)
+                    Text("CANCEL", style = datePickerStyles.buttonStyle)
                 }
                 TextButton({
                     onDismissRequest?.invoke()
                     onChange(selectedDate.value)
                 }) {
-                    Text("OK", style = styles.buttonStyle)
+                    Text("OK", style = datePickerStyles.buttonStyle)
                 }
             }
         }
