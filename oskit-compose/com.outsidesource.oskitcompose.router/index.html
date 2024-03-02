@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>com.outsidesource.oskitcompose.router</title>
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+                    <a class="library-name--link" href="../../index.html">
+                            oskit-compose
+                    </a>
+            </div>
+            <div class="library-version">
+3.4.0            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":dokkaHtml/androidMain">android</button>
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":dokkaHtml/commonMain">common</button>
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":dokkaHtml/iosMain">ios</button>
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":dokkaHtml/jvmMain">jvm</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="package" id="content" pageIds="oskit-compose::com.outsidesource.oskitcompose.router////PointingToDeclaration//1740993208">
+  <div class="breadcrumbs"><a href="../../index.html">oskit-compose</a><span class="delimiter">/</span><span class="current">com.outsidesource.oskitcompose.router</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button><button class="section-tab" data-togglable="FUNCTION,EXTENSION_FUNCTION">Functions</button><button class="section-tab" data-togglable="PROPERTY,EXTENSION_PROPERTY">Properties</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="">Types</h2>
+        <div class="table"><a data-name="-925660430%2FClasslikes%2F788909594" anchor-label="ComposeRouteTransition" id="-925660430%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-compose-route-transition/index.html"><span>Compose</span><wbr></wbr><span>Route</span><wbr></wbr><span><span>Transition</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-925660430%2FClasslikes%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-compose-route-transition/index.html">ComposeRouteTransition</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>enter<span class="token operator">: </span><span class="token keyword"></span><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/AnimatedContentTransitionScope.html">AnimatedContentTransitionScope</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="com.outsidesource.oskitkmp.router/RouteStackEntry///PointingToDeclaration/">RouteStackEntry</span><span class="token operator">&gt;</span><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token keyword"></span>density<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Density.html">Density</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/EnterTransition.html">EnterTransition</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>exit<span class="token operator">: </span><span class="token keyword"></span><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/AnimatedContentTransitionScope.html">AnimatedContentTransitionScope</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="com.outsidesource.oskitkmp.router/RouteStackEntry///PointingToDeclaration/">RouteStackEntry</span><span class="token operator">&gt;</span><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token keyword"></span>density<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Density.html">Density</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/ExitTransition.html">ExitTransition</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>popEnter<span class="token operator">: </span><span class="token keyword"></span><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/AnimatedContentTransitionScope.html">AnimatedContentTransitionScope</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="com.outsidesource.oskitkmp.router/RouteStackEntry///PointingToDeclaration/">RouteStackEntry</span><span class="token operator">&gt;</span><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token keyword"></span>density<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Density.html">Density</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/EnterTransition.html">EnterTransition</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>popExit<span class="token operator">: </span><span class="token keyword"></span><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/AnimatedContentTransitionScope.html">AnimatedContentTransitionScope</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="com.outsidesource.oskitkmp.router/RouteStackEntry///PointingToDeclaration/">RouteStackEntry</span><span class="token operator">&gt;</span><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token keyword"></span>density<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Density.html">Density</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/ExitTransition.html">ExitTransition</a></span></span><span class="token punctuation">)</span> : <span data-unresolved-link="com.outsidesource.oskitkmp.router/IRouteTransition///PointingToDeclaration/">IRouteTransition</span></div><div class="brief "><p class="paragraph"><a href="-compose-route-transition/index.html">ComposeRouteTransition</a> defines a route transition</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1585112315%2FClasslikes%2F788909594" anchor-label="RouteObjectStore" id="-1585112315%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-route-object-store/index.html"><span>Route</span><wbr></wbr><span>Object</span><wbr></wbr><span><span>Store</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1585112315%2FClasslikes%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-route-object-store/index.html">RouteObjectStore</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="-1839387805%2FProperties%2F788909594" anchor-label="LocalRoute" id="-1839387805%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-local-route.html"><span>Local</span><wbr></wbr><span><span>Route</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1839387805%2FProperties%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="-local-route.html">LocalRoute</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/ProvidableCompositionLocal.html">ProvidableCompositionLocal</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="com.outsidesource.oskitkmp.router/RouteStackEntry///PointingToDeclaration/">RouteStackEntry</span><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-33828388%2FProperties%2F788909594" anchor-label="NoRouteTransition" id="-33828388%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-no-route-transition.html"><span>No</span><wbr></wbr><span>Route</span><wbr></wbr><span><span>Transition</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-33828388%2FProperties%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="-no-route-transition.html">NoRouteTransition</a><span class="token operator">: </span><a href="-compose-route-transition/index.html">ComposeRouteTransition</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-296036805%2FProperties%2F788909594" anchor-label="PushFromRightRouteTransition" id="-296036805%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-push-from-right-route-transition.html"><span>Push</span><wbr></wbr><span>From</span><wbr></wbr><span>Right</span><wbr></wbr><span>Route</span><wbr></wbr><span><span>Transition</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-296036805%2FProperties%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="-push-from-right-route-transition.html">PushFromRightRouteTransition</a><span class="token operator">: </span><a href="-compose-route-transition/index.html">ComposeRouteTransition</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="662710388%2FProperties%2F788909594" anchor-label="PushFromTopRouteTransition" id="662710388%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-push-from-top-route-transition.html"><span>Push</span><wbr></wbr><span>From</span><wbr></wbr><span>Top</span><wbr></wbr><span>Route</span><wbr></wbr><span><span>Transition</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="662710388%2FProperties%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="-push-from-top-route-transition.html">PushFromTopRouteTransition</a><span class="token operator">: </span><a href="-compose-route-transition/index.html">ComposeRouteTransition</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1443612397%2FProperties%2F788909594" anchor-label="ScaleRouteTransition" id="1443612397%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-scale-route-transition.html"><span>Scale</span><wbr></wbr><span>Route</span><wbr></wbr><span><span>Transition</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1443612397%2FProperties%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="-scale-route-transition.html">ScaleRouteTransition</a><span class="token operator">: </span><a href="-compose-route-transition/index.html">ComposeRouteTransition</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="566109097%2FProperties%2F788909594" anchor-label="SlideFromBottomRouteTransition" id="566109097%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-slide-from-bottom-route-transition.html"><span>Slide</span><wbr></wbr><span>From</span><wbr></wbr><span>Bottom</span><wbr></wbr><span>Route</span><wbr></wbr><span><span>Transition</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="566109097%2FProperties%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="-slide-from-bottom-route-transition.html">SlideFromBottomRouteTransition</a><span class="token operator">: </span><a href="-compose-route-transition/index.html">ComposeRouteTransition</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="543562286%2FFunctions%2F788909594" anchor-label="getKClassForGenericType" id="543562286%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-k-class-for-generic-type.html"><span>get</span><wbr></wbr><span>KClass</span><wbr></wbr><span>For</span><wbr></wbr><span>Generic</span><wbr></wbr><span><span>Type</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="543562286%2FFunctions%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="get-k-class-for-generic-type.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><a href="get-k-class-for-generic-type.html"><span class="token function">getKClassForGenericType</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html">KClass</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="get-k-class-for-generic-type.html">T</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">This is a workaround for a Kotlin KMP compiler bug for iOS. Using @Composable while trying to access a reified generic type throws a compilation error: (Generation of stubs for class org.jetbrains.kotlin.ir.symbols.impl.IrTypeParameterPublicSymbolImpl is not supported yet) https://github.com/JetBrains/compose-multiplatform/issues/3147</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1493917400%2FFunctions%2F1740993208" anchor-label="KMPBackHandler" id="1493917400%2FFunctions%2F1740993208" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-k-m-p-back-handler.html"><span>KMPBack</span><wbr></wbr><span><span>Handler</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1493917400%2FFunctions%2F1740993208"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/iosMain" data-filterable-set=":dokkaHtml/iosMain" data-toggle=":dokkaHtml/iosMain">ios</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="-k-m-p-back-handler.html"><span class="token function">KMPBackHandler</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">enabled<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">onBack<span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="-k-m-p-back-handler.html"><span class="token function">KMPBackHandler</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">enabled<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">onBack<span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/iosMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="-k-m-p-back-handler.html"><span class="token function">KMPBackHandler</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">enabled<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">onBack<span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="-k-m-p-back-handler.html"><span class="token function">KMPBackHandler</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">enabled<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">onBack<span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="941357653%2FFunctions%2F788909594" anchor-label="rememberForRoute" id="941357653%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="remember-for-route.html"><span>remember</span><wbr></wbr><span>For</span><wbr></wbr><span><span>Route</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="941357653%2FFunctions%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="remember-for-route.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><a href="remember-for-route.html"><span class="token function">rememberForRoute</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">noinline </span>factory<span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="remember-for-route.html">T</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="remember-for-route.html">T</a></div><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="remember-for-route.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><a href="remember-for-route.html"><span class="token function">rememberForRoute</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">objectType<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html">KClass</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="remember-for-route.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">factory<span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="remember-for-route.html">T</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="remember-for-route.html">T</a></div><div class="brief "><p class="paragraph"><a href="remember-for-route.html">rememberForRoute</a> Remembers a given object for the lifetime of the route. There may only be one instance of a given class for a given route. Additional instances may be created if a constant and unique <a href="remember-for-route.html">key</a> is provided. Nullable types have undefined behaviour.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1856243147%2FFunctions%2F788909594" anchor-label="RouteDestroyedEffect" id="1856243147%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-route-destroyed-effect.html"><span>Route</span><wbr></wbr><span>Destroyed</span><wbr></wbr><span><span>Effect</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1856243147%2FFunctions%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword"></span><span class="token keyword">fun </span><a href="-route-destroyed-effect.html"><span class="token function">RouteDestroyedEffect</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">effectId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">effect<span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph"><a href="-route-destroyed-effect.html">RouteDestroyedEffect</a> runs only once when the <span data-unresolved-link="com.outsidesource.oskitkmp.router/IRoute///PointingToDeclaration/">IRoute</span> is popped off the backstack. If the route the effect is attached to is currently visible in the composition, the effect will not be run until the composable has been disposed</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-296319431%2FFunctions%2F788909594" anchor-label="RouteSwitch" id="-296319431%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-route-switch.html"><span>Route</span><wbr></wbr><span><span>Switch</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-296319431%2FFunctions%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword"></span><span class="token keyword">fun </span><a href="-route-switch.html"><span class="token function">RouteSwitch</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">coordinator<span class="token operator">: </span><span data-unresolved-link="com.outsidesource.oskitkmp.coordinator/Coordinator///PointingToDeclaration/">Coordinator</span><span class="token punctuation">, </span></span><span class="parameter ">content<span class="token operator">: </span><span><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a> </span><span class="token punctuation">(</span><span class="token keyword"></span>route<span class="token operator">: </span><span data-unresolved-link="com.outsidesource.oskitkmp.router/IRoute///PointingToDeclaration/">IRoute</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword"></span><span class="token keyword">fun </span><a href="-route-switch.html"><span class="token function">RouteSwitch</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">coordinatorObserver<span class="token operator">: </span><span data-unresolved-link="com.outsidesource.oskitkmp.coordinator/ICoordinatorObserver///PointingToDeclaration/">ICoordinatorObserver</span><span class="token punctuation">, </span></span><span class="parameter ">content<span class="token operator">: </span><span><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a> </span><span class="token punctuation">(</span><span class="token keyword"></span>route<span class="token operator">: </span><span data-unresolved-link="com.outsidesource.oskitkmp.router/IRoute///PointingToDeclaration/">IRoute</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph"><a href="-route-switch.html">RouteSwitch</a> is the primary means of using a <span data-unresolved-link="com.outsidesource.oskitkmp.coordinator/Coordinator///PointingToDeclaration/">Coordinator</span> in a composable. <a href="-route-switch.html">RouteSwitch</a> will automatically subscribe to the passed in <span data-unresolved-link="com.outsidesource.oskitkmp.coordinator/Coordinator///PointingToDeclaration/">Coordinator</span> and update when the Router updates.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1469870872%2FFunctions%2F788909594" anchor-label="routeTransition" id="1469870872%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="route-transition.html"><span>route</span><wbr></wbr><span><span>Transition</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1469870872%2FFunctions%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="route-transition.html"><span class="token function">routeTransition</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">transition<span class="token operator">: </span><span data-unresolved-link="com.outsidesource.oskitkmp.router/IRouteTransition///PointingToDeclaration/">IRouteTransition</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="com.outsidesource.oskitkmp.router/IAnimatedRoute///PointingToDeclaration/">IAnimatedRoute</span></div><div class="brief "><p class="paragraph"><a href="route-transition.html">routeTransition</a> is a convenience delegate function to help implement <span data-unresolved-link="com.outsidesource.oskitkmp.router/IAnimatedRoute///PointingToDeclaration/">IAnimatedRoute</span></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

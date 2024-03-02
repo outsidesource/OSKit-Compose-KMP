@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>com.outsidesource.oskitcompose.systemui</title>
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+                    <a class="library-name--link" href="../../index.html">
+                            oskit-compose
+                    </a>
+            </div>
+            <div class="library-version">
+3.4.0            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":dokkaHtml/androidMain">android</button>
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":dokkaHtml/commonMain">common</button>
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":dokkaHtml/iosMain">ios</button>
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":dokkaHtml/jvmMain">jvm</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="package" id="content" pageIds="oskit-compose::com.outsidesource.oskitcompose.systemui////PointingToDeclaration//1740993208">
+  <div class="breadcrumbs"><a href="../../index.html">oskit-compose</a><span class="delimiter">/</span><span class="current">com.outsidesource.oskitcompose.systemui</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button><button class="section-tab" data-togglable="FUNCTION,EXTENSION_FUNCTION">Functions</button><button class="section-tab" data-togglable="PROPERTY,EXTENSION_PROPERTY">Properties</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="">Types</h2>
+        <div class="table"><a data-name="1225949108%2FClasslikes%2F788909594" anchor-label="IKMPAppLifecycleObserver" id="1225949108%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-i-k-m-p-app-lifecycle-observer/index.html"><span>IKMPApp</span><wbr></wbr><span>Lifecycle</span><wbr></wbr><span><span>Observer</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1225949108%2FClasslikes%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-i-k-m-p-app-lifecycle-observer/index.html">IKMPAppLifecycleObserver</a></div><div class="brief "><p class="paragraph">Allows for retrieving/observing the current application state This is primarily for determining if the application is in the foreground or the background</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1330345894%2FClasslikes%2F788909594" anchor-label="ISystemBarColorController" id="1330345894%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-i-system-bar-color-controller/index.html"><span>ISystem</span><wbr></wbr><span>Bar</span><wbr></wbr><span>Color</span><wbr></wbr><span><span>Controller</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1330345894%2FClasslikes%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-i-system-bar-color-controller/index.html">ISystemBarColorController</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-49465741%2FClasslikes%2F788909594" anchor-label="KMPAppLifecycle" id="-49465741%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-k-m-p-app-lifecycle/index.html"><span>KMPApp</span><wbr></wbr><span><span>Lifecycle</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-49465741%2FClasslikes%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-k-m-p-app-lifecycle/index.html">KMPAppLifecycle</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-k-m-p-app-lifecycle/index.html">KMPAppLifecycle</a><span class="token operator">&gt; </span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1279180349%2FClasslikes%2F1740993208" anchor-label="KMPAppLifecycleObserver" id="1279180349%2FClasslikes%2F1740993208" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-k-m-p-app-lifecycle-observer/index.html"><span>KMPApp</span><wbr></wbr><span>Lifecycle</span><wbr></wbr><span><span>Observer</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1279180349%2FClasslikes%2F1740993208"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/iosMain" data-filterable-set=":dokkaHtml/iosMain" data-toggle=":dokkaHtml/iosMain">ios</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">object </span><a href="-k-m-p-app-lifecycle-observer/index.html">KMPAppLifecycleObserver</a> : <a href="-i-k-m-p-app-lifecycle-observer/index.html">IKMPAppLifecycleObserver</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">object </span><a href="-k-m-p-app-lifecycle-observer/index.html">KMPAppLifecycleObserver</a> : <a href="-i-k-m-p-app-lifecycle-observer/index.html">IKMPAppLifecycleObserver</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/iosMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">object </span><a href="-k-m-p-app-lifecycle-observer/index.html">KMPAppLifecycleObserver</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">object </span><a href="-k-m-p-app-lifecycle-observer/index.html">KMPAppLifecycleObserver</a> : <a href="-i-k-m-p-app-lifecycle-observer/index.html">IKMPAppLifecycleObserver</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1489324534%2FClasslikes%2F1740993208" anchor-label="KMPAppLifecycleObserverContext" id="1489324534%2FClasslikes%2F1740993208" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-k-m-p-app-lifecycle-observer-context/index.html"><span>KMPApp</span><wbr></wbr><span>Lifecycle</span><wbr></wbr><span>Observer</span><wbr></wbr><span><span>Context</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1489324534%2FClasslikes%2F1740993208"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/iosMain" data-filterable-set=":dokkaHtml/iosMain" data-toggle=":dokkaHtml/iosMain">ios</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-k-m-p-app-lifecycle-observer-context/index.html">KMPAppLifecycleObserverContext</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">class </span><a href="-k-m-p-app-lifecycle-observer-context/index.html">KMPAppLifecycleObserverContext</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/iosMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-k-m-p-app-lifecycle-observer-context/index.html">KMPAppLifecycleObserverContext</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-k-m-p-app-lifecycle-observer-context/index.html">KMPAppLifecycleObserverContext</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-899860386%2FClasslikes%2F788909594" anchor-label="KMPWindowInfo" id="-899860386%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-k-m-p-window-info/index.html"><span>KMPWindow</span><wbr></wbr><span><span>Info</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-899860386%2FClasslikes%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-k-m-p-window-info/index.html">KMPWindowInfo</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-143810474%2FClasslikes%2F788909594" anchor-label="KMPWindowInsets" id="-143810474%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-k-m-p-window-insets/index.html"><span>KMPWindow</span><wbr></wbr><span><span>Insets</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-143810474%2FClasslikes%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-k-m-p-window-insets/index.html">KMPWindowInsets</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">top<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Dp.html">Dp</a><span class="token operator"> = </span>0.dp<span class="token punctuation">, </span></span><span class="parameter ">right<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Dp.html">Dp</a><span class="token operator"> = </span>0.dp<span class="token punctuation">, </span></span><span class="parameter ">bottom<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Dp.html">Dp</a><span class="token operator"> = </span>0.dp<span class="token punctuation">, </span></span><span class="parameter ">left<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Dp.html">Dp</a><span class="token operator"> = </span>0.dp</span></span><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-687254454%2FClasslikes%2F788909594" anchor-label="KMPWindowInsetsHolder" id="-687254454%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-k-m-p-window-insets-holder/index.html"><span>KMPWindow</span><wbr></wbr><span>Insets</span><wbr></wbr><span><span>Holder</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-687254454%2FClasslikes%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-k-m-p-window-insets-holder/index.html">KMPWindowInsetsHolder</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">top<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Dp.html">Dp</a><span class="token operator"> = </span>0.dp<span class="token punctuation">, </span></span><span class="parameter ">right<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Dp.html">Dp</a><span class="token operator"> = </span>0.dp<span class="token punctuation">, </span></span><span class="parameter ">bottom<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Dp.html">Dp</a><span class="token operator"> = </span>0.dp<span class="token punctuation">, </span></span><span class="parameter ">left<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/unit/Dp.html">Dp</a><span class="token operator"> = </span>0.dp</span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Defines the total safe area bounds from which different window insets are derived</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1247942190%2FClasslikes%2F788909594" anchor-label="SystemBarIconColor" id="-1247942190%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-system-bar-icon-color/index.html"><span>System</span><wbr></wbr><span>Bar</span><wbr></wbr><span>Icon</span><wbr></wbr><span><span>Color</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1247942190%2FClasslikes%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-system-bar-icon-color/index.html">SystemBarIconColor</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-system-bar-icon-color/index.html">SystemBarIconColor</a><span class="token operator">&gt; </span></div><div class="brief "><p class="paragraph"><a href="-system-bar-icon-color/index.html">SystemBarIconColor</a> defines to change system icons to dark or light. Using <a href="-system-bar-icon-color/-unspecified/index.html">Unspecified</a> will not change the current setting.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="718915898%2FProperties%2F-986100042" anchor-label="allInsets" id="718915898%2FProperties%2F-986100042" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="all-insets.html"><span>all</span><wbr></wbr><span><span>Insets</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="718915898%2FProperties%2F-986100042"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="all-insets.html">allInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="all-insets.html">allInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="all-insets.html">allInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1625457744%2FProperties%2F-986100042" anchor-label="bottomInsets" id="-1625457744%2FProperties%2F-986100042" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="bottom-insets.html"><span>bottom</span><wbr></wbr><span><span>Insets</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1625457744%2FProperties%2F-986100042"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="bottom-insets.html">bottomInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="bottom-insets.html">bottomInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="bottom-insets.html">bottomInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1613276841%2FProperties%2F-986100042" anchor-label="horizontalInsets" id="1613276841%2FProperties%2F-986100042" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="horizontal-insets.html"><span>horizontal</span><wbr></wbr><span><span>Insets</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1613276841%2FProperties%2F-986100042"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="horizontal-insets.html">horizontalInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="horizontal-insets.html">horizontalInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="horizontal-insets.html">horizontalInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1775079668%2FProperties%2F-986100042" anchor-label="leftInsets" id="-1775079668%2FProperties%2F-986100042" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="left-insets.html"><span>left</span><wbr></wbr><span><span>Insets</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1775079668%2FProperties%2F-986100042"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="left-insets.html">leftInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="left-insets.html">leftInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="left-insets.html">leftInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-555935842%2FProperties%2F788909594" anchor-label="LocalKMPWindowInsets" id="-555935842%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-local-k-m-p-window-insets.html"><span>Local</span><wbr></wbr><span>KMPWindow</span><wbr></wbr><span><span>Insets</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-555935842%2FProperties%2F788909594"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="-local-k-m-p-window-insets.html">LocalKMPWindowInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/ProvidableCompositionLocal.html">ProvidableCompositionLocal</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-k-m-p-window-insets-holder/index.html">KMPWindowInsetsHolder</a><span class="token operator">?</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph"><a href="-local-k-m-p-window-insets.html">LocalKMPWindowInsets</a> Allows an application to override default WindowInsets. This is particularly useful for Desktop as there are no predefined insets.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-351339723%2FProperties%2F-986100042" anchor-label="rightInsets" id="-351339723%2FProperties%2F-986100042" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="right-insets.html"><span>right</span><wbr></wbr><span><span>Insets</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-351339723%2FProperties%2F-986100042"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="right-insets.html">rightInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="right-insets.html">rightInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="right-insets.html">rightInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2028560146%2FProperties%2F-986100042" anchor-label="topInsets" id="-2028560146%2FProperties%2F-986100042" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="top-insets.html"><span>top</span><wbr></wbr><span><span>Insets</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2028560146%2FProperties%2F-986100042"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="top-insets.html">topInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="top-insets.html">topInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="top-insets.html">topInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-914708613%2FProperties%2F-986100042" anchor-label="verticalInsets" id="-914708613%2FProperties%2F-986100042" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="vertical-insets.html"><span>vertical</span><wbr></wbr><span><span>Insets</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-914708613%2FProperties%2F-986100042"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="vertical-insets.html">verticalInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="vertical-insets.html">verticalInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@get:</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">val </span><a href="-k-m-p-window-insets/-companion/index.html">KMPWindowInsets.Companion</a><span class="token punctuation">.</span><a href="vertical-insets.html">verticalInsets</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets.html">WindowInsets</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="-2128240044%2FFunctions%2F1740993208" anchor-label="rememberKMPWindowInfo" id="-2128240044%2FFunctions%2F1740993208" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="remember-k-m-p-window-info.html"><span>remember</span><wbr></wbr><span>KMPWindow</span><wbr></wbr><span><span>Info</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2128240044%2FFunctions%2F1740993208"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/iosMain" data-filterable-set=":dokkaHtml/iosMain" data-toggle=":dokkaHtml/iosMain">ios</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="remember-k-m-p-window-info.html"><span class="token function">rememberKMPWindowInfo</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-k-m-p-window-info/index.html">KMPWindowInfo</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="remember-k-m-p-window-info.html"><span class="token function">rememberKMPWindowInfo</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-k-m-p-window-info/index.html">KMPWindowInfo</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/iosMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="remember-k-m-p-window-info.html"><span class="token function">rememberKMPWindowInfo</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="com.outsidesource.oskitcompose.systemui/KMPWindowInfo///PointingToDeclaration/">KMPWindowInfo</span></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="remember-k-m-p-window-info.html"><span class="token function">rememberKMPWindowInfo</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-k-m-p-window-info/index.html">KMPWindowInfo</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1317128929%2FFunctions%2F1740993208" anchor-label="rememberSystemBarColorController" id="-1317128929%2FFunctions%2F1740993208" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/iosMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="remember-system-bar-color-controller.html"><span>remember</span><wbr></wbr><span>System</span><wbr></wbr><span>Bar</span><wbr></wbr><span>Color</span><wbr></wbr><span><span>Controller</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1317128929%2FFunctions%2F1740993208"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/iosMain" data-filterable-set=":dokkaHtml/iosMain" data-toggle=":dokkaHtml/iosMain">ios</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="remember-system-bar-color-controller.html"><span class="token function">rememberSystemBarColorController</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-i-system-bar-color-controller/index.html">ISystemBarColorController</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="remember-system-bar-color-controller.html"><span class="token function">rememberSystemBarColorController</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-i-system-bar-color-controller/index.html">ISystemBarColorController</a></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/iosMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="remember-system-bar-color-controller.html"><span class="token function">rememberSystemBarColorController</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="com.outsidesource.oskitcompose.systemui/ISystemBarColorController///PointingToDeclaration/">ISystemBarColorController</span></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="remember-system-bar-color-controller.html"><span class="token function">rememberSystemBarColorController</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-i-system-bar-color-controller/index.html">ISystemBarColorController</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="873397374%2FFunctions%2F-986100042" anchor-label="SystemBarColorEffect" id="873397374%2FFunctions%2F-986100042" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/commonMain,:dokkaHtml/androidMain,:dokkaHtml/jvmMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-system-bar-color-effect.html"><span>System</span><wbr></wbr><span>Bar</span><wbr></wbr><span>Color</span><wbr></wbr><span><span>Effect</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="873397374%2FFunctions%2F-986100042"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="-system-bar-color-effect.html"><span class="token function">SystemBarColorEffect</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">statusBarColor<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color.html">Color</a><span class="token punctuation">, </span></span><span class="parameter ">statusBarIconColor<span class="token operator">: </span><a href="-system-bar-icon-color/index.html">SystemBarIconColor</a><span class="token punctuation">, </span></span><span class="parameter ">navigationBarColor<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color.html">Color</a><span class="token punctuation">, </span></span><span class="parameter ">navigationBarIconColor<span class="token operator">: </span><a href="-system-bar-icon-color/index.html">SystemBarIconColor</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="-system-bar-color-effect.html"><span class="token function">SystemBarColorEffect</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">statusBarColor<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color.html">Color</a><span class="token operator"> = </span>Color.Transparent<span class="token punctuation">, </span></span><span class="parameter ">statusBarIconColor<span class="token operator">: </span><a href="-system-bar-icon-color/index.html">SystemBarIconColor</a><span class="token operator"> = </span>SystemBarIconColor.Unspecified<span class="token punctuation">, </span></span><span class="parameter ">navigationBarColor<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color.html">Color</a><span class="token operator"> = </span>Color.Transparent<span class="token punctuation">, </span></span><span class="parameter ">navigationBarIconColor<span class="token operator">: </span><a href="-system-bar-icon-color/index.html">SystemBarIconColor</a><span class="token operator"> = </span>SystemBarIconColor.Unspecified</span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph"><a href="-system-bar-color-effect.html">SystemBarColorEffect</a> Configures the system toolbars for Android and iOS. On desktop this effect is a no-op.</p></div></div><div class="content sourceset-dependent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="-system-bar-color-effect.html"><span class="token function">SystemBarColorEffect</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">statusBarColor<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color.html">Color</a><span class="token punctuation">, </span></span><span class="parameter ">statusBarIconColor<span class="token operator">: </span><a href="-system-bar-icon-color/index.html">SystemBarIconColor</a><span class="token punctuation">, </span></span><span class="parameter ">navigationBarColor<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color.html">Color</a><span class="token punctuation">, </span></span><span class="parameter ">navigationBarIconColor<span class="token operator">: </span><a href="-system-bar-icon-color/index.html">SystemBarIconColor</a></span></span><span class="token punctuation">)</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
