@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.outsidesource.oskitcompose.date.DateTextFormat
 import com.outsidesource.oskitcompose.date.getDisplayName
 import com.outsidesource.oskitcompose.date.lengthInDays
+import com.outsidesource.oskitcompose.lib.rememberValRef
 import com.outsidesource.oskitcompose.popup.*
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
@@ -111,8 +112,9 @@ fun KMPDatePickerPopover(
     styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
     modifier: Modifier = Modifier
         .shadow(16.dp, RoundedCornerShape(8.dp))
-        .background(color = styles.backgroundColor)
-        .padding(16.dp),
+        .background(styles.backgroundColor)
+        .padding(16.dp)
+        .width(DATE_PICKER_MIN_WIDTH),
     onDismissRequest: (() -> Unit)? = null,
     anchors: PopoverAnchors = PopoverAnchors.ExternalBottomAlignCenter,
     popupPositionProvider: PopupPositionProvider? = null,
@@ -138,9 +140,10 @@ fun KMPDatePickerPopover(
         offset = offset,
     ) {
         Column(
-            modifier = modifier
+            modifier = Modifier.background(styles.backgroundColor).then(modifier)
         ) {
             KMPDatePickerInline(
+                modifier = Modifier.fillMaxWidth(),
                 date = date,
                 minDate = minDate,
                 maxDate = maxDate,
@@ -177,14 +180,6 @@ fun KMPDatePickerInline(
     val viewType = remember { mutableStateOf(DatePickerViewType.Month) }
     val viewDate = remember(date) { mutableStateOf(date) }
     val selectedDate = remember(date) { mutableStateOf(date) }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            viewType.value = DatePickerViewType.Month
-            viewDate.value = date
-            selectedDate.value = date
-        }
-    }
 
     CompositionLocalProvider(LocalKMPDatePickerStyles provides styles) {
         Column(
@@ -314,6 +309,7 @@ private fun DatePickerMonthView(
 
             AnimatedContent(
                 targetState = viewDate.value,
+                contentKey = { it.month },
                 transitionSpec = {
                     slideInHorizontally {
                         if (initialState.month == Month.JANUARY && targetState.month == Month.DECEMBER) return@slideInHorizontally -it
@@ -322,7 +318,7 @@ private fun DatePickerMonthView(
                         if (initialState.month == Month.JANUARY && targetState.month == Month.DECEMBER) return@slideOutHorizontally it
                         if (targetState.month > initialState.month || (initialState.month == Month.DECEMBER && targetState.month == Month.JANUARY)) -it else it
                     }
-                }
+                },
             ) {currentDateValue ->
                 val dayOne = currentDateValue - DatePeriod(days = currentDateValue.dayOfMonth - 1)
                 val startIndex = dayOne.dayOfWeek.sundayFirstOrdinal() + 1
