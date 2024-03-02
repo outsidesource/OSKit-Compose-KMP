@@ -1,21 +1,25 @@
 package com.outsidesource.oskitcompose.form
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.outsidesource.oskitcompose.popup.ModalStyles
+import com.outsidesource.oskitcompose.popup.*
 import com.outsidesource.oskitkmp.lib.snapTo
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
 import kotlinx.datetime.toLocalDateTime
@@ -27,112 +31,116 @@ fun KMPTimePickerModal(
     onDismissRequest: (() -> Unit)? = null,
     isFullScreen: Boolean = true,
     modalStyles: ModalStyles = remember { ModalStyles() },
-    datePickerStyles: KMPTimePickerStyles = rememberKmpTimePickerStyles(),
+    timePickerStyles: KMPTimePickerStyles = rememberKmpTimePickerStyles(),
     dismissOnBackPress: Boolean = true,
     dismissOnExternalClick: Boolean = true,
     onKeyEvent: (KeyEvent) -> Boolean = { false },
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     time: LocalTime = Clock.System.now().toLocalDateTime(currentSystemDefault()).time,
-    onChange: (date: LocalDate) -> Unit,
+    minuteStep: Int = 1,
+    onChange: (time: LocalTime) -> Unit,
 ) {
-//    val selectedDate = remember(date) { mutableStateOf(date) }
-//
-//    Modal(
-//        modifier = modifier,
-//        isVisible = isVisible,
-//        dismissOnExternalClick = dismissOnExternalClick,
-//        dismissOnBackPress = dismissOnBackPress,
-//        onDismissRequest = onDismissRequest,
-//        isFullScreen = isFullScreen,
-//        styles = modalStyles,
-//        onPreviewKeyEvent = onPreviewKeyEvent,
-//        onKeyEvent = onKeyEvent,
-//    ) {
-//        Column(
-//            modifier = Modifier.background(datePickerStyles.backgroundColor)
-//        ) {
-//            KMPDatePickerInline(
-//                date = date,
-//                minDate = minDate,
-//                maxDate = maxDate,
-//                styles = datePickerStyles,
-//                onChange = { selectedDate.value = it },
-//            )
-//
-//            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-//                TextButton({
-//                    onDismissRequest?.invoke()
-//                }) {
-//                    Text("CANCEL", style = datePickerStyles.buttonStyle)
-//                }
-//                TextButton({
-//                    onDismissRequest?.invoke()
-//                    onChange(selectedDate.value)
-//                }) {
-//                    Text("OK", style = datePickerStyles.buttonStyle)
-//                }
-//            }
-//        }
-//    }
+    val selectedTime = remember(time) { mutableStateOf(time) }
+
+    Modal(
+        modifier = modifier,
+        isVisible = isVisible,
+        dismissOnExternalClick = dismissOnExternalClick,
+        dismissOnBackPress = dismissOnBackPress,
+        onDismissRequest = onDismissRequest,
+        isFullScreen = isFullScreen,
+        styles = modalStyles,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent,
+    ) {
+        Column(
+            modifier = Modifier
+                .width(TIME_PICKER_MIN_WIDTH)
+                .background(timePickerStyles.backgroundColor)
+        ) {
+            KMPTimePickerInline(
+                time = time,
+                minuteStep = minuteStep,
+                styles = timePickerStyles,
+                onChange = { selectedTime.value = it },
+            )
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton({
+                    onDismissRequest?.invoke()
+                }) {
+                    Text("CANCEL", style = timePickerStyles.buttonStyle)
+                }
+                TextButton({
+                    onDismissRequest?.invoke()
+                    onChange(selectedTime.value)
+                }) {
+                    Text("OK", style = timePickerStyles.buttonStyle)
+                }
+            }
+        }
+    }
 }
 
-//@Composable
-//fun KMPDatePickerPopover(
-//    isVisible: Boolean,
-//    styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
-//    modifier: Modifier = Modifier
-//        .shadow(16.dp, RoundedCornerShape(8.dp))
-//        .background(color = styles.backgroundColor)
-//        .padding(16.dp),
-//    onDismissRequest: (() -> Unit)? = null,
-//    anchors: PopoverAnchors = PopoverAnchors.ExternalBottomAlignCenter,
-//    popupPositionProvider: PopupPositionProvider? = null,
-//    dismissOnBackPress: Boolean = true,
-//    onKeyEvent: (KeyEvent) -> Boolean = { false },
-//    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
-//    offset: DpOffset = DpOffset(0.dp, (-16f).dp),
-//    time: LocalTime = Clock.System.now().toLocalDateTime(currentSystemDefault()).time,
-//    onChange: (date: LocalDate) -> Unit,
-//) {
-//    val selectedDate = remember(date) { mutableStateOf(date) }
-//
-//    Popover(
-//        isVisible = isVisible,
-//        anchors = anchors,
-//        onDismissRequest = onDismissRequest,
-//        dismissOnBackKey = dismissOnBackPress,
-//        onKeyEvent = onKeyEvent,
-//        onPreviewKeyEvent = onPreviewKeyEvent,
-//        popupPositionProvider = popupPositionProvider,
-//        offset = offset,
-//    ) {
-//        Column(
-//            modifier = modifier
-//        ) {
-//            KMPDatePickerInline(
-//                date = date,
-//                minDate = minDate,
-//                maxDate = maxDate,
-//                styles = styles,
-//                onChange = { selectedDate.value = it },
-//            )
-//
-//            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-//                TextButton({
-//                    onDismissRequest?.invoke()
-//                }) {
-//                    Text("CANCEL", style = styles.buttonStyle)
-//                }
-//                TextButton({
-//                    onDismissRequest?.invoke()
-//                    onChange(selectedDate.value)
-//                }) {
-//                    Text("OK", style = styles.buttonStyle)
-//                }
-//            }
-//        }
-//    }
-//}
+@Composable
+fun KMPTimePickerPopover(
+    isVisible: Boolean,
+    timePickerStyles: KMPTimePickerStyles = rememberKmpTimePickerStyles(),
+    modifier: Modifier = Modifier
+        .shadow(16.dp, RoundedCornerShape(8.dp))
+        .background(timePickerStyles.backgroundColor)
+        .padding(16.dp)
+        .width(TIME_PICKER_MIN_WIDTH),
+    onDismissRequest: (() -> Unit)? = null,
+    anchors: PopoverAnchors = PopoverAnchors.ExternalBottomAlignCenter,
+    popupPositionProvider: PopupPositionProvider? = null,
+    dismissOnBackPress: Boolean = true,
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
+    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
+    offset: DpOffset = DpOffset(0.dp, (-16f).dp),
+    time: LocalTime = Clock.System.now().toLocalDateTime(currentSystemDefault()).time,
+    minuteStep: Int = 1,
+    onChange: (time: LocalTime) -> Unit,
+) {
+    val selectedTime = remember(time) { mutableStateOf(time) }
+
+    Popover(
+        isVisible = isVisible,
+        anchors = anchors,
+        onDismissRequest = onDismissRequest,
+        dismissOnBackKey = dismissOnBackPress,
+        onKeyEvent = onKeyEvent,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        popupPositionProvider = popupPositionProvider,
+        offset = offset,
+    ) {
+        Column(
+            modifier = Modifier.background(timePickerStyles.backgroundColor).then(modifier)
+        ) {
+            KMPTimePickerInline(
+                modifier = Modifier.fillMaxWidth(),
+                time = time,
+                minuteStep = minuteStep,
+                styles = timePickerStyles,
+                onChange = { selectedTime.value = it },
+            )
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton({
+                    onDismissRequest?.invoke()
+                }) {
+                    Text("CANCEL", style = timePickerStyles.buttonStyle)
+                }
+                TextButton({
+                    onDismissRequest?.invoke()
+                    onChange(selectedTime.value)
+                }) {
+                    Text("OK", style = timePickerStyles.buttonStyle)
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun KMPTimePickerInline(
@@ -140,7 +148,7 @@ fun KMPTimePickerInline(
     time: LocalTime = Clock.System.now().toLocalDateTime(currentSystemDefault()).time,
     minuteStep: Int = 1,
     styles: KMPTimePickerStyles = rememberKmpTimePickerStyles(),
-    onChange: (date: LocalTime) -> Unit,
+    onChange: (time: LocalTime) -> Unit,
 ) {
     val selectedTime = remember(time) { mutableStateOf(time) }
 
