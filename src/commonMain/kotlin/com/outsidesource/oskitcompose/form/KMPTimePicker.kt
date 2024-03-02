@@ -56,7 +56,8 @@ fun KMPTimePickerModal(
         Column(
             modifier = Modifier
                 .width(TIME_PICKER_MIN_WIDTH)
-                .background(timePickerStyles.backgroundColor)
+                .background(timePickerStyles.backgroundColor),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             KMPTimePickerInline(
                 time = time,

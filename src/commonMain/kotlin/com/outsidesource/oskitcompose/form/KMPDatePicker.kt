@@ -80,7 +80,8 @@ fun KMPDatePickerModal(
         Column(
             modifier = Modifier
                 .width(DATE_PICKER_MIN_WIDTH)
-                .background(datePickerStyles.backgroundColor)
+                .background(datePickerStyles.backgroundColor),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             KMPDatePickerInline(
                 date = date,
