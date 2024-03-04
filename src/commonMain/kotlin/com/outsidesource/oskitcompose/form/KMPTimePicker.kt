@@ -17,6 +17,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.outsidesource.oskitcompose.modifier.defaultMaxSize
 import com.outsidesource.oskitcompose.popup.*
 import com.outsidesource.oskitkmp.lib.snapTo
 import kotlinx.datetime.Clock
@@ -43,7 +44,7 @@ fun KMPTimePickerModal(
     val selectedTime = remember(time) { mutableStateOf(time) }
 
     Modal(
-        modifier = modifier,
+        modifier = modifier.defaultMaxSize(maxWidth = TIME_PICKER_MIN_WIDTH),
         isVisible = isVisible,
         dismissOnExternalClick = dismissOnExternalClick,
         dismissOnBackPress = dismissOnBackPress,
@@ -55,11 +56,11 @@ fun KMPTimePickerModal(
     ) {
         Column(
             modifier = Modifier
-                .width(TIME_PICKER_MIN_WIDTH)
                 .background(timePickerStyles.backgroundColor),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             KMPTimePickerInline(
+                modifier = Modifier.fillMaxWidth(),
                 time = time,
                 minuteStep = minuteStep,
                 styles = timePickerStyles,
@@ -91,7 +92,7 @@ fun KMPTimePickerPopover(
         .shadow(16.dp, RoundedCornerShape(8.dp))
         .background(timePickerStyles.backgroundColor)
         .padding(16.dp)
-        .width(TIME_PICKER_MIN_WIDTH),
+        .defaultMaxSize(maxWidth = TIME_PICKER_MIN_WIDTH),
     onDismissRequest: (() -> Unit)? = null,
     anchors: PopoverAnchors = PopoverAnchors.ExternalBottomAlignCenter,
     popupPositionProvider: PopupPositionProvider? = null,
@@ -176,7 +177,8 @@ fun KMPTimePickerInline(
                 .widthIn(min = TIME_PICKER_MIN_WIDTH)
                 .drawWithContent { pickerIndicator(this, state) }
                 .padding(horizontal = pickerHPadding / 2)
-                .then(modifier),
+                .then(modifier)
+                .defaultMaxSize(maxWidth = TIME_PICKER_MIN_WIDTH),
             horizontalArrangement = Arrangement.Center,
         ) {
             KMPWheelPicker(

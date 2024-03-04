@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.outsidesource.oskitcompose.date.DateTextFormat
 import com.outsidesource.oskitcompose.date.getDisplayName
 import com.outsidesource.oskitcompose.date.lengthInDays
+import com.outsidesource.oskitcompose.modifier.defaultMaxSize
 import com.outsidesource.oskitcompose.popup.*
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
@@ -67,7 +68,7 @@ fun KMPDatePickerModal(
     val selectedDate = remember(date) { mutableStateOf(date) }
 
     Modal(
-        modifier = modifier,
+        modifier = modifier.defaultMaxSize(maxWidth = DATE_PICKER_MIN_WIDTH),
         isVisible = isVisible,
         dismissOnExternalClick = dismissOnExternalClick,
         dismissOnBackPress = dismissOnBackPress,
@@ -79,11 +80,11 @@ fun KMPDatePickerModal(
     ) {
         Column(
             modifier = Modifier
-                .width(DATE_PICKER_MIN_WIDTH)
                 .background(datePickerStyles.backgroundColor),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             KMPDatePickerInline(
+                modifier = Modifier.fillMaxWidth(),
                 date = date,
                 minDate = minDate,
                 maxDate = maxDate,
@@ -116,7 +117,7 @@ fun KMPDatePickerPopover(
         .shadow(16.dp, RoundedCornerShape(8.dp))
         .background(datePickerStyles.backgroundColor)
         .padding(16.dp)
-        .width(DATE_PICKER_MIN_WIDTH),
+        .defaultMaxSize(maxWidth = DATE_PICKER_MIN_WIDTH),
     onDismissRequest: (() -> Unit)? = null,
     anchors: PopoverAnchors = PopoverAnchors.ExternalBottomAlignCenter,
     popupPositionProvider: PopupPositionProvider? = null,
@@ -188,6 +189,7 @@ fun KMPDatePickerInline(
             modifier = Modifier
                 .widthIn(min = DATE_PICKER_MIN_WIDTH)
                 .then(modifier)
+                .defaultMaxSize(maxWidth = DATE_PICKER_MIN_WIDTH)
         ) {
             Row(
                 modifier = Modifier
