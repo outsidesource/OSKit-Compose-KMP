@@ -8,9 +8,11 @@ import androidx.compose.ui.text.font.FontWeight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.resource
 
+@Deprecated("Use Compose Multiplatform 1.6.0 Resources instead")
 data class KMPFontFamily(val fonts: List<KMPFont>)
 
 @Stable
+@Deprecated("Use Compose Multiplatform 1.6.0 Resources instead")
 data class KMPFont(
     val path: String,
     val weight: FontWeight = FontWeight.Normal,
@@ -25,9 +27,11 @@ data class KMPFont(
  * Use this sparingly. Use [resolveKmpFontFamily] and store it for use later instead.
  */
 @Composable
+@Deprecated("Use Compose Multiplatform 1.6.0 Resources instead")
 expect fun rememberKmpFontFamily(family: KMPFontFamily): FontFamily
 
 /**
  * Resolves a KMPFontFamily to be used in Compose
  */
+@Deprecated("Use Compose Multiplatform 1.6 Resources instead")
 expect suspend fun resolveKmpFontFamily(family: KMPFontFamily): FontFamily
