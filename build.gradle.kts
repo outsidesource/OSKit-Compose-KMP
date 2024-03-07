@@ -1,7 +1,5 @@
 import com.vanniktech.maven.publish.SonatypeHost
-import java.io.File
 import java.io.FileInputStream
-import java.lang.System.getenv
 import java.util.*
 
 buildscript {
@@ -67,7 +65,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("com.outsidesource:oskit-kmp:4.3.0")
+                api("com.outsidesource:oskit-kmp:4.4.0")
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
