@@ -28,6 +28,7 @@ import kotlinx.datetime.toLocalDateTime
 @Composable
 fun KMPTimePickerModal(
     isVisible: Boolean,
+    isEnabled: Boolean = true,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
     isFullScreen: Boolean = true,
@@ -61,6 +62,7 @@ fun KMPTimePickerModal(
         ) {
             KMPTimePickerInline(
                 modifier = Modifier.fillMaxWidth(),
+                isEnabled = isEnabled,
                 time = time,
                 minuteStep = minuteStep,
                 styles = timePickerStyles,
@@ -87,6 +89,7 @@ fun KMPTimePickerModal(
 @Composable
 fun KMPTimePickerPopover(
     isVisible: Boolean,
+    isEnabled: Boolean = true,
     timePickerStyles: KMPTimePickerStyles = rememberKmpTimePickerStyles(),
     modifier: Modifier = Modifier
         .shadow(16.dp, RoundedCornerShape(8.dp))
@@ -121,6 +124,7 @@ fun KMPTimePickerPopover(
         ) {
             KMPTimePickerInline(
                 modifier = Modifier.fillMaxWidth(),
+                isEnabled = isEnabled,
                 time = time,
                 minuteStep = minuteStep,
                 styles = timePickerStyles,
@@ -150,6 +154,7 @@ fun KMPTimePickerInline(
     time: LocalTime = Clock.System.now().toLocalDateTime(currentSystemDefault()).time,
     minuteStep: Int = 1,
     styles: KMPTimePickerStyles = rememberKmpTimePickerStyles(),
+    isEnabled: Boolean = true,
     onChange: (time: LocalTime) -> Unit,
 ) {
     val selectedTime = remember(time) { mutableStateOf(time) }
@@ -185,6 +190,7 @@ fun KMPTimePickerInline(
                 modifier = Modifier
                     .height(pickerSize)
                     .padding(horizontal = pickerHPadding / 2),
+                isEnabled = isEnabled,
                 selectedIndex = selectedHourIndex,
                 items = remember { (1..12).toList() },
                 state = state,
@@ -228,6 +234,7 @@ fun KMPTimePickerInline(
                 modifier = Modifier
                     .height(pickerSize)
                     .padding(horizontal = pickerHPadding / 2),
+                isEnabled = isEnabled,
                 selectedIndex = selectedMinuteIndex,
                 state = rememberKmpWheelPickerState(isInfinite = true, initiallySelectedItemIndex = selectedMinuteIndex),
                 items = remember(minuteStep) { (0..59 step minuteStep).toList() },
@@ -260,6 +267,7 @@ fun KMPTimePickerInline(
                 modifier = Modifier
                     .height(pickerSize)
                     .padding(horizontal = pickerHPadding / 2),
+                isEnabled = isEnabled,
                 selectedIndex = selectedMeridian,
                 state = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedMeridian),
                 items = remember(minuteStep) { TimeMeridian.entries },

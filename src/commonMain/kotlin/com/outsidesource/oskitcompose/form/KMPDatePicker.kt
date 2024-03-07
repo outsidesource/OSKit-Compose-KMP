@@ -51,6 +51,7 @@ private enum class DatePickerViewType {
 @Composable
 fun KMPDatePickerModal(
     isVisible: Boolean,
+    isEnabled: Boolean = true,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
     isFullScreen: Boolean = true,
@@ -85,6 +86,7 @@ fun KMPDatePickerModal(
         ) {
             KMPDatePickerInline(
                 modifier = Modifier.fillMaxWidth(),
+                isEnabled = isEnabled,
                 date = date,
                 minDate = minDate,
                 maxDate = maxDate,
@@ -112,6 +114,7 @@ fun KMPDatePickerModal(
 @Composable
 fun KMPDatePickerPopover(
     isVisible: Boolean,
+    isEnabled: Boolean = true,
     datePickerStyles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
     modifier: Modifier = Modifier
         .shadow(16.dp, RoundedCornerShape(8.dp))
@@ -147,6 +150,7 @@ fun KMPDatePickerPopover(
         ) {
             KMPDatePickerInline(
                 modifier = Modifier.fillMaxWidth(),
+                isEnabled = isEnabled,
                 date = date,
                 minDate = minDate,
                 maxDate = maxDate,
@@ -178,6 +182,7 @@ fun KMPDatePickerInline(
     minDate: LocalDate = remember { LocalDate(0, Month.JANUARY, 1) },
     maxDate: LocalDate = remember { LocalDate(3000, Month.DECEMBER, 31) },
     styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
+    isEnabled: Boolean = true,
     onChange: (date: LocalDate) -> Unit,
 ) {
     val viewType = remember { mutableStateOf(DatePickerViewType.Month) }
@@ -278,8 +283,8 @@ fun KMPDatePickerInline(
             }
 
             Box(modifier = Modifier.padding(top = 4.dp)) {
-                DatePickerMonthView(viewType.value, viewDate, selectedDate, minDate, maxDate, onChange)
-                DatePickerYearView(viewType, viewDate, selectedDate, minDate, maxDate, onChange)
+                DatePickerMonthView(isEnabled, viewType.value, viewDate, selectedDate, minDate, maxDate, onChange)
+                DatePickerYearView(isEnabled, viewType, viewDate, selectedDate, minDate, maxDate, onChange)
             }
         }
     }
@@ -287,6 +292,7 @@ fun KMPDatePickerInline(
 
 @Composable
 private fun DatePickerMonthView(
+    isEnabled: Boolean,
     viewType: DatePickerViewType,
     viewDate: MutableState<LocalDate>,
     selectedDate: MutableState<LocalDate>,
@@ -349,7 +355,7 @@ private fun DatePickerMonthView(
                                 } else if (index < maxIndex) {
                                     hasOneInRow = true
                                     val day = index - startIndex + 1
-                                    val isEnabled = run {
+                                    val isDayEnabled = run {
                                         if (currentDateValue.year < minDate.year) return@run false
                                         if (currentDateValue.year == minDate.year && currentDateValue.month < minDate.month) return@run false
                                         if (currentDateValue.year == minDate.year && currentDateValue.month == minDate.month && day < minDate.dayOfMonth) return@run false
@@ -361,7 +367,7 @@ private fun DatePickerMonthView(
 
                                     DatePickerDay(
                                         label = day.toString(),
-                                        isEnabled = isEnabled,
+                                        isEnabled = isEnabled && isDayEnabled,
                                         isSelected = currentDateValue.year == selectedDate.value.year &&
                                                 currentDateValue.month == selectedDate.value.month &&
                                                 selectedDate.value.dayOfMonth == day,
@@ -394,6 +400,7 @@ private fun DayName(text: String) {
 
 @Composable
 private fun DatePickerYearView(
+    isEnabled: Boolean,
     viewType: MutableState<DatePickerViewType>,
     viewDate: MutableState<LocalDate>,
     selectedDate: MutableState<LocalDate>,
@@ -440,6 +447,7 @@ private fun DatePickerYearView(
                 modifier = Modifier
                     .height(daySize * 5)
                     .weight(1f),
+                isEnabled = isEnabled,
                 selectedIndex = selectedMonth,
                 items = monthItems,
                 state = rememberKmpWheelPickerState(isInfinite = true, initiallySelectedItemIndex = selectedMonth),
@@ -487,6 +495,7 @@ private fun DatePickerYearView(
 
             KMPWheelPicker(
                 modifier = Modifier.height(daySize * 5),
+                isEnabled = isEnabled,
                 selectedIndex = selectedYear,
                 state = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedYear),
                 items = yearItems,

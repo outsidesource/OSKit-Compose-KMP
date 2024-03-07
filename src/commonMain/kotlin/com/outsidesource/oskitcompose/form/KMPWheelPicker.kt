@@ -46,7 +46,7 @@ import kotlin.math.abs
  * @param itemKey A factory of stable and unique keys representing the item
  * @param state The state for the picker
  * @param modifier The Compose Modifier for KMPWheelPicker
- * @param enabled Enables or disables user interaction with the picker
+ * @param isEnabled Enables or disables user interaction with the picker
  * @param onChange Callback for when the picker fully settles on a value
  * @param onImmediateChange Callback for any time a new value passes through the indication window. It is not recommended
  * to change the value with this callback. It can instead be used for reacting quickly to value changes
@@ -64,7 +64,7 @@ fun <T : Any> KMPWheelPicker(
     itemKey: (T, Int) -> Any = { _, index -> index },
     state: KMPWheelPickerState = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedIndex),
     modifier: Modifier = Modifier,
-    enabled : Boolean = true,
+    isEnabled : Boolean = true,
     onChange: (T) -> Unit,
     onImmediateChange: (T) -> Unit = {},
     scrollEffect: KMPWheelPickerScrollEffect = remember { KMPWheelPickerScrollEffects.magnify() },
@@ -120,7 +120,7 @@ fun <T : Any> KMPWheelPicker(
         modifier = Modifier
             .drawWithContent { indicator(state) }
             .kmpMouseScrollFilter(state, handleOnChange) { _, _ ->
-                if (!enabled) return@kmpMouseScrollFilter
+                if (!isEnabled) return@kmpMouseScrollFilter
 
                 scrollDebouncer.emit {
                     val index = if (state.isInfinite) state.selectedItemRawIndex - INFINITE_OFFSET else state.selectedItemRawIndex
@@ -129,7 +129,7 @@ fun <T : Any> KMPWheelPicker(
                 }
             }
             .pointerInput(state, handleOnChange) {
-                if (!enabled) return@pointerInput
+                if (!isEnabled) return@pointerInput
 
                 awaitEachGesture {
                     // Cancel fling on down if actively flinging
@@ -150,7 +150,7 @@ fun <T : Any> KMPWheelPicker(
                 }
             }
             .pointerInput(state, handleOnChange) {
-                if (!enabled) return@pointerInput
+                if (!isEnabled) return@pointerInput
 
                 detectDragGestures(
                     onDragStart = {
@@ -190,7 +190,7 @@ fun <T : Any> KMPWheelPicker(
             Box(
                 modifier = Modifier
                     .pointerInput(state, handleOnChange) {
-                        if (!enabled) return@pointerInput
+                        if (!isEnabled) return@pointerInput
 
                         detectTapGestures {
                             scope.launch {
