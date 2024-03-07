@@ -10,6 +10,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.resource
 import kotlin.math.ceil
 
+@Deprecated("Use Compose Multiplatform 1.6.0 Resources instead")
 @Stable
 data class KMPImage(
     val path: String,
@@ -41,4 +42,5 @@ data class KMPImage(
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
+@Deprecated("Use Compose Multiplatform 1.6.0 Resources instead")
 fun rememberKmpImagePainter(resource: KMPImage): Painter = painterResource(resource.pathForDensity())

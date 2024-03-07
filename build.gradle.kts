@@ -1,7 +1,5 @@
 import com.vanniktech.maven.publish.SonatypeHost
-import java.io.File
 import java.io.FileInputStream
-import java.lang.System.getenv
 import java.util.*
 
 buildscript {
@@ -67,16 +65,16 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("com.outsidesource:oskit-kmp:4.3.0")
+                api("com.outsidesource:oskit-kmp:4.4.1")
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
                 implementation("com.squareup.okio:okio:3.7.0")
-                implementation("io.insert-koin:koin-core:3.4.3")
+                implementation("io.insert-koin:koin-core:3.5.3")
                 implementation("org.jetbrains:markdown:0.5.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
-                implementation("io.ktor:ktor-client-core:2.3.4")
-                implementation("io.ktor:ktor-client-cio:2.3.4")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+                implementation("io.ktor:ktor-client-core:2.3.8")
+                implementation("io.ktor:ktor-client-cio:2.3.8")
                 api("org.jetbrains.kotlinx:atomicfu:0.23.2")
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
