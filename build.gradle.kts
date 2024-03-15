@@ -14,7 +14,7 @@ buildscript {
 plugins {
     kotlin("multiplatform") version "1.9.20"
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.5.10"
+    id("org.jetbrains.compose") version "1.6.0"
     id("maven-publish")
     id("org.jetbrains.dokka") version "1.9.10"
     id("com.vanniktech.maven.publish") version "0.25.3"
@@ -90,8 +90,8 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("androidx.lifecycle:lifecycle-process:2.7.0")
-                implementation("androidx.compose.foundation:foundation:1.5.4")
-                implementation("androidx.compose.ui:ui:1.5.4")
+                implementation("androidx.compose.foundation:foundation:1.6.3")
+                implementation("androidx.compose.ui:ui:1.6.3")
                 implementation("androidx.core:core-ktx:1.12.0")
                 implementation("androidx.activity:activity-compose:1.8.2")
             }
