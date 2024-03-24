@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath(kotlin("gradle-plugin", "1.9.20"))
+        classpath(kotlin("gradle-plugin", "1.9.23"))
     }
 }
 
