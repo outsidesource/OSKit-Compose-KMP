@@ -59,7 +59,6 @@ import kotlinx.atomicfu.atomic
  * }
  * ```
  */
-@Deprecated("Use Compose Multiplatform 1.6.0 Resources instead")
 abstract class KMPStrings(
     private val replacementPattern: Regex = Regex("%s"),
     private val useFallbackLocale: Boolean = true,
@@ -76,12 +75,10 @@ abstract class KMPStrings(
     private fun localesInternal() = locales
 }
 
-@Deprecated("Use Compose Multiplatform 1.6.0 Resources instead")
 abstract class KMPStringSet {
     abstract val strings: Map<KMPStringKey, String>
 }
 
-@Deprecated("Use Compose Multiplatform 1.6.0 Resources instead")
 data class KMPStringKey(
     private val id: Int,
     internal val locales: () -> Map<String, KMPStringSet>,
@@ -90,19 +87,16 @@ data class KMPStringKey(
 )
 
 @Composable
-@Deprecated("Use Compose Multiplatform 1.6.0 Resources instead")
 fun kmpString(key: KMPStringKey, vararg args: String): String {
     val locale = LocalLocaleOverride.current?.language ?: Locale.current.language
     return getAndReplacePlaceholders(key, locale, args)
 }
 
-@Deprecated("Use Compose Multiplatform 1.6.0 Resources instead")
 fun kmpString(key: KMPStringKey, locale: Locale, vararg args: String): String {
     return getAndReplacePlaceholders(key, locale.language, args)
 }
 
 @Composable
-@Deprecated("Use Compose Multiplatform 1.6.0 Resources instead")
 fun rememberKmpString(key: KMPStringKey, vararg args: String): String {
     val locale = LocalLocaleOverride.current?.language ?: Locale.current.language
     return remember(locale, key, *args) { getAndReplacePlaceholders(key, locale, args) }

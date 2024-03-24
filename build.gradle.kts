@@ -7,14 +7,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath(kotlin("gradle-plugin", "1.9.20"))
+        classpath(kotlin("gradle-plugin", "1.9.23"))
     }
 }
 
 plugins {
-    kotlin("multiplatform") version "1.9.20"
+    kotlin("multiplatform") version "1.9.23"
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.5.10"
+    id("org.jetbrains.compose") version "1.6.1"
     id("maven-publish")
     id("org.jetbrains.dokka") version "1.9.10"
     id("com.vanniktech.maven.publish") version "0.25.3"
@@ -65,7 +65,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("com.outsidesource:oskit-kmp:4.4.1")
+                api("com.outsidesource:oskit-kmp:4.5.0")
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
@@ -90,8 +90,8 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("androidx.lifecycle:lifecycle-process:2.7.0")
-                implementation("androidx.compose.foundation:foundation:1.5.4")
-                implementation("androidx.compose.ui:ui:1.5.4")
+                implementation("androidx.compose.foundation:foundation:1.6.3")
+                implementation("androidx.compose.ui:ui:1.6.3")
                 implementation("androidx.core:core-ktx:1.12.0")
                 implementation("androidx.activity:activity-compose:1.8.2")
             }

@@ -83,6 +83,19 @@ implementation("com.outsidesource:oskit-compose:3.3.0")
 <https://github.com/outsidesource/OSKit-Example-App-KMP>
 
 ## Changelog
+### 3.5.0 - 2024-03-23
+#### Added
+* Support for Jetbrains Compose 1.6
+* Support for Kotlin 1.9.23
+#### Removed
+* KMPResource - No longer works with compose 1.6
+* KMPFont - No longer works with compose 1.6
+* KMPImage - No longer works with compose 1.6
+### 3.4.0 - 2024-03-06
+#### Added
+* KMPTimePicker
+* KMPDatePicker
+* KMPWheelPicker
 ### 3.3.0 - 2024-02-16
 #### Added
 * `rememberKMPWindowInfo()`
