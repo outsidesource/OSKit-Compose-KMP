@@ -12,9 +12,9 @@ buildscript {
 }
 
 plugins {
-    kotlin("multiplatform") version "1.9.20"
+    kotlin("multiplatform") version "1.9.23"
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.6.0"
+    id("org.jetbrains.compose") version "1.6.1"
     id("maven-publish")
     id("org.jetbrains.dokka") version "1.9.10"
     id("com.vanniktech.maven.publish") version "0.25.3"
