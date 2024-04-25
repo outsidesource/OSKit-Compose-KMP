@@ -66,6 +66,7 @@ fun Popover(
     dismissOnBackKey: Boolean = true,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
+    focusable: Boolean = true,
     content: @Composable BoxScope.() -> Unit
 ) {
     val density = LocalDensity.current
@@ -92,7 +93,7 @@ fun Popover(
     if (transition.currentState || transition.targetState) {
         KMPPopup(
             popupPositionProvider = popoverPositionProvider,
-            focusable = true,
+            focusable = focusable,
             onDismissRequest = onDismissRequest,
             onPreviewKeyEvent = onPreviewKeyEvent,
             dismissOnBackPress = dismissOnBackKey,
@@ -124,6 +125,7 @@ fun <T> Popover(
     dismissOnBackKey: Boolean = true,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
+    focusable: Boolean = true,
     transitionValueCreator: @Composable (transition: Transition<Boolean>) -> T,
     content: @Composable BoxScope.(T) -> Unit
 ) {
@@ -137,7 +139,7 @@ fun <T> Popover(
     if (transition.currentState || transition.targetState) {
         KMPPopup(
             popupPositionProvider = popoverPositionProvider,
-            focusable = true,
+            focusable = focusable,
             onDismissRequest = onDismissRequest,
             onPreviewKeyEvent = onPreviewKeyEvent,
             dismissOnBackPress = dismissOnBackKey,
