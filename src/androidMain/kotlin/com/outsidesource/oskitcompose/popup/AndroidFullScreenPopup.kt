@@ -30,7 +30,7 @@ import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.*
 
-data class AndroidFullScreenPopupProperties(
+internal data class AndroidFullScreenPopupProperties(
     val focusable: Boolean = false,
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     val clippingEnabled: Boolean = false,
@@ -42,7 +42,7 @@ data class AndroidFullScreenPopupProperties(
  * regardless of [WindowCompat.setDecorFitsSystemWindows()]. This allows a popup to draw behind system bars.
  */
 @Composable
-fun AndroidFullScreenPopup(
+internal fun AndroidFullScreenPopup(
     onDismissRequest: (() -> Unit)? = null,
     onPreviewKeyEvent: (KeyEvent) -> Boolean,
     onKeyEvent: (KeyEvent) -> Boolean,
