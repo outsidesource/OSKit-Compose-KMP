@@ -169,8 +169,8 @@ fun KMPTimePickerInline(
         time.minute.snapTo(minuteStep)
     }
 
-    val selectedMeridian = remember(time) {
-        if (time.hour >= 12) TimeMeridian.PM.ordinal else TimeMeridian.AM.ordinal
+    val selectedMeridiem = remember(time) {
+        if (time.hour >= 12) TimeMeridiem.PM.ordinal else TimeMeridiem.AM.ordinal
     }
 
     CompositionLocalProvider(LocalKMPTimePickerStyles provides styles) {
@@ -268,24 +268,24 @@ fun KMPTimePickerInline(
                     .height(pickerSize)
                     .padding(horizontal = pickerHPadding / 2),
                 isEnabled = isEnabled,
-                selectedIndex = selectedMeridian,
-                state = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedMeridian),
-                items = remember(minuteStep) { TimeMeridian.entries },
+                selectedIndex = selectedMeridiem,
+                state = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedMeridiem),
+                items = remember(minuteStep) { TimeMeridiem.entries },
                 horizontalAlignment = Alignment.Start,
                 indicator = KMPWheelPickerIndicators.none,
-                onChange = { meridian ->
+                onChange = { meridiem ->
                     val currentHour = selectedTime.value.hour
-                    val newHour = when (meridian) {
-                        TimeMeridian.AM -> if (currentHour >= 12) currentHour - 12 else currentHour
-                        TimeMeridian.PM -> if (currentHour < 12) currentHour + 12 else currentHour
+                    val newHour = when (meridiem) {
+                        TimeMeridiem.AM -> if (currentHour >= 12) currentHour - 12 else currentHour
+                        TimeMeridiem.PM -> if (currentHour < 12) currentHour + 12 else currentHour
                     }
                     selectedTime.value = LocalTime(newHour, selectedTime.value.minute)
                     onChange(selectedTime.value)
                 }
-            ) { meridian ->
-                val isSelectedMeridian = when (meridian) {
-                    TimeMeridian.AM -> selectedTime.value.hour < 12
-                    TimeMeridian.PM -> selectedTime.value.hour >= 12
+            ) { meridiem ->
+                val isSelectedMeridiem = when (meridiem) {
+                    TimeMeridiem.AM -> selectedTime.value.hour < 12
+                    TimeMeridiem.PM -> selectedTime.value.hour >= 12
                 }
 
                 Box(
@@ -295,9 +295,9 @@ fun KMPTimePickerInline(
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     Text(
-                        text = meridian.toString(),
+                        text = meridiem.toString(),
                         style = TextStyle(
-                            color = if (isSelectedMeridian) styles.accentColor else styles.fontColor,
+                            color = if (isSelectedMeridiem) styles.accentColor else styles.fontColor,
                             fontSize = 18.sp,
                         ),
                     )
@@ -342,7 +342,7 @@ val LocalKMPTimePickerStyles = staticCompositionLocalOf {
     )
 }
 
-enum class TimeMeridian {
+enum class TimeMeridiem {
     AM,
     PM,
 }
