@@ -65,16 +65,16 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("com.outsidesource:oskit-kmp:4.5.0")
+                api("com.outsidesource:oskit-kmp:4.6.0")
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                implementation("com.squareup.okio:okio:3.7.0")
+                implementation("com.squareup.okio:okio:3.9.0")
                 implementation("io.insert-koin:koin-core:3.5.3")
                 implementation("org.jetbrains:markdown:0.5.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
-                implementation("io.ktor:ktor-client-core:2.3.8")
-                implementation("io.ktor:ktor-client-cio:2.3.8")
+                implementation("io.ktor:ktor-client-core:2.3.9")
+                implementation("io.ktor:ktor-client-cio:2.3.9")
                 api("org.jetbrains.kotlinx:atomicfu:0.23.2")
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
@@ -89,11 +89,11 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                implementation("androidx.lifecycle:lifecycle-process:2.7.0")
-                implementation("androidx.compose.foundation:foundation:1.6.3")
-                implementation("androidx.compose.ui:ui:1.6.3")
-                implementation("androidx.core:core-ktx:1.12.0")
                 implementation("androidx.activity:activity-compose:1.8.2")
+                implementation("androidx.lifecycle:lifecycle-process:2.8.0")
+                implementation("androidx.compose.foundation:foundation:1.6.7")
+                implementation("androidx.compose.ui:ui:1.6.7")
+                implementation("androidx.core:core-ktx:1.13.1")
             }
         }
         val androidInstrumentedTest by getting {
