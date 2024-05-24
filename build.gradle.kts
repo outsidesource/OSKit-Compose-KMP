@@ -65,17 +65,17 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("com.outsidesource:oskit-kmp:4.6.0")
-                api(compose.runtime)
-                api(compose.foundation)
-                api(compose.material)
+                implementation("com.outsidesource:oskit-kmp:4.6.1")
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material)
                 implementation("com.squareup.okio:okio:3.9.0")
                 implementation("io.insert-koin:koin-core:3.5.3")
                 implementation("org.jetbrains:markdown:0.5.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
                 implementation("io.ktor:ktor-client-core:2.3.9")
                 implementation("io.ktor:ktor-client-cio:2.3.9")
-                api("org.jetbrains.kotlinx:atomicfu:0.23.2")
+                implementation("org.jetbrains.kotlinx:atomicfu:0.23.2")
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
             }
@@ -104,7 +104,7 @@ kotlin {
 
         val iosMain by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-ios:2.3.3")
+                implementation("io.ktor:ktor-client-ios:2.3.9")
             }
         }
     }
