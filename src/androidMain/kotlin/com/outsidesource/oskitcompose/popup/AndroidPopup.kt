@@ -1,8 +1,17 @@
 package com.outsidesource.oskitcompose.popup
 
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
@@ -62,6 +71,7 @@ actual fun KMPPopup(
     content: @Composable () -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
+    val focusRequester = remember { FocusRequester() }
 
     if (!isFullScreen) {
         Popup(
@@ -70,9 +80,32 @@ actual fun KMPPopup(
             properties = PopupProperties(
                 focusable = focusable,
                 excludeFromSystemGesture = false,
-                dismissOnBackPress = dismissOnBackPress,
+                dismissOnBackPress = false,
             ),
-            content = { LocalLayoutDirectionWrapper(layoutDirection, content) },
+            content = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .onKeyEvent {
+                            val consumed = onKeyEvent(it)
+
+                            if (!consumed && it.key == Key.Back && it.type == KeyEventType.KeyUp && dismissOnBackPress) {
+                                onDismissRequest?.invoke()
+                                return@onKeyEvent true
+                            }
+
+                            consumed
+                        }
+                        .onPreviewKeyEvent(onPreviewKeyEvent)
+                        .focusRequester(focusRequester)
+                        .focusable()
+                ) {
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
+                    LocalLayoutDirectionWrapper(layoutDirection, content)
+                }
+            },
         )
     } else {
         AndroidFullScreenPopup(
