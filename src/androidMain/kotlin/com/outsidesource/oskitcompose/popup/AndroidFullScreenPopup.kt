@@ -6,6 +6,11 @@ import android.graphics.PixelFormat
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
+import android.window.OnBackInvokedDispatcher
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.activity.findViewTreeOnBackPressedDispatcherOwner
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,10 +24,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.window.SecureFlagPolicy
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
-import androidx.lifecycle.setViewTreeLifecycleOwner
-import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.lifecycle.*
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.*
@@ -50,6 +52,7 @@ internal fun AndroidFullScreenPopup(
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val popupId = rememberSaveable { UUID.randomUUID() }
+    val backPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
 
     val fullScreenPopupLayout = remember {
         FullScreenPopupLayout(
@@ -58,6 +61,7 @@ internal fun AndroidFullScreenPopup(
             composeView = view,
             popupId = popupId,
             onKeyEvent = onKeyEvent,
+            backPressedDispatcherOwner = backPressedDispatcherOwner,
         ).apply {
             setContent(parent = parentComposition) {
                 Box(
@@ -97,7 +101,8 @@ internal fun AndroidFullScreenPopup(
 @SuppressLint("ViewConstructor")
 internal class FullScreenPopupLayout(
     private var onDismissRequest: (() -> Unit)?,
-    private var onKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    private val onKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    private val backPressedDispatcherOwner: OnBackPressedDispatcherOwner?,
     private var properties: AndroidFullScreenPopupProperties,
     private val composeView: View,
     popupId: UUID,
@@ -174,15 +179,22 @@ internal class FullScreenPopupLayout(
                 state?.startTracking(event, this)
                 return false
             } else if (event.action == android.view.KeyEvent.ACTION_UP) {
-                if (!properties.dismissOnBackPress) return consumed
+                if (consumed) return true
 
-                val state = keyDispatcherState
-                if (!consumed && state != null && state.isTracking(event) && !event.isCanceled) {
-                    onDismissRequest?.invoke()
+                if (backPressedDispatcherOwner?.onBackPressedDispatcher?.hasEnabledCallbacks() == true) {
+                    backPressedDispatcherOwner.onBackPressedDispatcher.onBackPressed()
                     return true
+                } else {
+                    if (!properties.dismissOnBackPress) return false
+
+                    val state = keyDispatcherState
+                    if (state != null && state.isTracking(event) && !event.isCanceled) {
+                        onDismissRequest?.invoke()
+                        return true
+                    }
                 }
 
-                return consumed
+                return false
             }
         }
 

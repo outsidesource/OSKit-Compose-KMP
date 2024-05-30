@@ -1,5 +1,6 @@
 package com.outsidesource.oskitcompose.popup
 
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
@@ -72,6 +72,7 @@ actual fun KMPPopup(
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val focusRequester = remember { FocusRequester() }
+    val backPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
 
     if (!isFullScreen) {
         Popup(
@@ -88,13 +89,21 @@ actual fun KMPPopup(
                         .fillMaxSize()
                         .onKeyEvent {
                             val consumed = onKeyEvent(it)
+                            if (consumed) return@onKeyEvent true
 
-                            if (!consumed && it.key == Key.Back && it.type == KeyEventType.KeyUp && dismissOnBackPress) {
-                                onDismissRequest?.invoke()
-                                return@onKeyEvent true
+                            if (it.key == Key.Back && it.type == KeyEventType.KeyUp) {
+                                if (backPressedDispatcherOwner?.onBackPressedDispatcher?.hasEnabledCallbacks() == true) {
+                                    backPressedDispatcherOwner.onBackPressedDispatcher.onBackPressed()
+                                    return@onKeyEvent true
+                                } else {
+                                    if (!dismissOnBackPress) return@onKeyEvent false
+
+                                    onDismissRequest?.invoke()
+                                    return@onKeyEvent true
+                                }
                             }
 
-                            consumed
+                            false
                         }
                         .onPreviewKeyEvent(onPreviewKeyEvent)
                         .focusRequester(focusRequester)
