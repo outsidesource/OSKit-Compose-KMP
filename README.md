@@ -83,6 +83,10 @@ implementation("com.outsidesource:oskit-compose:3.3.0")
 <https://github.com/outsidesource/OSKit-Example-App-KMP>
 
 ## Changelog
+### 3.7.0 - 2024-05-30
+#### Added
+* onKeyEvent to BottomSheet
+* KMPBackHandler/BackHandler to KMPPopup
 ### 3.6.0 - 2024-05-21
 #### Added
 * Focusable parameter to Popover
