@@ -1,3 +1,5 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SonatypeHost
 import java.io.FileInputStream
 import java.util.*
@@ -17,7 +19,7 @@ plugins {
     id("org.jetbrains.compose") version "1.6.1"
     id("maven-publish")
     id("org.jetbrains.dokka") version "1.9.10"
-    id("com.vanniktech.maven.publish") version "0.25.3"
+    id("com.vanniktech.maven.publish") version "0.28.0"
 }
 
 apply(from = "versioning.gradle.kts")
@@ -32,8 +34,8 @@ version = versionProperty
 repositories {
     mavenLocal()
     google()
-    gradlePluginPortal()
     mavenCentral()
+    gradlePluginPortal()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     maven("https://plugins.gradle.org/m2/")
 }
@@ -47,7 +49,6 @@ kotlin {
     }
     androidTarget {
         jvmToolchain(17)
-        publishAllLibraryVariants()
     }
 
     listOf(
@@ -65,7 +66,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("com.outsidesource:oskit-kmp:4.6.1")
+                implementation("com.outsidesource:oskit-kmp:4.6.3")
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material)
@@ -123,18 +124,20 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
 }
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.S01, true)
+    publishToMavenCentral(SonatypeHost.S01, automaticRelease = true)
     signAllPublications()
+
+    configure(
+        platform = KotlinMultiplatform(
+            javadocJar = JavadocJar.Dokka("dokkaHtml"),
+            sourcesJar = true,
+            androidVariantsToPublish = listOf("debug", "release"),
+        )
+    )
+
     pom {
         description.set("An opinionated architecture/library for Compose Multiplatform development")
         name.set(project.name)
