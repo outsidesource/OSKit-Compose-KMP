@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
@@ -77,6 +78,8 @@ fun BottomSheet(
     dismissOnBackPress: Boolean = true,
     dismissOnSwipe: Boolean = true,
     isFullScreen: Boolean = true,
+    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
     styles: BottomSheetStyles = remember { BottomSheetStyles() },
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -94,6 +97,8 @@ fun BottomSheet(
                 isFullScreen = isFullScreen,
                 onDismissRequest = onDismissRequest,
                 dismissOnBackPress = dismissOnBackPress,
+                onKeyEvent = onKeyEvent,
+                onPreviewKeyEvent = onPreviewKeyEvent,
                 focusable = true,
             ) {
                 Box(

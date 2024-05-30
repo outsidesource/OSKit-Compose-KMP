@@ -31,7 +31,7 @@ expect interface PopupPositionProvider {
  * @param focusable Whether the popup is focusable. When true, the popup will receive IME
  * events and key presses, such as when the back button is pressed.
  * @param onPreviewKeyEvent Handles the onPreviewKey event
- * @param onKeyEvent Handles the onKeyEvent
+ * @param onKeyEvent Handles the onKeyEvent. [onKeyEvent] allows consuming key events before reaching any BackHandlers.
  * @param isFullScreen Utilized in Android and iOS. Specifies whether to draw behind the system bars or not. Setting
  * [isFullScreen] to true will ignore [alignment] and [offset] parameters
  * @param content The content to be displayed inside the popup.

@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
@@ -79,6 +80,8 @@ fun Drawer(
     dismissOnBackPress: Boolean = true,
     dismissOnSwipe: Boolean = true,
     isFullScreen: Boolean = true,
+    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
     styles: DrawerStyles = remember { DrawerStyles() },
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -97,6 +100,8 @@ fun Drawer(
                 onDismissRequest = onDismissRequest,
                 dismissOnBackPress = dismissOnBackPress,
                 isFullScreen = isFullScreen,
+                onPreviewKeyEvent = onPreviewKeyEvent,
+                onKeyEvent = onKeyEvent,
             ) {
                 Box(
                     modifier = Modifier
