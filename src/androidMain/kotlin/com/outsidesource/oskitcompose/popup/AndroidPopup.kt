@@ -94,6 +94,7 @@ actual fun KMPPopup(
                             if (it.key == Key.Back && it.type == KeyEventType.KeyUp) {
                                 if (backPressedDispatcherOwner?.onBackPressedDispatcher?.hasEnabledCallbacks() == true) {
                                     backPressedDispatcherOwner.onBackPressedDispatcher.onBackPressed()
+                                    return@onKeyEvent true
                                 } else {
                                     if (!dismissOnBackPress) return@onKeyEvent false
 

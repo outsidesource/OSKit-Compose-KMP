@@ -182,7 +182,8 @@ internal class FullScreenPopupLayout(
                 if (consumed) return true
 
                 if (backPressedDispatcherOwner?.onBackPressedDispatcher?.hasEnabledCallbacks() == true) {
-                    backPressedDispatcherOwner?.onBackPressedDispatcher?.onBackPressed()
+                    backPressedDispatcherOwner.onBackPressedDispatcher.onBackPressed()
+                    return true
                 } else {
                     if (!properties.dismissOnBackPress) return false
 
