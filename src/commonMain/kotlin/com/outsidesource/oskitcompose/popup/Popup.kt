@@ -23,7 +23,7 @@ expect interface PopupPositionProvider {
  * Creates a customizable Popup with a given alignment
  *
  * @param alignment The alignment relative to the parent.
- * @param dismissOnBackPress Calls onDismissRequest when the back button or escape button is pressed
+ * @param dismissOnBackPress Calls onDismissRequest when the back button or escape button is pressed. If this is set to true, all back handlers will be ignored.
  * @param offset An offset from the original aligned position of the popup. Offset respects the
  * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
  * will be subtracted from it.
@@ -53,7 +53,7 @@ expect fun KMPPopup(
  * Creates a customizable Popup with a given position
  *
  * @param popupPositionProvider Calculates the position of a popup on screen.
- * @param dismissOnBackPress Calls onDismissRequest when the back button or escape button is pressed
+ * @param dismissOnBackPress Calls onDismissRequest when the back button or escape button is pressed. If this is set to true, all back handlers will be ignored.
  * @param onDismissRequest Executes when the user clicks outside the popup.
  * @param focusable Whether the popup is focusable. When true, the popup will receive IME
  * events and key presses, such as when the back button is pressed.

@@ -170,35 +170,31 @@ internal class FullScreenPopupLayout(
 
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
         val consumed = onKeyEvent(KeyEvent(event))
-        if (event.keyCode == android.view.KeyEvent.KEYCODE_BACK) {
-            if (keyDispatcherState == null) {
-                return consumed
-            }
-            if (event.action == android.view.KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
-                val state = keyDispatcherState
-                state?.startTracking(event, this)
-                return false
-            } else if (event.action == android.view.KeyEvent.ACTION_UP) {
-                if (consumed) return true
-
-                if (backPressedDispatcherOwner?.onBackPressedDispatcher?.hasEnabledCallbacks() == true) {
-                    backPressedDispatcherOwner.onBackPressedDispatcher.onBackPressed()
-                    return true
-                } else {
-                    if (!properties.dismissOnBackPress) return false
-
-                    val state = keyDispatcherState
-                    if (state != null && state.isTracking(event) && !event.isCanceled) {
-                        onDismissRequest?.invoke()
-                        return true
-                    }
-                }
-
-                return false
-            }
+        if (event.keyCode != android.view.KeyEvent.KEYCODE_BACK) {
+            return if (consumed) true else super.dispatchKeyEvent(event)
         }
 
-        return consumed
+        val state = keyDispatcherState ?: return consumed
+
+        if (event.action == android.view.KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
+            state.startTracking(event, this)
+            return false
+        } else if (event.action == android.view.KeyEvent.ACTION_UP) {
+            if (consumed) return true
+            if (!state.isTracking(event) || event.isCanceled) return false
+
+            if (properties.dismissOnBackPress) {
+                onDismissRequest?.invoke()
+                return true
+            } else if (backPressedDispatcherOwner?.onBackPressedDispatcher?.hasEnabledCallbacks() == true) {
+                backPressedDispatcherOwner.onBackPressedDispatcher.onBackPressed()
+                return true
+            }
+
+            return false
+        }
+
+        return if (consumed) true else super.dispatchKeyEvent(event)
     }
 
     private fun applyNewFlags(flags: Int) {

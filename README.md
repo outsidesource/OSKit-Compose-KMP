@@ -83,6 +83,9 @@ implementation("com.outsidesource:oskit-compose:3.3.0")
 <https://github.com/outsidesource/OSKit-Example-App-KMP>
 
 ## Changelog
+### 3.7.1 - 2024-07-12
+#### Fixed
+* Back handling and key events in Android Popups 
 ### 3.7.0 - 2024-05-30
 #### Added
 * onKeyEvent to BottomSheet
