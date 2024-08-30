@@ -86,7 +86,6 @@ actual fun KMPPopup(
             content = {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
                         .onKeyEvent {
                             val consumed = onKeyEvent(it)
                             if (consumed) return@onKeyEvent true

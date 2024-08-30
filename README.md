@@ -83,6 +83,9 @@ implementation("com.outsidesource:oskit-compose:3.3.0")
 <https://github.com/outsidesource/OSKit-Example-App-KMP>
 
 ## Changelog
+### 3.7.2 - 2024-08-30
+#### Fixed
+* Non-fullscreen popups (i.e. Popover) on Android had a regression where they were not positioned correctly
 ### 3.7.1 - 2024-07-12
 #### Fixed
 * Back handling and key events in Android Popups 
