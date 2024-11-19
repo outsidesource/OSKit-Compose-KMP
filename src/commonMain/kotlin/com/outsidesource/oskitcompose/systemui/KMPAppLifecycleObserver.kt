@@ -22,6 +22,9 @@ enum class KMPAppLifecycle {
     Active,
 }
 
-expect object KMPAppLifecycleObserver : IKMPAppLifecycleObserver
+expect object KMPAppLifecycleObserver : IKMPAppLifecycleObserver {
+    override val lifecycle: StateFlow<KMPAppLifecycle>
+    override fun init(context: KMPAppLifecycleObserverContext)
+}
 
 expect class KMPAppLifecycleObserverContext

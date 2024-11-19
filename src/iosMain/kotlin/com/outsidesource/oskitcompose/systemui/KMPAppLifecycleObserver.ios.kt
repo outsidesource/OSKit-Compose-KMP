@@ -12,9 +12,9 @@ actual object KMPAppLifecycleObserver : IKMPAppLifecycleObserver {
 
     private val _state = MutableStateFlow(UIApplication.sharedApplication.applicationState.toKMPAppLifecycle())
 
-    override val lifecycle: StateFlow<KMPAppLifecycle> = _state
+    actual override val lifecycle: StateFlow<KMPAppLifecycle> = _state
 
-    override fun init(context: KMPAppLifecycleObserverContext) {
+    actual override fun init(context: KMPAppLifecycleObserverContext) {
         NSNotificationCenter.defaultCenter.addObserverForName(
             UIApplicationDidBecomeActiveNotification,
             null,

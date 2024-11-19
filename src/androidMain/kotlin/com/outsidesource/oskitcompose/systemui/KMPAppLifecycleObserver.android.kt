@@ -11,9 +11,9 @@ actual object KMPAppLifecycleObserver : IKMPAppLifecycleObserver {
 
     private val _state = MutableStateFlow(ProcessLifecycleOwner.get().lifecycle.currentState.toKMPAppLifecycle())
 
-    override val lifecycle: StateFlow<KMPAppLifecycle> = _state
+    actual override val lifecycle: StateFlow<KMPAppLifecycle> = _state
 
-    override fun init(context: KMPAppLifecycleObserverContext) {
+    actual override fun init(context: KMPAppLifecycleObserverContext) {
         ProcessLifecycleOwner.get().lifecycle.addObserver(
             object : LifecycleEventObserver {
                 override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {

@@ -1,6 +1,11 @@
-import com.vanniktech.maven.publish.JavadocJar
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
 import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SonatypeHost
+import org.gradle.kotlin.dsl.implementation
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompileCommon
 import java.io.FileInputStream
 import java.util.*
 
@@ -9,14 +14,15 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath(kotlin("gradle-plugin", "1.9.23"))
+        classpath(kotlin("gradle-plugin", libs.versions.kotlin.toString()))
     }
 }
 
 plugins {
-    kotlin("multiplatform") version "1.9.23"
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.compose)
+    alias(libs.plugins.compose.compiler)
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.6.1"
     id("maven-publish")
     id("org.jetbrains.dokka") version "1.9.10"
     id("com.vanniktech.maven.publish") version "0.28.0"
@@ -41,14 +47,11 @@ repositories {
 }
 
 kotlin {
-    jvm {
-        jvmToolchain(17)
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
-        }
-    }
-    androidTarget {
-        jvmToolchain(17)
+    jvmToolchain(17)
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+        freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
     }
 
     listOf(
@@ -61,22 +64,37 @@ kotlin {
         }
     }
 
+    jvm {
+        testRuns["test"].executionTask.configure {
+            useJUnitPlatform()
+        }
+    }
+
+    androidTarget()
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            binaries.executable()
+        }
+    }
+
     applyDefaultHierarchyTemplate()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("com.outsidesource:oskit-kmp:4.6.3")
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.oskit.kmp)
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material)
-                implementation("com.squareup.okio:okio:3.9.0")
-                implementation("io.insert-koin:koin-core:3.5.3")
-                implementation("org.jetbrains:markdown:0.5.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
-                implementation("io.ktor:ktor-client-core:2.3.9")
-                implementation("io.ktor:ktor-client-cio:2.3.9")
-                implementation("org.jetbrains.kotlinx:atomicfu:0.23.2")
+                implementation(libs.okio)
+                implementation(libs.koin.core)
+                implementation(libs.markdown)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.ktor.client.core)
+                implementation(libs.kotlinx.atomicfu)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
             }
@@ -90,22 +108,34 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                implementation("androidx.activity:activity-compose:1.8.2")
-                implementation("androidx.lifecycle:lifecycle-process:2.8.0")
-                implementation("androidx.compose.foundation:foundation:1.6.7")
-                implementation("androidx.compose.ui:ui:1.6.7")
-                implementation("androidx.core:core-ktx:1.13.1")
+                implementation(libs.activity.compose)
+                implementation(libs.lifecycle.process)
+                implementation(libs.compose.ui)
+                implementation(libs.core.ktx)
+                implementation(libs.ktor.client.cio)
             }
         }
         val androidInstrumentedTest by getting {
             dependencies {
-                implementation("junit:junit:4.13.2")
+                implementation(libs.junit)
+            }
+        }
+
+        val jvmMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.cio)
             }
         }
 
         val iosMain by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-ios:2.3.9")
+                implementation(libs.ktor.client.ios)
+            }
+        }
+
+        val wasmJsMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.js)
             }
         }
     }
@@ -128,11 +158,11 @@ android {
 
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.S01, automaticRelease = true)
-    signAllPublications()
+//    signAllPublications()
 
     configure(
         platform = KotlinMultiplatform(
-            javadocJar = JavadocJar.Dokka("dokkaHtml"),
+//            javadocJar = JavadocJar.Dokka("dokkaHtml"),
             sourcesJar = true,
             androidVariantsToPublish = listOf("debug", "release"),
         )

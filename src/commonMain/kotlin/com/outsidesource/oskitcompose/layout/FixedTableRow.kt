@@ -31,7 +31,7 @@ fun FixedTableRow(
     Layout(
         modifier = modifier,
         content = content
-    ) {measurables, constraints ->
+    ) { measurables, constraints ->
         val placeables = measurables.mapIndexed { i, measurable ->
             val percentage = columnSizes.getOrNull(i) ?: 0f
             val spacing = if (i == 0 || i == measurables.size - 1) horizontalArrangement.spacing / 2 else horizontalArrangement.spacing

@@ -37,9 +37,9 @@ import com.outsidesource.oskitcompose.modifier.borderStart
 import com.outsidesource.oskitcompose.scrollbars.KMPHorizontalScrollbar
 import com.outsidesource.oskitcompose.scrollbars.KMPScrollbarStyle
 import com.outsidesource.oskitcompose.scrollbars.rememberKmpScrollbarAdapter
+import com.outsidesource.oskitkmp.concurrency.KMPDispatchers
 import com.outsidesource.oskitkmp.tuples.Tup2
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okio.buffer
@@ -191,7 +191,7 @@ private fun InternalMarkdown(
         is MarkdownSource.String -> {
             val tree by if (loadAsync) {
                 produceState(initialValue = emptyList(), source, context, density, loadAsync) {
-                    value = withContext(Dispatchers.IO) {
+                    value = withContext(KMPDispatchers.IO) {
                         MarkdownParser(CommonMarkFlavourDescriptor())
                             .buildMarkdownTreeFromString(source.content)
                             .buildBlockItems(source.content, context)
@@ -212,7 +212,7 @@ private fun InternalMarkdown(
         }
         is MarkdownSource.Source -> {
             val tree by produceState(initialValue = emptyList(), source, context, density, loadAsync) {
-                value = withContext(Dispatchers.IO) {
+                value = withContext(KMPDispatchers.IO) {
                     val content = source.source.buffer().readUtf8()
                     MarkdownParser(CommonMarkFlavourDescriptor())
                         .buildMarkdownTreeFromString(content)
@@ -397,7 +397,7 @@ private fun MarkdownInlineContent(
     var maxImageHeight = 0f
 
     val imageSizes by produceState(initialValue = emptyMap(), key1 = content) {
-        withContext(Dispatchers.IO) {
+        withContext(KMPDispatchers.IO) {
             value = buildMap {
                 content.getStringAnnotations(TAG_INLINE_IMAGE, 0, content.length).forEach {
                     val id = it.item
@@ -540,7 +540,7 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
         ),
         key1 = image.type,
     ) {
-        withContext(Dispatchers.IO) {
+        withContext(KMPDispatchers.IO) {
             value = resolvePainterAndSizeForImage(density, image, markdownInfo)
         }
     }
@@ -560,7 +560,7 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
     }
 }
 
-private fun resolvePainterAndSizeForImage(
+private suspend fun resolvePainterAndSizeForImage(
     density: Density,
     image: MarkdownBlock.Image,
     markdownContext: MarkdownContext,

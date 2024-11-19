@@ -32,7 +32,7 @@ fun WrappableRow(
     Layout(
         modifier = modifier,
         content = content
-    ) {measurables, constraints ->
+    ) { measurables, constraints ->
         var ongoingWidth = 0
         var ongoingHeight = 0
         val rowWidths = mutableListOf<Int>()

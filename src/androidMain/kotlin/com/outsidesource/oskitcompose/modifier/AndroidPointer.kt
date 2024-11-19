@@ -29,10 +29,10 @@ actual fun Modifier.kmpPointerMoveFilter(
     }
 }
 
-actual fun Modifier.kmpOnExternalDrag(
-    enabled: Boolean,
-    onDragStart: (KMPExternalDragValue) -> Unit,
-    onDrag: (KMPExternalDragValue) -> Unit,
-    onDragExit: () -> Unit,
-    onDrop: (KMPExternalDragValue) -> Unit,
-): Modifier = this
+//actual fun Modifier.kmpOnExternalDrag(
+//    enabled: Boolean,
+//    onDragStart: (KMPExternalDragValue) -> Unit,
+//    onDrag: (KMPExternalDragValue) -> Unit,
+//    onDragExit: () -> Unit,
+//    onDrop: (KMPExternalDragValue) -> Unit,
+//): Modifier = this

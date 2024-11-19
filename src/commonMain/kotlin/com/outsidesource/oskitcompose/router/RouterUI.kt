@@ -119,14 +119,20 @@ class RouteObjectStore {
     private val objects = mutableMapOf<String, Any>()
 
     operator fun <T: Any> get(routeId: Int, key: String?, objectType: KClass<T>): Any? {
-        return objects["$routeId:${objectType.qualifiedName}:${key ?: ""}"]
+        return objects["$routeId:${objectType}:${key ?: ""}"]
+        // TODO: WASM
+//        return objects["$routeId:${objectType.qualifiedName}:${key ?: ""}"]
     }
 
     operator fun <T: Any> set(routeId: Int, key: String?, objectType: KClass<T>, value: T) {
-        objects["$routeId:${objectType.qualifiedName}:${key ?: ""}"] = value as Any
+        objects["$routeId:${objectType}:${key ?: ""}"] = value as Any
+        // TODO: WASM
+//        objects["$routeId:${objectType.qualifiedName}:${key ?: ""}"] = value as Any
     }
 
     fun <T: Any> remove(routeId: Int, key: String?, objectType: KClass<T>) {
-        objects.remove("$routeId:${objectType.qualifiedName}:${key ?: ""}")
+        objects.remove("$routeId:${objectType}:${key ?: ""}")
+        // TODO: WASM
+//        objects.remove("$routeId:${objectType.qualifiedName}:${key ?: ""}")
     }
 }

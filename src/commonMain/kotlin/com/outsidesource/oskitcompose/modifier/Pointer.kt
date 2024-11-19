@@ -67,34 +67,36 @@ fun Modifier.kmpClickableEvent(vararg keys: Any, onClick: (down: PointerEvent, u
         }
     }
 
-expect fun Modifier.kmpOnExternalDrag(
-    enabled: Boolean = true,
-    onDragStart: (KMPExternalDragValue) -> Unit = {},
-    onDrag: (KMPExternalDragValue) -> Unit = {},
-    onDragExit: () -> Unit = {},
-    onDrop: (KMPExternalDragValue) -> Unit = {},
-): Modifier
+// TODO: WASM
 
-data class KMPExternalDragValue(
-    val dragPosition: Offset,
-    val dragData: KMPDragData,
-)
+//expect fun Modifier.kmpOnExternalDrag(
+//    enabled: Boolean = true,
+//    onDragStart: (KMPExternalDragValue) -> Unit = {},
+//    onDrag: (KMPExternalDragValue) -> Unit = {},
+//    onDragExit: () -> Unit = {},
+//    onDrop: (KMPExternalDragValue) -> Unit = {},
+//): Modifier
 
-interface KMPDragData {
-    interface FilesList : KMPDragData {
-        fun readFiles(): List<String>
-    }
-
-    interface Image : KMPDragData {
-        fun readImage(): Painter
-    }
-
-    interface Text : KMPDragData {
-        val bestMimeType: String
-        fun readText(): String
-    }
-
-    interface Unknown : KMPDragData {
-        val value: Any
-    }
-}
+//data class KMPExternalDragValue(
+//    val dragPosition: Offset,
+//    val dragData: KMPDragData,
+//)
+//
+//interface KMPDragData {
+//    interface FilesList : KMPDragData {
+//        fun readFiles(): List<String>
+//    }
+//
+//    interface Image : KMPDragData {
+//        fun readImage(): Painter
+//    }
+//
+//    interface Text : KMPDragData {
+//        val bestMimeType: String
+//        fun readText(): String
+//    }
+//
+//    interface Unknown : KMPDragData {
+//        val value: Any
+//    }
+//}

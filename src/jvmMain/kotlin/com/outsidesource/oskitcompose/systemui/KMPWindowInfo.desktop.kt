@@ -19,7 +19,6 @@ actual fun rememberKMPWindowInfo(): KMPWindowInfo {
                 get() = windowInfo.keyboardModifiers
             override val containerSize: IntSize
                 get() = windowInfo.containerSize
-
         }
     }
 }
