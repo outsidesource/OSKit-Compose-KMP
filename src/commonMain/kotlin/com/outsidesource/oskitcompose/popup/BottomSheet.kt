@@ -16,7 +16,9 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
@@ -28,6 +30,7 @@ import com.outsidesource.oskitcompose.modifier.OuterShadow
 import com.outsidesource.oskitcompose.modifier.outerShadow
 import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 
 @Immutable
 data class BottomSheetStyles(
@@ -84,6 +87,7 @@ fun BottomSheet(
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box {
+        val lastKeyPress = remember { VarRef(Clock.System.now()) }
         val transition = updateTransition(isVisible, label = "background")
         val alpha by transition.animateFloat(
             transitionSpec = { tween(styles.transitionDuration) },
@@ -98,7 +102,10 @@ fun BottomSheet(
                 onDismissRequest = onDismissRequest,
                 dismissOnBackPress = dismissOnBackPress,
                 onKeyEvent = onKeyEvent,
-                onPreviewKeyEvent = onPreviewKeyEvent,
+                onPreviewKeyEvent = {
+                    if (it.key == Key.Spacebar) lastKeyPress.value = Clock.System.now()
+                    return@KMPPopup onPreviewKeyEvent(it)
+                },
                 focusable = true,
             ) {
                 Box(
@@ -108,7 +115,12 @@ fun BottomSheet(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
-                            onClick = { if (dismissOnExternalClick) onDismissRequest?.invoke() }
+                            onClick = {
+                                // This fixes an issue where pressing the spacebar would count as a click in Compose WASM
+                                // if the bottom sheet has a text input field in it
+                                if ((Clock.System.now() - lastKeyPress.value).inWholeMilliseconds < 100) return@clickable
+                                if (dismissOnExternalClick) onDismissRequest?.invoke()
+                            }
                         )
                         .background(color = styles.scrimColor.copy(styles.scrimColor.alpha * alpha)),
                     contentAlignment = Alignment.BottomCenter,
