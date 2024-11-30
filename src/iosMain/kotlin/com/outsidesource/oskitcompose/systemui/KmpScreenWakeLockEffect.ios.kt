@@ -7,7 +7,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import platform.UIKit.UIApplication
 
 private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
