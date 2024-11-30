@@ -11,4 +11,4 @@ import androidx.compose.runtime.Composable
  * Web: Supported on all browsers that support navigator.wakeLock
  */
 @Composable
-expect fun KMPDisableScreenIdleTimeoutEffect(isEnabled: Boolean = true)
+expect fun KmpScreenWakeLockEffect(isEnabled: Boolean = true)
