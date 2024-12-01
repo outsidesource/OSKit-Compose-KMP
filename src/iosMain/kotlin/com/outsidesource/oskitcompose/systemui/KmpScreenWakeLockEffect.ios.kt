@@ -2,7 +2,7 @@ package com.outsidesource.oskitcompose.systemui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import com.outsidesource.oskitkmp.lib.IosKmpScreenWakeLock
+import com.outsidesource.oskitkmp.systemui.IosKmpScreenWakeLock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
