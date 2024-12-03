@@ -1,28 +1,30 @@
 [versions]
-kotlin = "2.0.21"
+kotlin = "2.1.0"
 activityCompose = "1.9.3"
-atomicfu = "0.25.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 koin = "4.0.0"
 compose = "1.7.1"
-kotlinxDatetime = "0.6.1"
 ktor-client-core = "3.0.1"
 lifecycleProcess = "2.8.7"
 markdown = "0.7.0"
 okio = "3.9.1"
 oskitKmp = "4.7.0-wasm-experimental"
 compose-ui = "1.7.5"
+kotlinx-atomicfu = "0.25.0"
+kotlinx-datetime = "0.6.1"
 kotlinx-coroutines-core = "1.9.0"
+kotlinx-browser = "0.3"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core" }
 junit = { module = "junit:junit", version.ref = "junit" }
-kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "kotlinx-browser" }
+kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "kotlinx-atomicfu" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor-client-core" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor-client-core" }
 ktor-client-ios = { module = "io.ktor:ktor-client-ios", version.ref = "ktor-client-core" }

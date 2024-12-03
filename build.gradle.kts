@@ -136,6 +136,7 @@ kotlin {
         val wasmJsMain by getting {
             dependencies {
                 implementation(libs.ktor.client.js)
+                implementation(libs.kotlinx.browser)
             }
         }
     }
@@ -147,7 +148,6 @@ android {
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 24
-        targetSdk = 34
     }
 
     compileOptions {
