@@ -108,6 +108,12 @@ kotlin {
                 implementation("io.ktor:ktor-client-ios:2.3.9")
             }
         }
+
+        val jvmMain by getting {
+            dependencies {
+                implementation("org.jetbrains.compose.desktop:desktop:1.7.0")
+            }
+        }
     }
 }
 
