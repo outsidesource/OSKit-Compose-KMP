@@ -10,10 +10,10 @@ lifecycleProcess = "2.8.7"
 markdown = "0.7.0"
 okio = "3.9.1"
 oskitKmp = "4.7.0-wasm-experimental"
-compose-ui = "1.7.5"
-kotlinx-atomicfu = "0.25.0"
+compose-ui = "1.7.6"
+kotlinx-atomicfu = "0.26.1"
 kotlinx-datetime = "0.6.1"
-kotlinx-coroutines-core = "1.9.0"
+kotlinx-coroutines-core = "1.10.1"
 kotlinx-browser = "0.3"
 
 [libraries]
