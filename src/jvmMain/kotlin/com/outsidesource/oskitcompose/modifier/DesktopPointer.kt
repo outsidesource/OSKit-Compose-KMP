@@ -25,10 +25,13 @@ actual fun Modifier.kmpPointerMoveFilter(
 @OptIn(ExperimentalFoundationApi::class)
 actual fun Modifier.kmpOnExternalDrag(
     enabled: Boolean,
-    onDragStart: (KMPExternalDragValue) -> Unit,
-    onDrag: (KMPExternalDragValue) -> Unit,
-    onDragExit: () -> Unit,
     onDrop: (KMPExternalDragValue) -> Unit,
+    onStarted: (KMPExternalDragValue) -> Unit,
+    onEntered: (KMPExternalDragValue) -> Unit,
+    onMoved: (KMPExternalDragValue) -> Unit,
+    onExited: (KMPExternalDragValue) -> Unit,
+    onChanged: (KMPExternalDragValue) -> Unit,
+    onEnded: (KMPExternalDragValue) -> Unit,
 ): Modifier = composed {
     dragAndDropTarget(
         shouldStartDragAndDrop = { enabled },
@@ -40,22 +43,36 @@ actual fun Modifier.kmpOnExternalDrag(
 
             override fun onStarted(event: DragAndDropEvent) {
                 super.onStarted(event)
-                onDragStart(event.toKmpExternalDragValue())
+                onStarted(event.toKmpExternalDragValue())
+            }
+
+            override fun onEntered(event: DragAndDropEvent) {
+                super.onEntered(event)
+                onEntered(event.toKmpExternalDragValue())
             }
 
             override fun onMoved(event: DragAndDropEvent) {
                 super.onMoved(event)
-                onDrag(event.toKmpExternalDragValue())
+                onMoved(event.toKmpExternalDragValue())
             }
 
             override fun onExited(event: DragAndDropEvent) {
                 super.onExited(event)
-                onDragExit()
+                onExited(event.toKmpExternalDragValue())
+            }
+
+            override fun onChanged(event: DragAndDropEvent) {
+                super.onChanged(event)
+                onChanged(event.toKmpExternalDragValue())
+            }
+
+            override fun onEnded(event: DragAndDropEvent) {
+                super.onEnded(event)
+                onEnded(event.toKmpExternalDragValue())
             }
         }
     )
 }
-
 
 @OptIn(ExperimentalComposeUiApi::class)
 private fun DragAndDropEvent.toKmpExternalDragValue(): KMPExternalDragValue {
@@ -64,7 +81,6 @@ private fun DragAndDropEvent.toKmpExternalDragValue(): KMPExternalDragValue {
         dragData = this.dragData().toKmpDragData(),
     )
 }
-
 
 @OptIn(ExperimentalComposeUiApi::class)
 private fun DragAndDropData.toKmpDragData(): KMPDragData {
