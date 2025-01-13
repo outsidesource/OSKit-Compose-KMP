@@ -21,7 +21,6 @@ actual fun Modifier.kmpPointerMoveFilter(
     .onPointerEvent(PointerEventType.Enter) { onEnter() }
     .onPointerEvent(PointerEventType.Exit) { onExit() }
 
-
 @OptIn(ExperimentalFoundationApi::class)
 actual fun Modifier.kmpOnExternalDrag(
     enabled: Boolean,

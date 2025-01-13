@@ -16,9 +16,9 @@ actual object KMPAppLifecycleObserver : IKMPAppLifecycleObserver {
     private val _state = MutableStateFlow(KMPAppLifecycle.Active)
     private val scope = CoroutineScope(Dispatchers.Default)
 
-    override val lifecycle: StateFlow<KMPAppLifecycle> = _state
+    actual override val lifecycle: StateFlow<KMPAppLifecycle> = _state
 
-    override fun init(context: KMPAppLifecycleObserverContext) {
+    actual override fun init(context: KMPAppLifecycleObserverContext) {
         context.window.addWindowFocusListener(object : WindowFocusListener {
             override fun windowGainedFocus(e: WindowEvent?) {
                 _state.tryEmit(KMPAppLifecycle.Active)

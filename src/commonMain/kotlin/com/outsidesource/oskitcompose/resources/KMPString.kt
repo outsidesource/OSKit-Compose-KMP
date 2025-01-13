@@ -102,7 +102,7 @@ fun rememberKmpString(key: KMPStringKey, vararg args: String): String {
     return remember(locale, key, *args) { getAndReplacePlaceholders(key, locale, args) }
 }
 
-private inline fun getAndReplacePlaceholders(key: KMPStringKey, locale: String, args: Array<out String>): String {
+private fun getAndReplacePlaceholders(key: KMPStringKey, locale: String, args: Array<out String>): String {
     val locales = key.locales()
     val string = locales[locale]?.strings?.get(key)
         ?: (if (key.useDefaultLocale) locales.values.firstOrNull()?.strings?.get(key) else null)

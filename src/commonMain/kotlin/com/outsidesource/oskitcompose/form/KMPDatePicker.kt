@@ -14,6 +14,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.*
@@ -234,7 +236,7 @@ fun KMPDatePickerInline(
                         modifier = Modifier
                             .size(18.dp)
                             .graphicsLayer { rotationZ = rotation },
-                        imageVector = Icons.Filled.KeyboardArrowRight,
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         colorFilter = ColorFilter.tint(styles.accentColor),
                         contentDescription = "Change View",
                     )
@@ -257,7 +259,7 @@ fun KMPDatePickerInline(
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.KeyboardArrowLeft,
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                                 tint = styles.accentColor,
                                 contentDescription = "Previous month"
                             )
@@ -273,7 +275,7 @@ fun KMPDatePickerInline(
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.KeyboardArrowRight,
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 tint = styles.accentColor,
                                 contentDescription = "Next month"
                             )
@@ -421,10 +423,10 @@ private fun DatePickerYearView(
         ) {
             val monthItems = remember(minDate, maxDate, viewDate.value.year) {
                 if (viewDate.value.year > minDate.year && viewDate.value.year < maxDate.year) {
-                    return@remember Month.values().toList()
+                    return@remember Month.entries
                 }
 
-                Month.values().toList().mapNotNull {
+                Month.entries.mapNotNull {
                     if (viewDate.value.year == minDate.year && it < minDate.month) return@mapNotNull null
                     if (viewDate.value.year == maxDate.year && it > maxDate.month) return@mapNotNull null
                     it

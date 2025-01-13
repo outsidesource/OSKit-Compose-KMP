@@ -21,13 +21,9 @@ expect fun SystemBarColorEffect(
 
 interface ISystemBarColorController {
     fun setStatusBarColor(color: Color)
-//    fun getStatusBarColor(): Color
     fun setStatusBarIconColor(color: SystemBarIconColor)
-//    fun getStatusBarIconColor(): SystemBarIconColor
     fun setNavigationBarColor(color: Color)
-//    fun getNavigationBarColor(): Color
     fun setNavigationBarIconColor(color: SystemBarIconColor)
-//    fun getNavigationBarIconColor(): SystemBarIconColor
 }
 
 @Composable

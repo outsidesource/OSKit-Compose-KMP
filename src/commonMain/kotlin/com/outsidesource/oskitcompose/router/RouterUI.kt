@@ -102,7 +102,7 @@ fun <T : Any> rememberForRoute(objectType: KClass<T>, key: String? = null, facto
     return if (storedObject != null) storedObject as T else factory().apply {
         objectStore[route.id, key, objectType] = this
         router.addRouteLifecycleListener(object : IRouteLifecycleListener {
-            override fun onRouteDestroyed() = objectStore.remove(route.id, key, objectType)
+            override fun onRouteDestroyedTransitionComplete() = objectStore.remove(route.id, key, objectType)
         })
     }
 }
@@ -115,8 +115,11 @@ fun <T : Any> rememberForRoute(objectType: KClass<T>, key: String? = null, facto
  */
 inline fun <reified T : Any> getKClassForGenericType(): KClass<T> = T::class
 
-class RouteObjectStore {
+internal class RouteObjectStore {
     private val objects = mutableMapOf<String, Any>()
+
+    val size
+        get() = objects.size
 
     operator fun <T: Any> get(routeId: Int, key: String?, objectType: KClass<T>): Any? {
         return objects["$routeId:${objectType.qualifiedName}:${key ?: ""}"]
