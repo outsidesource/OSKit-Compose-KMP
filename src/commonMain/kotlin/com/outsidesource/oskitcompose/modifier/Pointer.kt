@@ -1,13 +1,16 @@
 package com.outsidesource.oskitcompose.modifier
 
 import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.*
 import com.outsidesource.oskitcompose.pointer.awaitFirstDownEvent
 import com.outsidesource.oskitcompose.pointer.awaitForUpOrCancellationEvent
+import com.outsidesource.oskitkmp.filesystem.IKmpFsSource
+import com.outsidesource.oskitkmp.filesystem.KmpFsRef
+import okio.Source
 
 fun Modifier.disablePointerInput(disabled: Boolean) = pointerInput(disabled) {
     if (!disabled) return@pointerInput
@@ -67,36 +70,39 @@ fun Modifier.kmpClickableEvent(vararg keys: Any, onClick: (down: PointerEvent, u
         }
     }
 
-// TODO: WASM
+/**
+ * [kmpOnExternalDragAndDrop] Simplifies dragging and dropping objects from outside the application. For now only Desktop
+ * is supported
+ */
+@Composable
+expect fun Modifier.kmpOnExternalDragAndDrop(
+    isEnabled: (KmpExternalDragEvent) -> Boolean,
+    onStarted: (KmpExternalDragEvent) -> Unit = {},
+    onEntered: (KmpExternalDragEvent) -> Unit = {},
+    onMoved: (KmpExternalDragEvent) -> Unit = {},
+    onChanged: (KmpExternalDragEvent) -> Unit = {},
+    onDrop: (KmpExternalDropEvent) -> Boolean = { false },
+    onExited: (KmpExternalDragEvent) -> Unit = {},
+    onEnded: (KmpExternalDragEvent) -> Unit = {},
+): Modifier
 
-//expect fun Modifier.kmpOnExternalDrag(
-//    enabled: Boolean = true,
-//    onDragStart: (KMPExternalDragValue) -> Unit = {},
-//    onDrag: (KMPExternalDragValue) -> Unit = {},
-//    onDragExit: () -> Unit = {},
-//    onDrop: (KMPExternalDragValue) -> Unit = {},
-//): Modifier
+data class KmpExternalDragEvent(
+    val position: Offset,
+)
 
-//data class KMPExternalDragValue(
-//    val dragPosition: Offset,
-//    val dragData: KMPDragData,
-//)
-//
-//interface KMPDragData {
-//    interface FilesList : KMPDragData {
-//        fun readFiles(): List<String>
-//    }
-//
-//    interface Image : KMPDragData {
-//        fun readImage(): Painter
-//    }
-//
-//    interface Text : KMPDragData {
-//        val bestMimeType: String
-//        fun readText(): String
-//    }
-//
-//    interface Unknown : KMPDragData {
-//        val value: Any
-//    }
-//}
+data class KmpExternalDropEvent(
+    val position: Offset,
+    val data: KmpExternalDropData,
+)
+
+sealed class KmpExternalDropData {
+    data class Files(val files: List<KmpExternalFile>) : KmpExternalDropData()
+    data class Text(val text: String) : KmpExternalDropData()
+    data object Unknown : KmpExternalDropData()
+}
+
+data class KmpExternalFile(
+    val name: String,
+    val path: String,
+    val source: Source,
+)
