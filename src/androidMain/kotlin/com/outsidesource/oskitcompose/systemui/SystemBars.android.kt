@@ -1,8 +1,5 @@
 package com.outsidesource.oskitcompose.systemui
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.os.Build
 import android.view.View
 import android.view.Window

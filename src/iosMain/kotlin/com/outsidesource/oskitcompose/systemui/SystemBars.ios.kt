@@ -6,7 +6,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.interop.LocalUIViewController
 import com.outsidesource.oskitcompose.uikit.OSUIViewControllerWrapper
-import platform.UIKit.UIColor
 
 @Composable
 actual fun SystemBarColorEffect(
