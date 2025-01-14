@@ -20,7 +20,7 @@ import androidx.compose.ui.window.PopupProperties
 actual typealias PopupPositionProvider = androidx.compose.ui.window.PopupPositionProvider
 
 @Composable
-actual fun KMPPopup(
+actual fun KmpPopup(
     alignment: Alignment,
     offset: IntOffset,
     dismissOnBackPress: Boolean,
@@ -60,7 +60,7 @@ actual fun KMPPopup(
 }
 
 @Composable
-actual fun KMPPopup(
+actual fun KmpPopup(
     popupPositionProvider: PopupPositionProvider,
     dismissOnBackPress: Boolean,
     onDismissRequest: (() -> Unit)?,

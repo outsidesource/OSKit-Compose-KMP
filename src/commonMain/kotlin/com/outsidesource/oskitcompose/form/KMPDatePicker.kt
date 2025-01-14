@@ -16,8 +16,6 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -501,7 +499,7 @@ private fun DatePickerYearView(
                 selectedIndex = selectedYear,
                 state = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedYear),
                 items = yearItems,
-                indicator = remember { KMPWheelPickerIndicators.window(shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)) },
+                indicator = remember { KmpWheelPickerIndicators.window(shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)) },
                 onChange = { year ->
                     selectedDate.value = LocalDate(
                         month = selectedDate.value.month,
@@ -552,7 +550,7 @@ private fun DatePickerDay(
     isEnabled: Boolean = true,
     onClick: (() -> Unit)? = null,
 ) {
-    val styles = LocalKMPDatePickerStyles.current
+    val styles = LocalKmpDatePickerStyles.current
 
     Box(
         modifier = Modifier
@@ -573,7 +571,7 @@ private fun DayOfWeek.sundayFirstOrdinal(): Int = when (this.ordinal) {
 }
 
 @Immutable
-data class KMPDatePickerStyles(
+data class KmpDatePickerStyles(
     val accentColor: Color,
     val fontColor: Color,
     val backgroundColor: Color,
@@ -582,12 +580,12 @@ data class KMPDatePickerStyles(
 )
 
 @Composable
-fun rememberKmpDatePickerStyles(): KMPDatePickerStyles {
+fun rememberKmpDatePickerStyles(): KmpDatePickerStyles {
     val colors = MaterialTheme.colors
     val typography = MaterialTheme.typography
 
     return remember {
-        KMPDatePickerStyles(
+        KmpDatePickerStyles(
             accentColor = colors.primary,
             fontColor = typography.body1.color,
             fontColorOnAccent = colors.onPrimary,
@@ -597,8 +595,8 @@ fun rememberKmpDatePickerStyles(): KMPDatePickerStyles {
     }
 }
 
-val LocalKMPDatePickerStyles = staticCompositionLocalOf {
-    KMPDatePickerStyles(
+val LocalKmpDatePickerStyles = staticCompositionLocalOf {
+    KmpDatePickerStyles(
         accentColor = Color.Black,
         fontColor = Color.Black,
         backgroundColor = Color.White,

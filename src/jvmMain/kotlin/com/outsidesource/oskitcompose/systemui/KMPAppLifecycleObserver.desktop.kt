@@ -11,38 +11,38 @@ import java.awt.Window
 import java.awt.event.WindowEvent
 import java.awt.event.WindowFocusListener
 
-actual object KMPAppLifecycleObserver : IKMPAppLifecycleObserver {
+actual object KmpAppLifecycleObserver : IKmpAppLifecycleObserver {
 
-    private val _state = MutableStateFlow(KMPAppLifecycle.Active)
+    private val _state = MutableStateFlow(KmpAppLifecycle.Active)
     private val scope = CoroutineScope(Dispatchers.Default)
 
-    actual override val lifecycle: StateFlow<KMPAppLifecycle> = _state
+    actual override val lifecycle: StateFlow<KmpAppLifecycle> = _state
 
-    actual override fun init(context: KMPAppLifecycleObserverContext) {
+    actual override fun init(context: KmpAppLifecycleObserverContext) {
         context.window.addWindowFocusListener(object : WindowFocusListener {
             override fun windowGainedFocus(e: WindowEvent?) {
-                _state.tryEmit(KMPAppLifecycle.Active)
+                _state.tryEmit(KmpAppLifecycle.Active)
             }
 
             override fun windowLostFocus(e: WindowEvent?) {
                 scope.launch {
                     delay(16) // Because both minimized and focus events fire when minimized, wait to see if minimized has fired
-                    if (_state.value == KMPAppLifecycle.Background) return@launch
-                    _state.tryEmit(KMPAppLifecycle.Inactive)
+                    if (_state.value == KmpAppLifecycle.Background) return@launch
+                    _state.tryEmit(KmpAppLifecycle.Inactive)
                 }
             }
         })
 
         context.window.addWindowStateListener { e ->
             when {
-                e.newState and Frame.ICONIFIED > 0 -> _state.tryEmit(KMPAppLifecycle.Background)
+                e.newState and Frame.ICONIFIED > 0 -> _state.tryEmit(KmpAppLifecycle.Background)
                 else -> {
-                    if (_state.value == KMPAppLifecycle.Inactive) return@addWindowStateListener
-                    _state.tryEmit(KMPAppLifecycle.Active)
+                    if (_state.value == KmpAppLifecycle.Inactive) return@addWindowStateListener
+                    _state.tryEmit(KmpAppLifecycle.Active)
                 }
             }
         }
     }
 }
 
-actual class KMPAppLifecycleObserverContext(val window: Window)
+actual class KmpAppLifecycleObserverContext(val window: Window)

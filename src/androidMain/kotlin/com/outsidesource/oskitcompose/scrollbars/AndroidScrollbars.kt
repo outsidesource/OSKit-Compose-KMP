@@ -17,27 +17,27 @@ actual fun rememberKmpScrollbarAdapter(
     object : ScrollbarAdapter {}
 
 @Composable
-actual fun KMPVerticalScrollbar(
+actual fun KmpVerticalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter,
 ) { }
 
 @Composable
-actual fun KMPVerticalScrollbar(
+actual fun KmpVerticalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter,
-    style: KMPScrollbarStyle,
+    style: KmpScrollbarStyle,
 ) { }
 
 @Composable
-actual fun KMPHorizontalScrollbar(
+actual fun KmpHorizontalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter,
 ) { }
 
 @Composable
-actual fun KMPHorizontalScrollbar(
+actual fun KmpHorizontalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter,
-    style: KMPScrollbarStyle,
+    style: KmpScrollbarStyle,
 ) { }

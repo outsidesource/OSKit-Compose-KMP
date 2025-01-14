@@ -4,24 +4,24 @@ import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-actual object KMPAppLifecycleObserver : IKMPAppLifecycleObserver {
+actual object KmpAppLifecycleObserver : IKmpAppLifecycleObserver {
 
-    private val _state = MutableStateFlow(KMPAppLifecycle.Active)
+    private val _state = MutableStateFlow(KmpAppLifecycle.Active)
 
-    actual override val lifecycle: StateFlow<KMPAppLifecycle> = _state
+    actual override val lifecycle: StateFlow<KmpAppLifecycle> = _state
 
-    actual override fun init(context: KMPAppLifecycleObserverContext) {
+    actual override fun init(context: KmpAppLifecycleObserverContext) {
         window.addEventListener("visibilitychange") {
             if (document.visibilityState == "hidden") {
-                _state.value = KMPAppLifecycle.Background
+                _state.value = KmpAppLifecycle.Background
             } else if (document.visibilityState == "visible") {
-                _state.value = KMPAppLifecycle.Active
+                _state.value = KmpAppLifecycle.Active
             }
         }
     }
 }
 
-actual class KMPAppLifecycleObserverContext
+actual class KmpAppLifecycleObserverContext
 
 private external object document {
     val visibilityState: String

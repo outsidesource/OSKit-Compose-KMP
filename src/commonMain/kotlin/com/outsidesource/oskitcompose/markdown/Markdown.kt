@@ -34,10 +34,10 @@ import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.canvas.*
 import com.outsidesource.oskitcompose.canvas.ImageLoadErrorPainter
 import com.outsidesource.oskitcompose.modifier.borderStart
-import com.outsidesource.oskitcompose.scrollbars.KMPHorizontalScrollbar
-import com.outsidesource.oskitcompose.scrollbars.KMPScrollbarStyle
+import com.outsidesource.oskitcompose.scrollbars.KmpHorizontalScrollbar
+import com.outsidesource.oskitcompose.scrollbars.KmpScrollbarStyle
 import com.outsidesource.oskitcompose.scrollbars.rememberKmpScrollbarAdapter
-import com.outsidesource.oskitkmp.concurrency.KMPDispatchers
+import com.outsidesource.oskitkmp.concurrency.KmpDispatchers
 import com.outsidesource.oskitkmp.tuples.Tup2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -191,7 +191,7 @@ private fun InternalMarkdown(
         is MarkdownSource.String -> {
             val tree by if (loadAsync) {
                 produceState(initialValue = emptyList(), source, context, density, loadAsync) {
-                    value = withContext(KMPDispatchers.IO) {
+                    value = withContext(KmpDispatchers.IO) {
                         MarkdownParser(CommonMarkFlavourDescriptor())
                             .buildMarkdownTreeFromString(source.content)
                             .buildBlockItems(source.content, context)
@@ -212,7 +212,7 @@ private fun InternalMarkdown(
         }
         is MarkdownSource.Source -> {
             val tree by produceState(initialValue = emptyList(), source, context, density, loadAsync) {
-                value = withContext(KMPDispatchers.IO) {
+                value = withContext(KmpDispatchers.IO) {
                     val content = source.source.buffer().readUtf8()
                     MarkdownParser(CommonMarkFlavourDescriptor())
                         .buildMarkdownTreeFromString(content)
@@ -397,7 +397,7 @@ private fun MarkdownInlineContent(
     var maxImageHeight = 0f
 
     val imageSizes by produceState(initialValue = emptyMap(), key1 = content) {
-        withContext(KMPDispatchers.IO) {
+        withContext(KmpDispatchers.IO) {
             value = buildMap {
                 content.getStringAnnotations(TAG_INLINE_IMAGE, 0, content.length).forEach {
                     val id = it.item
@@ -540,7 +540,7 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
         ),
         key1 = image.type,
     ) {
-        withContext(KMPDispatchers.IO) {
+        withContext(KmpDispatchers.IO) {
             value = resolvePainterAndSizeForImage(density, image, markdownInfo)
         }
     }
@@ -611,12 +611,12 @@ private fun MarkdownCodeBlock(codeBlock: MarkdownBlock.Code) {
             style = styles.codeTextStyle
         )
         if (allowHScroll) {
-            KMPHorizontalScrollbar(
+            KmpHorizontalScrollbar(
                 modifier = Modifier
                     .padding(2.dp)
                     .align(Alignment.BottomStart),
                 adapter = adapter,
-                style = KMPScrollbarStyle(thickness = 4.dp),
+                style = KmpScrollbarStyle(thickness = 4.dp),
             )
         }
     }

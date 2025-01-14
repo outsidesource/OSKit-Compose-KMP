@@ -114,12 +114,12 @@ implementation("com.outsidesource:oskit-compose:3.3.0")
 * KmpWheelPicker
 ### 3.3.0 - 2024-02-16
 #### Added
-* `rememberKMPWindowInfo()`
+* `rememberKmpWindowInfo()`
 * `createInteractor()`
-* `KMPAppLifecycleObserver`
+* `KmpAppLifecycleObserver`
 * `Context` helper functions
 * `rememberLastNonNullState()`
-* Fallback locale for `KMPString`
+* Fallback locale for `KmpString`
 * Markdown
   * Async image loading
   * Loading Markdown from other sources

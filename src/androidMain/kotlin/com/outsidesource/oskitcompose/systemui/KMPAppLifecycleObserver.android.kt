@@ -7,19 +7,19 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-actual object KMPAppLifecycleObserver : IKMPAppLifecycleObserver {
+actual object KmpAppLifecycleObserver : IKmpAppLifecycleObserver {
 
-    private val _state = MutableStateFlow(ProcessLifecycleOwner.get().lifecycle.currentState.toKMPAppLifecycle())
+    private val _state = MutableStateFlow(ProcessLifecycleOwner.get().lifecycle.currentState.toKmpAppLifecycle())
 
-    actual override val lifecycle: StateFlow<KMPAppLifecycle> = _state
+    actual override val lifecycle: StateFlow<KmpAppLifecycle> = _state
 
-    actual override fun init(context: KMPAppLifecycleObserverContext) {
+    actual override fun init(context: KmpAppLifecycleObserverContext) {
         ProcessLifecycleOwner.get().lifecycle.addObserver(
             object : LifecycleEventObserver {
                 override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                     when (event) {
-                        Lifecycle.Event.ON_START -> _state.tryEmit(KMPAppLifecycle.Active)
-                        Lifecycle.Event.ON_STOP -> _state.tryEmit(KMPAppLifecycle.Background)
+                        Lifecycle.Event.ON_START -> _state.tryEmit(KmpAppLifecycle.Active)
+                        Lifecycle.Event.ON_STOP -> _state.tryEmit(KmpAppLifecycle.Background)
                         else -> {}
                     }
                 }
@@ -28,12 +28,12 @@ actual object KMPAppLifecycleObserver : IKMPAppLifecycleObserver {
     }
 }
 
-private fun Lifecycle.State.toKMPAppLifecycle() = when(this) {
+private fun Lifecycle.State.toKmpAppLifecycle() = when(this) {
     Lifecycle.State.CREATED,
     Lifecycle.State.INITIALIZED,
     Lifecycle.State.RESUMED,
-    Lifecycle.State.STARTED -> KMPAppLifecycle.Active
-    Lifecycle.State.DESTROYED -> KMPAppLifecycle.Background
+    Lifecycle.State.STARTED -> KmpAppLifecycle.Active
+    Lifecycle.State.DESTROYED -> KmpAppLifecycle.Background
 }
 
-actual class KMPAppLifecycleObserverContext
+actual class KmpAppLifecycleObserverContext

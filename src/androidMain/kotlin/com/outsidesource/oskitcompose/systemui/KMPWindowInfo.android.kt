@@ -11,13 +11,13 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 @Composable
-actual fun rememberKMPWindowInfo(): KMPWindowInfo {
+actual fun rememberKmpWindowInfo(): KmpWindowInfo {
     val windowInfo = LocalWindowInfo.current
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
 
     return remember(windowInfo, configuration, density) {
-        object : KMPWindowInfo {
+        object : KmpWindowInfo {
             override val isWindowFocused: Boolean
                 get() = windowInfo.isWindowFocused
             override val keyboardModifiers: PointerKeyboardModifiers

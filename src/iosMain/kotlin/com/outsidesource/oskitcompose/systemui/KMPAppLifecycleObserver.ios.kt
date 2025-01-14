@@ -35,9 +35,9 @@ actual object KmpAppLifecycleObserver : IKmpAppLifecycleObserver {
 
 private fun UIApplicationState.toKmpAppLifecycle(): KmpAppLifecycle = when(this) {
     UIApplicationState.UIApplicationStateBackground -> KmpAppLifecycle.Background
-    UIApplicationState.UIApplicationStateInactive -> KMPAppLifecycle.Inactive
-    UIApplicationState.UIApplicationStateActive -> KMPAppLifecycle.Active
-    else -> KMPAppLifecycle.Inactive
+    UIApplicationState.UIApplicationStateInactive -> KmpAppLifecycle.Inactive
+    UIApplicationState.UIApplicationStateActive -> KmpAppLifecycle.Active
+    else -> KmpAppLifecycle.Inactive
 }
 
-actual class KMPAppLifecycleObserverContext
+actual class KmpAppLifecycleObserverContext

@@ -263,7 +263,7 @@ fun KmpTimePickerInline(
                 }
             }
 
-            KMPWheelPicker(
+            KmpWheelPicker(
                 modifier = Modifier
                     .height(pickerSize)
                     .padding(horizontal = pickerHPadding / 2),
@@ -272,7 +272,7 @@ fun KmpTimePickerInline(
                 state = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedMeridiem),
                 items = remember(minuteStep) { TimeMeridiem.entries },
                 horizontalAlignment = Alignment.Start,
-                indicator = KMPWheelPickerIndicators.none,
+                indicator = KmpWheelPickerIndicators.none,
                 onChange = { meridiem ->
                     val currentHour = selectedTime.value.hour
                     val newHour = when (meridiem) {
@@ -308,7 +308,7 @@ fun KmpTimePickerInline(
 }
 
 @Immutable
-data class KMPTimePickerStyles(
+data class KmpTimePickerStyles(
     val accentColor: Color,
     val fontColor: Color,
     val backgroundColor: Color,
@@ -317,12 +317,12 @@ data class KMPTimePickerStyles(
 )
 
 @Composable
-fun rememberKmpTimePickerStyles(): KMPTimePickerStyles {
+fun rememberKmpTimePickerStyles(): KmpTimePickerStyles {
     val colors = MaterialTheme.colors
     val typography = MaterialTheme.typography
 
     return remember {
-        KMPTimePickerStyles(
+        KmpTimePickerStyles(
             accentColor = colors.primary,
             fontColor = typography.body1.color,
             fontColorOnAccent = colors.onPrimary,
@@ -332,8 +332,8 @@ fun rememberKmpTimePickerStyles(): KMPTimePickerStyles {
     }
 }
 
-val LocalKMPTimePickerStyles = staticCompositionLocalOf {
-    KMPTimePickerStyles(
+val LocalKmpTimePickerStyles = staticCompositionLocalOf {
+    KmpTimePickerStyles(
         accentColor = Color.Black,
         fontColor = Color.Black,
         backgroundColor = Color.White,

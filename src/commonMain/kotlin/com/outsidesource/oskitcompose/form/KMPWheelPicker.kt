@@ -108,7 +108,7 @@ fun <T : Any> KmpWheelPicker(
         }
     }
 
-    // Handle value changing outside KMPWheelPicker
+    // Handle value changing outside KmpWheelPicker
     LaunchedEffect(internalSelectedIndex, selectedIndex, items) {
         // If the new value equals the old value don't do anything
         if (isDragging.value || getItemsIndex(state.lastOnChangeIndex, state, items.size) == selectedIndex) return@LaunchedEffect
@@ -219,18 +219,18 @@ fun <T : Any> KmpWheelPicker(
 fun rememberKmpWheelPickerState(
     isInfinite: Boolean = false,
     initiallySelectedItemIndex: Int = 0,
-) = rememberSaveable(saver = KMPWheelPickerState.Saver()) {
-    KMPWheelPickerState(
+) = rememberSaveable(saver = KmpWheelPickerState.Saver()) {
+    KmpWheelPickerState(
         initiallySelectedItemIndex = initiallySelectedItemIndex,
         isInfinite = isInfinite,
     )
 }
 
 /**
- * [KMPWheelPickerState] The state for KMPWheelPicker
+ * [KmpWheelPickerState] The state for KmpWheelPicker
  */
 @Stable
-data class KMPWheelPickerState(
+data class KmpWheelPickerState(
     val initiallySelectedItemIndex: Int = 0,
     val isInfinite: Boolean = false,
 ): ScrollableState {
@@ -318,10 +318,10 @@ data class KMPWheelPickerState(
     }
 
     companion object {
-        fun Saver(): Saver<KMPWheelPickerState, *> = Saver(
+        fun Saver(): Saver<KmpWheelPickerState, *> = Saver(
             save = { listOf(it.isInfinite, it.selectedItemRawIndex) },
             restore = {
-                KMPWheelPickerState(
+                KmpWheelPickerState(
                     isInfinite = it[0] as Boolean,
                     initiallySelectedItemIndex = it[1] as Int,
                 )
@@ -336,20 +336,20 @@ internal data class ScrollEffectAnimationData(
     val index: Int,
 )
 
-typealias KMPWheelPickerScrollEffect =
-        GraphicsLayerScope.(index: Int, multiplier: Float, state: KMPWheelPickerState) -> Unit
+typealias KmpWheelPickerScrollEffect =
+        GraphicsLayerScope.(index: Int, multiplier: Float, state: KmpWheelPickerState) -> Unit
 
-typealias KMPWheelPickerIndicator =
-        ContentDrawScope.(state: KMPWheelPickerState) -> Unit
+typealias KmpWheelPickerIndicator =
+        ContentDrawScope.(state: KmpWheelPickerState) -> Unit
 
-object KMPWheelPickerIndicators {
-    val none: KMPWheelPickerIndicator = { _ -> drawContent() }
+object KmpWheelPickerIndicators {
+    val none: KmpWheelPickerIndicator = { _ -> drawContent() }
 
     fun window(
         color: Color = Color(0x14747480),
         shape: Shape = RoundedCornerShape(8.dp),
-    ): KMPWheelPickerIndicator =
-        fun ContentDrawScope.(state: KMPWheelPickerState) {
+    ): KmpWheelPickerIndicator =
+        fun ContentDrawScope.(state: KmpWheelPickerState) {
             val outline = shape.createOutline(
                 size = Size(size.width, state.itemHeight),
                 layoutDirection = layoutDirection,
@@ -367,8 +367,8 @@ object KMPWheelPickerIndicators {
     fun bars(
         color: Color = Color(0x14747480),
         thickness: Dp = 2.dp,
-    ): KMPWheelPickerIndicator =
-        fun ContentDrawScope.(state: KMPWheelPickerState) {
+    ): KmpWheelPickerIndicator =
+        fun ContentDrawScope.(state: KmpWheelPickerState) {
             val y1 = (size.height / 2) - (state.itemHeight / 2)
             val y2 = (size.height / 2) + (state.itemHeight / 2)
 
@@ -390,11 +390,11 @@ object KMPWheelPickerIndicators {
         }
 }
 
-object KMPWheelPickerScrollEffects {
-    val none: KMPWheelPickerScrollEffect = { _, _ ,_ -> }
+object KmpWheelPickerScrollEffects {
+    val none: KmpWheelPickerScrollEffect = { _, _ ,_ -> }
 
-    fun wheel(): KMPWheelPickerScrollEffect =
-        fun GraphicsLayerScope.(_: Int, multiplier: Float, _: KMPWheelPickerState) {
+    fun wheel(): KmpWheelPickerScrollEffect =
+        fun GraphicsLayerScope.(_: Int, multiplier: Float, _: KmpWheelPickerState) {
             rotationX = (70f * multiplier).coerceIn(-360f..360f)
             scaleX = (1f - .15f * abs(multiplier)).coerceIn(0f..1f)
             scaleY = (1f - .15f * abs(multiplier)).coerceIn(0f..1f)
@@ -409,8 +409,8 @@ object KMPWheelPickerScrollEffects {
     fun magnify(
         alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
         itemHorizontalPadding: Dp = 0.dp,
-    ): KMPWheelPickerScrollEffect =
-        fun GraphicsLayerScope.(_: Int, multiplier: Float, state: KMPWheelPickerState) {
+    ): KmpWheelPickerScrollEffect =
+        fun GraphicsLayerScope.(_: Int, multiplier: Float, state: KmpWheelPickerState) {
             val selectionIndicatorMult =
                 (multiplier / (1f / (((state.viewportHeight / state.itemHeight) + 1f) / 2f))).coerceIn(-1f..1f)
             scaleX = (1f - .25f * abs(selectionIndicatorMult)).coerceIn(0f..1f)
@@ -430,7 +430,7 @@ object KMPWheelPickerScrollEffects {
         }
 }
 
-private fun getItemsIndex(index: Int, state: KMPWheelPickerState, itemCount: Int) =
+private fun getItemsIndex(index: Int, state: KmpWheelPickerState, itemCount: Int) =
     if (state.isInfinite) {
         val mod = ((index - INFINITE_OFFSET) % itemCount)
         if (mod < 0) itemCount + mod else mod

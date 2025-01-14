@@ -5,9 +5,9 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.unit.IntSize
 
 @Composable
-expect fun rememberKMPWindowInfo(): KMPWindowInfo
+expect fun rememberKmpWindowInfo(): KmpWindowInfo
 
-interface KMPWindowInfo {
+interface KmpWindowInfo {
     val isWindowFocused: Boolean
     val keyboardModifiers: PointerKeyboardModifiers
     val containerSize: IntSize
