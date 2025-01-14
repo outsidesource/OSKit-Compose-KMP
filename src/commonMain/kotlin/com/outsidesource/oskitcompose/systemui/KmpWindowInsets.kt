@@ -6,7 +6,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.*
 import kotlin.math.roundToInt
 
-data class KMPWindowInsets(
+data class KmpWindowInsets(
     private val top: Dp = 0.dp,
     private val right: Dp = 0.dp,
     private val bottom: Dp = 0.dp,
@@ -32,42 +32,45 @@ data class KMPWindowInsets(
 }
 
 @get:Composable
-expect val KMPWindowInsets.Companion.topInsets: WindowInsets
+expect val KmpWindowInsets.Companion.top: WindowInsets
 @get:Composable
-expect val KMPWindowInsets.Companion.bottomInsets: WindowInsets
+expect val KmpWindowInsets.Companion.bottom: WindowInsets
 @get:Composable
-expect val KMPWindowInsets.Companion.verticalInsets: WindowInsets
+expect val KmpWindowInsets.Companion.vertical: WindowInsets
 @get:Composable
-expect val KMPWindowInsets.Companion.rightInsets: WindowInsets
+expect val KmpWindowInsets.Companion.right: WindowInsets
 @get:Composable
-expect val KMPWindowInsets.Companion.leftInsets: WindowInsets
+expect val KmpWindowInsets.Companion.left: WindowInsets
 @get:Composable
-expect val KMPWindowInsets.Companion.horizontalInsets: WindowInsets
+expect val KmpWindowInsets.Companion.horizontal: WindowInsets
 @get:Composable
-expect val KMPWindowInsets.Companion.allInsets: WindowInsets
+expect val KmpWindowInsets.Companion.all: WindowInsets
+@get:Composable
+expect val KmpWindowInsets.Companion.ime: WindowInsets
 
 /**
- * [LocalKMPWindowInsets] Allows an application to override default WindowInsets.
+ * [LocalKmpWindowInsets] Allows an application to override default WindowInsets.
  * This is particularly useful for Desktop as there are no predefined insets.
  */
-val LocalKMPWindowInsets = staticCompositionLocalOf<KMPWindowInsetsHolder?> { null }
+val LocalKmpWindowInsets = staticCompositionLocalOf<KmpWindowInsetsHolder?> { null }
 
 /**
  * Defines the total safe area bounds from which different window insets are derived
  */
-data class KMPWindowInsetsHolder(
+data class KmpWindowInsetsHolder(
     private val top: Dp = 0.dp,
     private val right: Dp = 0.dp,
     private val bottom: Dp = 0.dp,
     private val left: Dp = 0.dp,
 ) {
-    val topInsets = KMPWindowInsets(top = top)
-    val bottomInsets = KMPWindowInsets(bottom = bottom)
-    val rightInsets = KMPWindowInsets(right = right)
-    val leftInsets = KMPWindowInsets(left = left)
-    val verticalInsets = KMPWindowInsets(top = top, bottom = bottom)
-    val horizontalInsets = KMPWindowInsets(left = left, right = right)
-    val allInsets = KMPWindowInsets(top = top, right = right, bottom = bottom, left = left)
+    val topInsets = KmpWindowInsets(top = top)
+    val bottomInsets = KmpWindowInsets(bottom = bottom)
+    val rightInsets = KmpWindowInsets(right = right)
+    val leftInsets = KmpWindowInsets(left = left)
+    val verticalInsets = KmpWindowInsets(top = top, bottom = bottom)
+    val horizontalInsets = KmpWindowInsets(left = left, right = right)
+    val allInsets = KmpWindowInsets(top = top, right = right, bottom = bottom, left = left)
+    val imeInsets = KmpWindowInsets(top = top, right = right, bottom = bottom, left = left)
 }
 
-internal val DefaultKMPWindowInsets = KMPWindowInsets()
+internal val DefaultKmpWindowInsets = KmpWindowInsets()
