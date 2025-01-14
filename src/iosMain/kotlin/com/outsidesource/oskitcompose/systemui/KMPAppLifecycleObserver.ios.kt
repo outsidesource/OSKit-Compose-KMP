@@ -8,19 +8,19 @@ import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 import platform.UIKit.UIApplicationState
 
-actual object KMPAppLifecycleObserver : IKMPAppLifecycleObserver {
+actual object KmpAppLifecycleObserver : IKmpAppLifecycleObserver {
 
-    private val _state = MutableStateFlow(UIApplication.sharedApplication.applicationState.toKMPAppLifecycle())
+    private val _state = MutableStateFlow(UIApplication.sharedApplication.applicationState.toKmpAppLifecycle())
 
-    actual override val lifecycle: StateFlow<KMPAppLifecycle> = _state
+    actual override val lifecycle: StateFlow<KmpAppLifecycle> = _state
 
-    actual override fun init(context: KMPAppLifecycleObserverContext) {
+    actual override fun init(context: KmpAppLifecycleObserverContext) {
         NSNotificationCenter.defaultCenter.addObserverForName(
             UIApplicationDidBecomeActiveNotification,
             null,
             null
         ) {
-            _state.tryEmit(KMPAppLifecycle.Active)
+            _state.tryEmit(KmpAppLifecycle.Active)
         }
 
         NSNotificationCenter.defaultCenter.addObserverForName(
@@ -28,13 +28,13 @@ actual object KMPAppLifecycleObserver : IKMPAppLifecycleObserver {
             null,
             null,
         ) {
-            _state.tryEmit(KMPAppLifecycle.Background)
+            _state.tryEmit(KmpAppLifecycle.Background)
         }
     }
 }
 
-private fun UIApplicationState.toKMPAppLifecycle(): KMPAppLifecycle = when(this) {
-    UIApplicationState.UIApplicationStateBackground -> KMPAppLifecycle.Background
+private fun UIApplicationState.toKmpAppLifecycle(): KmpAppLifecycle = when(this) {
+    UIApplicationState.UIApplicationStateBackground -> KmpAppLifecycle.Background
     UIApplicationState.UIApplicationStateInactive -> KMPAppLifecycle.Inactive
     UIApplicationState.UIApplicationStateActive -> KMPAppLifecycle.Active
     else -> KMPAppLifecycle.Inactive

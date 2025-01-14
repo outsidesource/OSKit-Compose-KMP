@@ -91,7 +91,7 @@ fun Popover(
     )
 
     if (transition.currentState || transition.targetState) {
-        KMPPopup(
+        KmpPopup(
             popupPositionProvider = popoverPositionProvider,
             focusable = focusable,
             onDismissRequest = onDismissRequest,
@@ -137,7 +137,7 @@ fun <T> Popover(
     val animationValues = transitionValueCreator(transition)
 
     if (transition.currentState || transition.targetState) {
-        KMPPopup(
+        KmpPopup(
             popupPositionProvider = popoverPositionProvider,
             focusable = focusable,
             onDismissRequest = onDismissRequest,

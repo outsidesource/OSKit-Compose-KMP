@@ -101,7 +101,7 @@ fun Modal(
     )
 
     if (transition.currentState || transition.targetState) {
-        KMPPopup(
+        KmpPopup(
             popupPositionProvider = ModalPositionProvider,
             dismissOnBackPress = dismissOnBackPress,
             onDismissRequest = onDismissRequest,

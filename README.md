@@ -92,26 +92,26 @@ implementation("com.outsidesource:oskit-compose:3.3.0")
 ### 3.7.0 - 2024-05-30
 #### Added
 * onKeyEvent to BottomSheet
-* KMPBackHandler/BackHandler to KMPPopup
+* KmpBackHandler/BackHandler to KmpPopup
 ### 3.6.0 - 2024-05-21
 #### Added
 * Focusable parameter to Popover
-* KMPDisableScreenIdleTimeoutEffect
+* KmpDisableScreenIdleTimeoutEffect
 #### Breaking Changes
-* Fixed typo in KMPTimePicker. Previously `TimeMerdiem` was `TimeMeridian`
+* Fixed typo in KmpTimePicker. Previously `TimeMerdiem` was `TimeMeridian`
 ### 3.5.0 - 2024-03-23
 #### Added
 * Support for Jetbrains Compose 1.6
 * Support for Kotlin 1.9.23
 #### Removed
-* KMPResource - No longer works with compose 1.6
-* KMPFont - No longer works with compose 1.6
-* KMPImage - No longer works with compose 1.6
+* KmpResource - No longer works with compose 1.6
+* KmpFont - No longer works with compose 1.6
+* KmpImage - No longer works with compose 1.6
 ### 3.4.0 - 2024-03-06
 #### Added
-* KMPTimePicker
-* KMPDatePicker
-* KMPWheelPicker
+* KmpTimePicker
+* KmpDatePicker
+* KmpWheelPicker
 ### 3.3.0 - 2024-02-16
 #### Added
 * `rememberKMPWindowInfo()`

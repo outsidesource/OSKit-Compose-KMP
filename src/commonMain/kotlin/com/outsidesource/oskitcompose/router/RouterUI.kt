@@ -108,7 +108,7 @@ fun <T : Any> rememberForRoute(objectType: KClass<T>, key: String? = null, facto
 }
 
 /**
- * This is a workaround for a Kotlin KMP compiler bug for iOS. Using @Composable while trying to access a reified
+ * This is a workaround for a Kotlin Kmp compiler bug for iOS. Using @Composable while trying to access a reified
  * generic type throws a compilation error:
  * (Generation of stubs for class org.jetbrains.kotlin.ir.symbols.impl.IrTypeParameterPublicSymbolImpl is not supported yet)
  * https://github.com/JetBrains/compose-multiplatform/issues/3147

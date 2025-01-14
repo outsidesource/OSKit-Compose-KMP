@@ -39,13 +39,13 @@ import kotlin.math.abs
 
 
 /**
- * [KMPWheelPicker] a cross-platform wheel picker.
+ * [KmpWheelPicker] a cross-platform wheel picker.
  *
  * @param selectedIndex The index of the current value
  * @param items The list of items for the picker to display
  * @param itemKey A factory of stable and unique keys representing the item
  * @param state The state for the picker
- * @param modifier The Compose Modifier for KMPWheelPicker
+ * @param modifier The Compose Modifier for KmpWheelPicker
  * @param isEnabled Enables or disables user interaction with the picker
  * @param onChange Callback for when the picker fully settles on a value
  * @param onImmediateChange Callback for any time a new value passes through the indication window. It is not recommended
@@ -58,18 +58,18 @@ import kotlin.math.abs
  */
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun <T : Any> KMPWheelPicker(
+fun <T : Any> KmpWheelPicker(
     selectedIndex: Int,
     items: List<T>,
     itemKey: (T, Int) -> Any = { _, index -> index },
-    state: KMPWheelPickerState = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedIndex),
+    state: KmpWheelPickerState = rememberKmpWheelPickerState(isInfinite = false, initiallySelectedItemIndex = selectedIndex),
     modifier: Modifier = Modifier,
     isEnabled : Boolean = true,
     onChange: (T) -> Unit,
     onImmediateChange: (T) -> Unit = {},
-    scrollEffect: KMPWheelPickerScrollEffect = remember { KMPWheelPickerScrollEffects.magnify() },
+    scrollEffect: KmpWheelPickerScrollEffect = remember { KmpWheelPickerScrollEffects.magnify() },
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    indicator: KMPWheelPickerIndicator = remember { KMPWheelPickerIndicators.window() },
+    indicator: KmpWheelPickerIndicator = remember { KmpWheelPickerIndicators.window() },
     content: @Composable LazyItemScope.(T) -> Unit,
 ) {
     val internalSelectedIndex = remember(selectedIndex, state) { if (state.isInfinite) selectedIndex + INFINITE_OFFSET else selectedIndex }

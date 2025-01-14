@@ -96,7 +96,7 @@ fun BottomSheet(
         )
 
         if (transition.currentState || transition.targetState) {
-            KMPPopup(
+            KmpPopup(
                 popupPositionProvider = BottomSheetPositionProvider,
                 isFullScreen = isFullScreen,
                 onDismissRequest = onDismissRequest,
@@ -104,7 +104,7 @@ fun BottomSheet(
                 onKeyEvent = onKeyEvent,
                 onPreviewKeyEvent = {
                     if (it.key == Key.Spacebar) lastKeyPress.value = Clock.System.now()
-                    return@KMPPopup onPreviewKeyEvent(it)
+                    return@KmpPopup onPreviewKeyEvent(it)
                 },
                 focusable = true,
             ) {

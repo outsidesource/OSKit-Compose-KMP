@@ -27,7 +27,7 @@ actual fun rememberKmpScrollbarAdapter(
     )
 
 @Composable
-actual fun KMPVerticalScrollbar(
+actual fun KmpVerticalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter
 ) {

@@ -26,14 +26,14 @@ import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
-fun KMPTimePickerModal(
+fun KmpTimePickerModal(
     isVisible: Boolean,
     isEnabled: Boolean = true,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
     isFullScreen: Boolean = true,
     modalStyles: ModalStyles = remember { ModalStyles() },
-    timePickerStyles: KMPTimePickerStyles = rememberKmpTimePickerStyles(),
+    timePickerStyles: KmpTimePickerStyles = rememberKmpTimePickerStyles(),
     dismissOnBackPress: Boolean = true,
     dismissOnExternalClick: Boolean = true,
     onKeyEvent: (KeyEvent) -> Boolean = { false },
@@ -60,7 +60,7 @@ fun KMPTimePickerModal(
                 .background(timePickerStyles.backgroundColor),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            KMPTimePickerInline(
+            KmpTimePickerInline(
                 modifier = Modifier.fillMaxWidth(),
                 isEnabled = isEnabled,
                 time = time,
@@ -87,10 +87,10 @@ fun KMPTimePickerModal(
 }
 
 @Composable
-fun KMPTimePickerPopover(
+fun KmpTimePickerPopover(
     isVisible: Boolean,
     isEnabled: Boolean = true,
-    timePickerStyles: KMPTimePickerStyles = rememberKmpTimePickerStyles(),
+    timePickerStyles: KmpTimePickerStyles = rememberKmpTimePickerStyles(),
     modifier: Modifier = Modifier
         .shadow(16.dp, RoundedCornerShape(8.dp))
         .background(timePickerStyles.backgroundColor)
@@ -122,7 +122,7 @@ fun KMPTimePickerPopover(
         Column(
             modifier = Modifier.background(timePickerStyles.backgroundColor).then(modifier)
         ) {
-            KMPTimePickerInline(
+            KmpTimePickerInline(
                 modifier = Modifier.fillMaxWidth(),
                 isEnabled = isEnabled,
                 time = time,
@@ -149,11 +149,11 @@ fun KMPTimePickerPopover(
 }
 
 @Composable
-fun KMPTimePickerInline(
+fun KmpTimePickerInline(
     modifier: Modifier = Modifier,
     time: LocalTime = Clock.System.now().toLocalDateTime(currentSystemDefault()).time,
     minuteStep: Int = 1,
-    styles: KMPTimePickerStyles = rememberKmpTimePickerStyles(),
+    styles: KmpTimePickerStyles = rememberKmpTimePickerStyles(),
     isEnabled: Boolean = true,
     onChange: (time: LocalTime) -> Unit,
 ) {
@@ -173,9 +173,9 @@ fun KMPTimePickerInline(
         if (time.hour >= 12) TimeMeridiem.PM.ordinal else TimeMeridiem.AM.ordinal
     }
 
-    CompositionLocalProvider(LocalKMPTimePickerStyles provides styles) {
+    CompositionLocalProvider(LocalKmpTimePickerStyles provides styles) {
         val state = rememberKmpWheelPickerState(isInfinite = true, initiallySelectedItemIndex = selectedHourIndex)
-        val pickerIndicator = remember { KMPWheelPickerIndicators.window() }
+        val pickerIndicator = remember { KmpWheelPickerIndicators.window() }
 
         Row(
             modifier = Modifier
@@ -186,7 +186,7 @@ fun KMPTimePickerInline(
                 .defaultMaxSize(maxWidth = TIME_PICKER_MIN_WIDTH),
             horizontalArrangement = Arrangement.Center,
         ) {
-            KMPWheelPicker(
+            KmpWheelPicker(
                 modifier = Modifier
                     .height(pickerSize)
                     .padding(horizontal = pickerHPadding / 2),
@@ -195,7 +195,7 @@ fun KMPTimePickerInline(
                 items = remember { (1..12).toList() },
                 state = state,
                 horizontalAlignment = Alignment.End,
-                indicator = KMPWheelPickerIndicators.none,
+                indicator = KmpWheelPickerIndicators.none,
                 onChange = { hour ->
                     val currentHour = selectedTime.value.hour
                     val newHour = if (currentHour >= 12) {
@@ -230,7 +230,7 @@ fun KMPTimePickerInline(
                 }
             }
 
-            KMPWheelPicker(
+            KmpWheelPicker(
                 modifier = Modifier
                     .height(pickerSize)
                     .padding(horizontal = pickerHPadding / 2),
@@ -239,7 +239,7 @@ fun KMPTimePickerInline(
                 state = rememberKmpWheelPickerState(isInfinite = true, initiallySelectedItemIndex = selectedMinuteIndex),
                 items = remember(minuteStep) { (0..59 step minuteStep).toList() },
                 horizontalAlignment = Alignment.CenterHorizontally,
-                indicator = KMPWheelPickerIndicators.none,
+                indicator = KmpWheelPickerIndicators.none,
                 onChange = { minute ->
                     selectedTime.value = LocalTime(selectedTime.value.hour, minute)
                     onChange(selectedTime.value)

@@ -37,7 +37,7 @@ expect interface PopupPositionProvider {
  * @param content The content to be displayed inside the popup.
  */
 @Composable
-expect fun KMPPopup(
+expect fun KmpPopup(
     alignment: Alignment = Alignment.Center,
     offset: IntOffset = IntOffset.Zero,
     dismissOnBackPress: Boolean = false,
@@ -64,7 +64,7 @@ expect fun KMPPopup(
  * @param content The content to be displayed inside the popup.
  */
 @Composable
-expect fun KMPPopup(
+expect fun KmpPopup(
     popupPositionProvider: PopupPositionProvider,
     dismissOnBackPress: Boolean = false,
     onDismissRequest: (() -> Unit)? = null,

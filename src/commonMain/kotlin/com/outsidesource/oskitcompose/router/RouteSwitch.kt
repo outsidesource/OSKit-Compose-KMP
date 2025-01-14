@@ -44,7 +44,7 @@ fun RouteSwitch(
     val saveableStateHolder = rememberSaveableStateHolder()
     val currentRoute by coordinatorObserver.routeFlow.collectAsState()
 
-    KMPBackHandler(enabled = coordinatorObserver.hasBackStack()) { coordinatorObserver.pop() }
+    KmpBackHandler(enabled = coordinatorObserver.hasBackStack()) { coordinatorObserver.pop() }
 
     AnimatedContent(
         targetState = currentRoute,

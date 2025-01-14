@@ -51,14 +51,14 @@ private enum class DatePickerViewType {
 }
 
 @Composable
-fun KMPDatePickerModal(
+fun KmpDatePickerModal(
     isVisible: Boolean,
     isEnabled: Boolean = true,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
     isFullScreen: Boolean = true,
     modalStyles: ModalStyles = remember { ModalStyles() },
-    datePickerStyles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
+    datePickerStyles: KmpDatePickerStyles = rememberKmpDatePickerStyles(),
     dismissOnBackPress: Boolean = true,
     dismissOnExternalClick: Boolean = true,
     onKeyEvent: (KeyEvent) -> Boolean = { false },
@@ -86,7 +86,7 @@ fun KMPDatePickerModal(
                 .background(datePickerStyles.backgroundColor),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            KMPDatePickerInline(
+            KmpDatePickerInline(
                 modifier = Modifier.fillMaxWidth(),
                 isEnabled = isEnabled,
                 date = date,
@@ -114,10 +114,10 @@ fun KMPDatePickerModal(
 }
 
 @Composable
-fun KMPDatePickerPopover(
+fun KmpDatePickerPopover(
     isVisible: Boolean,
     isEnabled: Boolean = true,
-    datePickerStyles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
+    datePickerStyles: KmpDatePickerStyles = rememberKmpDatePickerStyles(),
     modifier: Modifier = Modifier
         .shadow(16.dp, RoundedCornerShape(8.dp))
         .background(datePickerStyles.backgroundColor)
@@ -150,7 +150,7 @@ fun KMPDatePickerPopover(
         Column(
             modifier = Modifier.background(datePickerStyles.backgroundColor).then(modifier)
         ) {
-            KMPDatePickerInline(
+            KmpDatePickerInline(
                 modifier = Modifier.fillMaxWidth(),
                 isEnabled = isEnabled,
                 date = date,
@@ -178,12 +178,12 @@ fun KMPDatePickerPopover(
 }
 
 @Composable
-fun KMPDatePickerInline(
+fun KmpDatePickerInline(
     modifier: Modifier = Modifier,
     date: LocalDate = Clock.System.now().toLocalDateTime(currentSystemDefault()).date,
     minDate: LocalDate = remember { LocalDate(0, Month.JANUARY, 1) },
     maxDate: LocalDate = remember { LocalDate(3000, Month.DECEMBER, 31) },
-    styles: KMPDatePickerStyles = rememberKmpDatePickerStyles(),
+    styles: KmpDatePickerStyles = rememberKmpDatePickerStyles(),
     isEnabled: Boolean = true,
     onChange: (date: LocalDate) -> Unit,
 ) {
@@ -191,7 +191,7 @@ fun KMPDatePickerInline(
     val viewDate = remember(date) { mutableStateOf(date) }
     val selectedDate = remember(date) { mutableStateOf(date) }
 
-    CompositionLocalProvider(LocalKMPDatePickerStyles provides styles) {
+    CompositionLocalProvider(LocalKmpDatePickerStyles provides styles) {
         Column(
             modifier = Modifier
                 .widthIn(min = DATE_PICKER_MIN_WIDTH)
@@ -393,7 +393,7 @@ private fun DatePickerMonthView(
 
 @Composable
 private fun DayName(text: String) {
-    val styles = LocalKMPDatePickerStyles.current
+    val styles = LocalKmpDatePickerStyles.current
     val dayNameTextStyle = remember {
         TextStyle(color = styles.fontColor.copy(alpha = .5f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
     }
@@ -410,7 +410,7 @@ private fun DatePickerYearView(
     maxDate: LocalDate,
     onChange: (date: LocalDate) -> Unit,
 ) {
-    val styles = LocalKMPDatePickerStyles.current
+    val styles = LocalKmpDatePickerStyles.current
 
     AnimatedVisibility(viewType.value == DatePickerViewType.Year, enter = fadeIn(), exit = fadeOut()) {
         val pickerHPadding = 40.dp
@@ -445,7 +445,7 @@ private fun DatePickerYearView(
                 viewDate.value.year - minDate.year
             }
 
-            KMPWheelPicker(
+            KmpWheelPicker(
                 modifier = Modifier
                     .height(daySize * 5)
                     .weight(1f),
@@ -453,8 +453,8 @@ private fun DatePickerYearView(
                 selectedIndex = selectedMonth,
                 items = monthItems,
                 state = rememberKmpWheelPickerState(isInfinite = true, initiallySelectedItemIndex = selectedMonth),
-                indicator = remember { KMPWheelPickerIndicators.window(shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)) },
-                scrollEffect = remember { KMPWheelPickerScrollEffects.magnify(alignment = Alignment.Start, itemHorizontalPadding = pickerHPadding) },
+                indicator = remember { KmpWheelPickerIndicators.window(shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)) },
+                scrollEffect = remember { KmpWheelPickerScrollEffects.magnify(alignment = Alignment.Start, itemHorizontalPadding = pickerHPadding) },
                 onChange = { month ->
                     selectedDate.value = LocalDate(
                         month = month,
@@ -495,7 +495,7 @@ private fun DatePickerYearView(
                 }
             }
 
-            KMPWheelPicker(
+            KmpWheelPicker(
                 modifier = Modifier.height(daySize * 5),
                 isEnabled = isEnabled,
                 selectedIndex = selectedYear,

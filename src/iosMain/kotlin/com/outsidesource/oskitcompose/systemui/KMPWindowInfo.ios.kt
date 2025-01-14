@@ -9,10 +9,10 @@ import androidx.compose.ui.unit.IntSize
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-actual fun rememberKMPWindowInfo(): KMPWindowInfo {
+actual fun rememberKmpWindowInfo(): KmpWindowInfo {
     val windowInfo = LocalWindowInfo.current
     return remember(windowInfo) {
-        object : KMPWindowInfo {
+        object : KmpWindowInfo {
             override val isWindowFocused: Boolean
                 get() = windowInfo.isWindowFocused
             override val keyboardModifiers: PointerKeyboardModifiers
