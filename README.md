@@ -61,7 +61,7 @@ implemented.
     * Customizable system bar colors
     * Window info
   * Misc
-    * rememberLastNonNullState()
+    * rememberLastNonNullValue()
 * Android
   * Context helpers
 * Desktop
