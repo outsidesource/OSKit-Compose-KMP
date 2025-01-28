@@ -8,8 +8,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
 import com.outsidesource.oskitcompose.pointer.awaitFirstDownEvent
 import com.outsidesource.oskitcompose.pointer.awaitForUpOrCancellationEvent
-import com.outsidesource.oskitkmp.filesystem.IKmpFsSource
-import com.outsidesource.oskitkmp.filesystem.KmpFsRef
 import okio.Source
 
 fun Modifier.disablePointerInput(disabled: Boolean) = pointerInput(disabled) {

@@ -53,7 +53,7 @@ fun RouteSwitch(
         if (transition.currentState != transition.targetState) {
             coordinatorObserver.markTransitionStatus(RouteTransitionStatus.Running)
         } else {
-            coordinatorObserver.markTransitionStatus(RouteTransitionStatus.Completed)
+            coordinatorObserver.markTransitionStatus(RouteTransitionStatus.Idle)
         }
 
         CompositionLocalProvider(
