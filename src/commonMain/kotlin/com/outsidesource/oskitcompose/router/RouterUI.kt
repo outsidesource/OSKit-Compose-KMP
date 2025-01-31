@@ -82,7 +82,7 @@ fun RouteDestroyedEffect(effectId: String, effect: () -> Unit) {
  * Nullable types have undefined behaviour.
  */
 @Composable
-inline fun <reified T : Any> rememberForRoute(key: String? = null, noinline factory: () -> T): T =
+inline fun <reified T : Any> rememberForRoute(key: String? = null, noinline factory: IRememberForRouteScope.() -> T): T =
     rememberForRoute(getKClassForGenericType<T>(), key, factory)
 
 /**
@@ -92,19 +92,36 @@ inline fun <reified T : Any> rememberForRoute(key: String? = null, noinline fact
  */
 @Composable
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> rememberForRoute(objectType: KClass<T>, key: String? = null, factory: () -> T): T {
+fun <T : Any> rememberForRoute(objectType: KClass<T>, key: String? = null, factory: IRememberForRouteScope.() -> T): T {
     val objectStore = localRouteObjectStore.current
     val route = LocalRoute.current
     val router = localCoordinatorObserver.current
 
     val storedObject = objectStore[route.id, key, objectType]
+    if (storedObject != null) return storedObject as T
 
-    return if (storedObject != null) storedObject as T else factory().apply {
+    val scope = RememberForRouteScope()
+    return scope.factory().apply {
         objectStore[route.id, key, objectType] = this
         router.addRouteLifecycleListener(object : IRouteLifecycleListener {
-            override fun onRouteDestroyedTransitionComplete() = objectStore.remove(route.id, key, objectType)
+            override fun onRouteDestroyedTransitionComplete() {
+                objectStore.remove(route.id, key, objectType)
+                scope.onDestroyBlock()
+            }
         })
     }
+}
+
+private class RememberForRouteScope : IRememberForRouteScope {
+    var onDestroyBlock: () -> Unit = {}
+
+    override fun onDestroy(block: () -> Unit) {
+        onDestroyBlock = block
+    }
+}
+
+interface IRememberForRouteScope {
+    fun onDestroy(block: () -> Unit)
 }
 
 /**
