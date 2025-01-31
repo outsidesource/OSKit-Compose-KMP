@@ -33,7 +33,6 @@ fun routeTransition(transition: IRouteTransition): IAnimatedRoute {
  * @param [popEnter] The animation for incoming content during a pop()
  * @param [popExit] The animation for outgoing content during a pop()
  */
-@ExperimentalAnimationApi
 data class ComposeRouteTransition(
     val enter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
     val exit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
@@ -41,7 +40,6 @@ data class ComposeRouteTransition(
     val popExit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
 ) : IRouteTransition
 
-@ExperimentalAnimationApi
 val PushFromTopRouteTransition = ComposeRouteTransition(
     enter = {
         val offsetY = with(it) { -25.dp.toPx() }.toInt()
@@ -55,7 +53,6 @@ val PushFromTopRouteTransition = ComposeRouteTransition(
     },
 )
 
-@ExperimentalAnimationApi
 val PushFromRightRouteTransition = ComposeRouteTransition(
     enter = {
         val offsetX = with(it) { 40.dp.toPx() }.toInt()
@@ -75,7 +72,6 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
     },
 )
 
-@ExperimentalAnimationApi
 val SlideFromBottomRouteTransition = ComposeRouteTransition(
     enter = {
         slideIn(tween(400)) { IntOffset(0, it.height) }
@@ -91,7 +87,6 @@ val SlideFromBottomRouteTransition = ComposeRouteTransition(
     },
 )
 
-@ExperimentalAnimationApi
 val ScaleRouteTransition = ComposeRouteTransition(
     enter = { fadeIn(tween(300), 0f) + scaleIn(tween(300), initialScale = .9f) },
     exit = { fadeOut(tween(300), 0f) },
@@ -99,7 +94,13 @@ val ScaleRouteTransition = ComposeRouteTransition(
     popExit = { fadeOut(tween(300), .99f) },
 )
 
-@ExperimentalAnimationApi
+val FadeRouteTransition = ComposeRouteTransition(
+    enter = { fadeIn(tween(300)) },
+    exit = { fadeOut(tween(300)) },
+    popEnter = { fadeIn(tween(300)) },
+    popExit = { fadeOut(tween(300)) },
+)
+
 val NoRouteTransition = ComposeRouteTransition(
     enter = { EnterTransition.None },
     exit = { ExitTransition.None },
