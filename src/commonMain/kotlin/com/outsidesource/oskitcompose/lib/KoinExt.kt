@@ -11,8 +11,11 @@ import org.koin.core.parameter.ParametersDefinition
 @Composable
 inline fun <reified T : Any> rememberInjectForRoute(
     key: String? = null,
+    noinline onDestroy: (T) -> Unit = {},
     noinline parameters: ParametersDefinition? = null,
-): T = rememberForRoute(key) { koinInjector.inject<T>(parameters = parameters).value }
+): T = rememberForRoute(key) {
+    koinInjector.inject<T>(parameters = parameters).value.also { onDestroy { onDestroy(it) } }
+}
 
 @Composable
 inline fun <reified T : Any> rememberInject(
