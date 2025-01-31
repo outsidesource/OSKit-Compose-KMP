@@ -4,6 +4,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -24,28 +25,28 @@ expect fun rememberKmpScrollbarAdapter(
 
 @Composable
 expect fun KmpVerticalScrollbar(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     adapter: ScrollbarAdapter
 )
 
 @Composable
 expect fun KmpVerticalScrollbar(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     adapter: ScrollbarAdapter,
-    style: KmpScrollbarStyle,
+    style: KmpScrollbarStyle = remember { KmpScrollbarStyle() },
 )
 
 @Composable
 expect fun KmpHorizontalScrollbar(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     adapter: ScrollbarAdapter
 )
 
 @Composable
 expect fun KmpHorizontalScrollbar(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     adapter: ScrollbarAdapter,
-    style: KmpScrollbarStyle,
+    style: KmpScrollbarStyle = remember { KmpScrollbarStyle() },
 )
 
 data class KmpScrollbarStyle(
