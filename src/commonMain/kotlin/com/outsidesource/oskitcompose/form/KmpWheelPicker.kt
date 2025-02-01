@@ -29,9 +29,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.outsidesource.oskitcompose.lib.VarRef
-import com.outsidesource.oskitcompose.modifier.kmpMouseScrollFilter
 import com.outsidesource.oskitcompose.pointer.awaitFirstUp
-import com.outsidesource.oskitkmp.concurrency.Debouncer
 import com.outsidesource.oskitkmp.lib.Platform
 import com.outsidesource.oskitkmp.lib.current
 import kotlinx.coroutines.launch
@@ -76,8 +74,6 @@ fun <T : Any> KmpWheelPicker(
     val isDragging = remember { VarRef(false) }
     val velocityTracker = remember { VelocityTracker() }
     val scope = rememberCoroutineScope()
-    val flingBehavior = rememberSnapFlingBehavior(state.lazyListState)
-    val scrollDebouncer = remember { Debouncer(timeoutMillis = 250, scope = scope) }
 
     val paddingValues = with(LocalDensity.current) {
         remember(state.verticalPadding) {
@@ -94,6 +90,10 @@ fun <T : Any> KmpWheelPicker(
             state.lastOnChangeIndex = index
             onChange(items[newItemIndex])
         }
+    }
+
+    val flingBehavior = rememberSnapFlingBehaviorWithCallback(state.lazyListState) {
+        handleOnChange(state.selectedItemRawIndex)
     }
 
     // This fixes an issue with non-infinite wheels set to the last index in the list not showing the selection properly due to padding not being calculated initially.
@@ -119,15 +119,6 @@ fun <T : Any> KmpWheelPicker(
     LazyColumn(
         modifier = Modifier
             .drawWithContent { indicator(state) }
-            .kmpMouseScrollFilter(state, handleOnChange) { _, _ ->
-                if (!isEnabled) return@kmpMouseScrollFilter
-
-                scrollDebouncer.emit {
-                    val index = if (state.isInfinite) state.selectedItemRawIndex - INFINITE_OFFSET else state.selectedItemRawIndex
-                    state.animateScrollToItem(index, items.size)
-                    handleOnChange(state.selectedItemRawIndex)
-                }
-            }
             .pointerInput(state, handleOnChange) {
                 if (!isEnabled) return@pointerInput
 
@@ -439,3 +430,17 @@ private fun getItemsIndex(index: Int, state: KmpWheelPickerState, itemCount: Int
     }
 
 private const val INFINITE_OFFSET = Int.MAX_VALUE / 2
+
+@Composable
+private fun rememberSnapFlingBehaviorWithCallback(state: LazyListState, callback: () -> Unit): FlingBehavior {
+    val flingBehavior = rememberSnapFlingBehavior(state)
+    return remember(callback, state) {
+        object : FlingBehavior {
+            override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+                val result = with(flingBehavior) { performFling(initialVelocity) }
+                callback()
+                return result
+            }
+        }
+    }
+}
