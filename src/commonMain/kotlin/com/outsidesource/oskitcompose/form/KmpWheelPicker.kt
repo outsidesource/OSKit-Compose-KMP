@@ -169,7 +169,7 @@ fun <T : Any> KmpWheelPicker(
             }
             .then(modifier),
         horizontalAlignment = horizontalAlignment,
-        userScrollEnabled = Platform.current.isDesktop, // Allow wheel scroll if Desktop, otherwise the scrolling is handled via the pointerInput modifier
+        userScrollEnabled = Platform.current.isDesktop || Platform.current == Platform.WebBrowser, // Allow wheel scroll if Desktop or browser, otherwise the scrolling is handled via the pointerInput modifier
         state = state.lazyListState,
         contentPadding = paddingValues,
         flingBehavior = flingBehavior,

@@ -21,7 +21,7 @@ import com.outsidesource.oskitkmp.router.RouteStackEntry
  */
 fun routeTransition(transition: IRouteTransition): IAnimatedRoute {
     return object : IAnimatedRoute {
-        override val transition = transition
+        override val animatedRouteTransition = transition
     }
 }
 
