@@ -6,12 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalView
 import androidx.core.util.Consumer
-import com.outsidesource.oskitkmp.deeplink.KmpDeepLink
 
 @Composable
-actual fun KmpDeepLinkEffect(
-    initialDeepLink: KmpDeepLink?,
-    onNewDeepLink: (KmpDeepLink) -> Unit
+fun AndroidDeepLinkEffect(
+    initialDeepLink: Intent?,
+    onNewDeepLink: (Intent) -> Unit
 ) {
     val view = LocalView.current
     val parentActivity = (view.context as ComponentActivity)
@@ -19,7 +18,7 @@ actual fun KmpDeepLinkEffect(
     DisposableEffect(Unit) {
         if (initialDeepLink != null) onNewDeepLink(initialDeepLink)
 
-        val listener = Consumer<Intent> { onNewDeepLink(KmpDeepLink(it)) }
+        val listener = Consumer<Intent> { onNewDeepLink(it) }
         parentActivity.addOnNewIntentListener(listener)
         onDispose { parentActivity.removeOnNewIntentListener(listener) }
     }
