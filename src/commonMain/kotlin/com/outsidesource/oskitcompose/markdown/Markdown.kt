@@ -387,12 +387,12 @@ private fun MarkdownInlineContent(
     textStyle: TextStyle = LocalMarkdownContext.current.styles.paragraphTextStyle,
 ) {
     val uriHandler = LocalUriHandler.current
-    val markdownInfo = LocalMarkdownContext.current
-    val styles = markdownInfo.styles
-    val onLinkClick = markdownInfo.onLinkClick
+    val markdownContext = LocalMarkdownContext.current
+    val styles = markdownContext.styles
+    val onLinkClick = markdownContext.onLinkClick
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
     var codeSpans by remember(content) { mutableStateOf(emptyList<Path>()) }
-    val inlineImageMap = markdownInfo.inlineImageMap
+    val inlineImageMap = markdownContext.inlineImageMap
     val density = LocalDensity.current
     var maxImageHeight = 0f
 
@@ -402,7 +402,7 @@ private fun MarkdownInlineContent(
                 content.getStringAnnotations(TAG_INLINE_IMAGE, 0, content.length).forEach {
                     val id = it.item
                     val image = inlineImageMap[id] ?: return@forEach
-                    val (_, size) = resolvePainterAndSizeForImage(density, image, markdownInfo)
+                    val (_, size) = resolvePainterAndSizeForImage(density, image, markdownContext)
                     val (_, height) = with(density) { Pair(size.width.toSp(), size.height.toSp()) }
                     maxImageHeight = max(height.value, maxImageHeight)
 
@@ -530,7 +530,7 @@ private fun resolvePlaceholderInlineImageSize(image: MarkdownBlock.Image, densit
 
 @Composable
 private fun MarkdownImage(image: MarkdownBlock.Image) {
-    val markdownInfo = LocalMarkdownContext.current
+    val markdownContext = LocalMarkdownContext.current
     val density = LocalDensity.current
     val alignment = image.hAlignment
     val resolvedImage by produceState(
@@ -541,7 +541,7 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
         key1 = image.type,
     ) {
         withContext(KmpDispatchers.IO) {
-            value = resolvePainterAndSizeForImage(density, image, markdownInfo)
+            value = resolvePainterAndSizeForImage(density, image, markdownContext)
         }
     }
     val (painter, size) = resolvedImage
@@ -551,7 +551,7 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
             Image(
                 modifier = Modifier
                     .size(width = size.width, height = size.height)
-                    .then(markdownInfo.styles.imageModifier),
+                    .then(markdownContext.styles.imageModifier),
                 painter = painter,
                 contentScale = image.scale,
                 contentDescription = image.description,
