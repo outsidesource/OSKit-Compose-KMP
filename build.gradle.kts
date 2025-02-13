@@ -1,11 +1,10 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
+import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SonatypeHost
-import org.gradle.kotlin.dsl.implementation
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompileCommon
 import java.io.FileInputStream
 import java.util.*
 
@@ -159,11 +158,11 @@ android {
 
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.S01, automaticRelease = true)
-//    signAllPublications()
+    signAllPublications()
 
     configure(
         platform = KotlinMultiplatform(
-//            javadocJar = JavadocJar.Dokka("dokkaHtml"),
+            javadocJar = JavadocJar.Dokka("dokkaHtml"),
             sourcesJar = true,
             androidVariantsToPublish = listOf("debug", "release"),
         )
