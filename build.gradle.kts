@@ -21,9 +21,9 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.compose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.dokka)
     id("com.android.library")
     id("maven-publish")
-    id("org.jetbrains.dokka") version "1.9.10"
     id("com.vanniktech.maven.publish") version "0.28.0"
 }
 

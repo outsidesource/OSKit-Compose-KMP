@@ -15,6 +15,7 @@ kotlinx-atomicfu = "0.26.1"
 kotlinx-datetime = "0.6.1"
 kotlinx-coroutines-core = "1.10.1"
 kotlinx-browser = "0.3"
+dokka = "2.0.0"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -40,3 +41,4 @@ compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose-ui" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
