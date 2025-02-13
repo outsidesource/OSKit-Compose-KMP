@@ -34,12 +34,12 @@ import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.canvas.*
 import com.outsidesource.oskitcompose.canvas.ImageLoadErrorPainter
 import com.outsidesource.oskitcompose.modifier.borderStart
-import com.outsidesource.oskitcompose.scrollbars.KMPHorizontalScrollbar
-import com.outsidesource.oskitcompose.scrollbars.KMPScrollbarStyle
+import com.outsidesource.oskitcompose.scrollbars.KmpHorizontalScrollbar
+import com.outsidesource.oskitcompose.scrollbars.KmpScrollbarStyle
 import com.outsidesource.oskitcompose.scrollbars.rememberKmpScrollbarAdapter
+import com.outsidesource.oskitkmp.concurrency.KmpDispatchers
 import com.outsidesource.oskitkmp.tuples.Tup2
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okio.buffer
@@ -191,7 +191,7 @@ private fun InternalMarkdown(
         is MarkdownSource.String -> {
             val tree by if (loadAsync) {
                 produceState(initialValue = emptyList(), source, context, density, loadAsync) {
-                    value = withContext(Dispatchers.IO) {
+                    value = withContext(KmpDispatchers.IO) {
                         MarkdownParser(CommonMarkFlavourDescriptor())
                             .buildMarkdownTreeFromString(source.content)
                             .buildBlockItems(source.content, context)
@@ -212,7 +212,7 @@ private fun InternalMarkdown(
         }
         is MarkdownSource.Source -> {
             val tree by produceState(initialValue = emptyList(), source, context, density, loadAsync) {
-                value = withContext(Dispatchers.IO) {
+                value = withContext(KmpDispatchers.IO) {
                     val content = source.source.buffer().readUtf8()
                     MarkdownParser(CommonMarkFlavourDescriptor())
                         .buildMarkdownTreeFromString(content)
@@ -387,22 +387,22 @@ private fun MarkdownInlineContent(
     textStyle: TextStyle = LocalMarkdownContext.current.styles.paragraphTextStyle,
 ) {
     val uriHandler = LocalUriHandler.current
-    val markdownInfo = LocalMarkdownContext.current
-    val styles = markdownInfo.styles
-    val onLinkClick = markdownInfo.onLinkClick
+    val markdownContext = LocalMarkdownContext.current
+    val styles = markdownContext.styles
+    val onLinkClick = markdownContext.onLinkClick
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
     var codeSpans by remember(content) { mutableStateOf(emptyList<Path>()) }
-    val inlineImageMap = markdownInfo.inlineImageMap
+    val inlineImageMap = markdownContext.inlineImageMap
     val density = LocalDensity.current
     var maxImageHeight = 0f
 
     val imageSizes by produceState(initialValue = emptyMap(), key1 = content) {
-        withContext(Dispatchers.IO) {
+        withContext(KmpDispatchers.IO) {
             value = buildMap {
                 content.getStringAnnotations(TAG_INLINE_IMAGE, 0, content.length).forEach {
                     val id = it.item
                     val image = inlineImageMap[id] ?: return@forEach
-                    val (_, size) = resolvePainterAndSizeForImage(density, image, markdownInfo)
+                    val (_, size) = resolvePainterAndSizeForImage(density, image, markdownContext)
                     val (_, height) = with(density) { Pair(size.width.toSp(), size.height.toSp()) }
                     maxImageHeight = max(height.value, maxImageHeight)
 
@@ -530,7 +530,7 @@ private fun resolvePlaceholderInlineImageSize(image: MarkdownBlock.Image, densit
 
 @Composable
 private fun MarkdownImage(image: MarkdownBlock.Image) {
-    val markdownInfo = LocalMarkdownContext.current
+    val markdownContext = LocalMarkdownContext.current
     val density = LocalDensity.current
     val alignment = image.hAlignment
     val resolvedImage by produceState(
@@ -540,8 +540,8 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
         ),
         key1 = image.type,
     ) {
-        withContext(Dispatchers.IO) {
-            value = resolvePainterAndSizeForImage(density, image, markdownInfo)
+        withContext(KmpDispatchers.IO) {
+            value = resolvePainterAndSizeForImage(density, image, markdownContext)
         }
     }
     val (painter, size) = resolvedImage
@@ -551,7 +551,7 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
             Image(
                 modifier = Modifier
                     .size(width = size.width, height = size.height)
-                    .then(markdownInfo.styles.imageModifier),
+                    .then(markdownContext.styles.imageModifier),
                 painter = painter,
                 contentScale = image.scale,
                 contentDescription = image.description,
@@ -560,7 +560,7 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
     }
 }
 
-private fun resolvePainterAndSizeForImage(
+private suspend fun resolvePainterAndSizeForImage(
     density: Density,
     image: MarkdownBlock.Image,
     markdownContext: MarkdownContext,
@@ -611,12 +611,12 @@ private fun MarkdownCodeBlock(codeBlock: MarkdownBlock.Code) {
             style = styles.codeTextStyle
         )
         if (allowHScroll) {
-            KMPHorizontalScrollbar(
+            KmpHorizontalScrollbar(
                 modifier = Modifier
                     .padding(2.dp)
                     .align(Alignment.BottomStart),
                 adapter = adapter,
-                style = KMPScrollbarStyle(thickness = 4.dp),
+                style = KmpScrollbarStyle(thickness = 4.dp),
             )
         }
     }

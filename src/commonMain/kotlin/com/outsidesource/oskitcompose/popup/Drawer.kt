@@ -94,7 +94,7 @@ fun Drawer(
         )
 
         if (transition.currentState || transition.targetState) {
-            KMPPopup(
+            KmpPopup(
                 popupPositionProvider = DrawerPositionProvider,
                 focusable = true,
                 onDismissRequest = onDismissRequest,

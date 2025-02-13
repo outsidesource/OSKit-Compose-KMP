@@ -82,7 +82,7 @@ fun RouteDestroyedEffect(effectId: String, effect: () -> Unit) {
  * Nullable types have undefined behaviour.
  */
 @Composable
-inline fun <reified T : Any> rememberForRoute(key: String? = null, noinline factory: () -> T): T =
+inline fun <reified T : Any> rememberForRoute(key: String? = null, noinline factory: IRememberForRouteScope.() -> T): T =
     rememberForRoute(getKClassForGenericType<T>(), key, factory)
 
 /**
@@ -92,31 +92,51 @@ inline fun <reified T : Any> rememberForRoute(key: String? = null, noinline fact
  */
 @Composable
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> rememberForRoute(objectType: KClass<T>, key: String? = null, factory: () -> T): T {
+fun <T : Any> rememberForRoute(objectType: KClass<T>, key: String? = null, factory: IRememberForRouteScope.() -> T): T {
     val objectStore = localRouteObjectStore.current
     val route = LocalRoute.current
     val router = localCoordinatorObserver.current
 
     val storedObject = objectStore[route.id, key, objectType]
+    if (storedObject != null) return storedObject as T
 
-    return if (storedObject != null) storedObject as T else factory().apply {
+    val scope = RememberForRouteScope()
+    return scope.factory().apply {
         objectStore[route.id, key, objectType] = this
         router.addRouteLifecycleListener(object : IRouteLifecycleListener {
-            override fun onRouteDestroyed() = objectStore.remove(route.id, key, objectType)
+            override fun onRouteDestroyedTransitionComplete() {
+                objectStore.remove(route.id, key, objectType)
+                scope.onDestroyBlock()
+            }
         })
     }
 }
 
+private class RememberForRouteScope : IRememberForRouteScope {
+    var onDestroyBlock: () -> Unit = {}
+
+    override fun onDestroy(block: () -> Unit) {
+        onDestroyBlock = block
+    }
+}
+
+interface IRememberForRouteScope {
+    fun onDestroy(block: () -> Unit)
+}
+
 /**
- * This is a workaround for a Kotlin KMP compiler bug for iOS. Using @Composable while trying to access a reified
+ * This is a workaround for a Kotlin Kmp compiler bug for iOS. Using @Composable while trying to access a reified
  * generic type throws a compilation error:
  * (Generation of stubs for class org.jetbrains.kotlin.ir.symbols.impl.IrTypeParameterPublicSymbolImpl is not supported yet)
  * https://github.com/JetBrains/compose-multiplatform/issues/3147
  */
 inline fun <reified T : Any> getKClassForGenericType(): KClass<T> = T::class
 
-class RouteObjectStore {
+internal class RouteObjectStore {
     private val objects = mutableMapOf<String, Any>()
+
+    val size
+        get() = objects.size
 
     operator fun <T: Any> get(routeId: Int, key: String?, objectType: KClass<T>): Any? {
         return objects["$routeId:${objectType.qualifiedName}:${key ?: ""}"]

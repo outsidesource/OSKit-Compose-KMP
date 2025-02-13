@@ -9,11 +9,16 @@ We strive to adhere to semantic versioning.
 Contributions are appreciated and welcome, but we are a small team and make no guarantees that your changes will be
 implemented.
 
+## OSKitKMP Version Compatibility
+* 5.0.0+
+
 ## Documentation
 <https://outsidesource.github.io/OSKit-Compose-KMP/>
 
 ## Feature Highlights
 * Common
+  * Screen Wake Lock
+    * `KmpScreenWakeLockEffect`
   * Animation
     * TransitionAnimatedContent (AnimatedContent with flexible transitions)
     * Common CubicBezier transitions
@@ -61,7 +66,7 @@ implemented.
     * Customizable system bar colors
     * Window info
   * Misc
-    * rememberLastNonNullState()
+    * rememberLastNonNullValue()
 * Android
   * Context helpers
 * Desktop
@@ -76,13 +81,30 @@ Currently supported platforms include:
 
 ## Installation
 ```
-implementation("com.outsidesource:oskit-compose:3.3.0")
+implementation("com.outsidesource:oskit-compose:4.0.0")
 ```
 
 ## Example App
 <https://github.com/outsidesource/OSKit-Example-App-KMP>
 
 ## Changelog
+### 4.0.0 - 2025-02-07
+#### Added
+* Kotlin 2.1.0 support
+* Compose multiplatform 1.7.3 support
+* `WindowInsets.ime`
+* Fixes for `KmpWheelPicker` to properly handle mouse wheel scrolling
+* Added `onDestroy` parameter for `rememberInjectForRoute`
+* Added `FadeRouteTransition` as a `ComposeRouteTransition` for `Router`
+* Added `onDestroy` for `rememberForRoute`
+* Added `KmpScreenWakeLockEffect`
+#### Breaking Changes
+* Adopted Upper Camel Case for all acronym prefixes on class and function names (i.e. `KMP` changed to `Kmp`)
+* `KMPDeepLinkEffect` renamed to `AndroidDeepLinkEffect` and only available on Android
+* `kmpUrlImagePainter` is now a suspending function
+* Renamed `rememberLastNonNullState` to `rememberLastNonNullValue`
+* `Modifier.kmpOnExternalDrag` was renamed and reworked to `Modifier.kmpOnExternalDragAndDrop`
+
 ### 3.7.2 - 2024-08-30
 #### Fixed
 * Non-fullscreen popups (i.e. Popover) on Android had a regression where they were not positioned correctly
@@ -92,34 +114,34 @@ implementation("com.outsidesource:oskit-compose:3.3.0")
 ### 3.7.0 - 2024-05-30
 #### Added
 * onKeyEvent to BottomSheet
-* KMPBackHandler/BackHandler to KMPPopup
+* KmpBackHandler/BackHandler to KmpPopup
 ### 3.6.0 - 2024-05-21
 #### Added
 * Focusable parameter to Popover
-* KMPDisableScreenIdleTimeoutEffect
+* KmpDisableScreenIdleTimeoutEffect
 #### Breaking Changes
-* Fixed typo in KMPTimePicker. Previously `TimeMerdiem` was `TimeMeridian`
+* Fixed typo in KmpTimePicker. Previously `TimeMerdiem` was `TimeMeridian`
 ### 3.5.0 - 2024-03-23
 #### Added
 * Support for Jetbrains Compose 1.6
 * Support for Kotlin 1.9.23
 #### Removed
-* KMPResource - No longer works with compose 1.6
-* KMPFont - No longer works with compose 1.6
-* KMPImage - No longer works with compose 1.6
+* KmpResource - No longer works with compose 1.6
+* KmpFont - No longer works with compose 1.6
+* KmpImage - No longer works with compose 1.6
 ### 3.4.0 - 2024-03-06
 #### Added
-* KMPTimePicker
-* KMPDatePicker
-* KMPWheelPicker
+* KmpTimePicker
+* KmpDatePicker
+* KmpWheelPicker
 ### 3.3.0 - 2024-02-16
 #### Added
-* `rememberKMPWindowInfo()`
+* `rememberKmpWindowInfo()`
 * `createInteractor()`
-* `KMPAppLifecycleObserver`
+* `KmpAppLifecycleObserver`
 * `Context` helper functions
 * `rememberLastNonNullState()`
-* Fallback locale for `KMPString`
+* Fallback locale for `KmpString`
 * Markdown
   * Async image loading
   * Loading Markdown from other sources

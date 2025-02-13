@@ -10,9 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.interop.LocalUIViewController
 import androidx.compose.ui.window.ComposeUIViewController
-import com.outsidesource.oskitcompose.systemui.KMPWindowInsets
-import com.outsidesource.oskitcompose.systemui.bottomInsets
-import com.outsidesource.oskitcompose.systemui.topInsets
+import com.outsidesource.oskitcompose.systemui.KmpWindowInsets
+import com.outsidesource.oskitcompose.systemui.bottom
+import com.outsidesource.oskitcompose.systemui.top
 import kotlinx.coroutines.flow.MutableStateFlow
 import platform.UIKit.*
 
@@ -46,7 +46,7 @@ private fun BoxScope.StatusBarBackground() {
         .align(Alignment.TopStart)
         .fillMaxWidth()
         .background(color)
-        .windowInsetsPadding(KMPWindowInsets.topInsets)
+        .windowInsetsPadding(KmpWindowInsets.top)
     )
 }
 
@@ -60,7 +60,7 @@ private fun BoxScope.NavBarBackground() {
         .align(Alignment.BottomStart)
         .fillMaxWidth()
         .background(color)
-        .windowInsetsPadding(KMPWindowInsets.bottomInsets)
+        .windowInsetsPadding(KmpWindowInsets.bottom)
     )
 }
 

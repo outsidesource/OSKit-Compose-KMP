@@ -12,3 +12,4 @@ app/tablet
 app/phoneQa/
 credential.properties
 *.hprof
+.kotlin/metadata
