@@ -48,42 +48,49 @@ fun KmpColorPicker(
     val focusRequester = remember { FocusRequester() }
 
     BoxWithConstraints(
-        modifier = Modifier
-            .requiredSizeIn(minWidth = 1.dp, minHeight = 1.dp)
-            .defaultMinSize(minWidth = 100.dp, minHeight = 100.dp)
-            .pointerInput(Unit) {
-                awaitEachGesture {
-                    val down = awaitFirstDown(requireUnconsumed = false)
-                    val downColor = renderer.colorForOffset(mergedColor.value, down.position, size)
-                    draggingColor = downColor
-                    isDragging = true
-                    onChange(downColor, down.position, size)
-
-                    val pressInteraction = PressInteraction.Press(down.position)
-                    interactionSource.tryEmit(pressInteraction)
-                    focusRequester.requestFocus()
-
-                    var lastPosition = down.position
-                    drag(down.id) {
-                        lastPosition = it.position
-                        val updatedColor = renderer.colorForOffset(mergedColor.value, it.position, size)
-                        draggingColor = updatedColor
-                        onChange(updatedColor, it.position, size)
-                        it.consume()
-                    }
-
-                    val upColor = renderer.colorForOffset(mergedColor.value, lastPosition, size)
-                    isDragging = false
-                    onDone(upColor, lastPosition, size)
-
-                    interactionSource.tryEmit(PressInteraction.Release(pressInteraction))
-                }
-            }
-            .drawBehind {
-                drawIntoCanvas { renderer.draw(mergedColor.value, it, size, rendererOptions) }
-            }
-            .then(modifier)
+        modifier = modifier
     ) {
+        val parentSize by rememberUpdatedState(IntSize(constraints.maxWidth, constraints.maxHeight))
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        val downColor = renderer.colorForOffset(mergedColor.value, down.position, size)
+                        draggingColor = downColor
+                        isDragging = true
+                        onChange(downColor, down.position, size)
+
+                        val pressInteraction = PressInteraction.Press(down.position)
+                        interactionSource.tryEmit(pressInteraction)
+                        focusRequester.requestFocus()
+
+                        var lastPosition = down.position
+                        drag(down.id) {
+                            lastPosition = it.position
+                            val updatedColor = renderer.colorForOffset(mergedColor.value, it.position, size)
+                            draggingColor = updatedColor
+                            onChange(updatedColor, it.position, size)
+                            it.consume()
+                        }
+
+                        val upColor = renderer.colorForOffset(mergedColor.value, lastPosition, size)
+                        isDragging = false
+                        onDone(upColor, lastPosition, size)
+
+                        interactionSource.tryEmit(PressInteraction.Release(pressInteraction))
+                    }
+                }
+                .graphicsLayer {
+                    if (rendererOptions.renderAlpha) alpha = mergedColor.value.alpha
+                }
+                .drawBehind {
+                    drawIntoCanvas { renderer.draw(mergedColor.value, it, size, rendererOptions) }
+                }
+        )
+
         Box(
             modifier = Modifier
                 .focusRequester(focusRequester)
@@ -99,14 +106,13 @@ fun KmpColorPicker(
                         else -> return@onKeyEvent false
                     }
 
-                    val size = IntSize(constraints.maxWidth, constraints.maxHeight)
-                    val newOffset = renderer.offsetForColor(mergedColor.value, size) + directionOffset
-                    val updatedColor = renderer.colorForOffset(mergedColor.value, newOffset, size)
-                    onChange(updatedColor, newOffset, size)
+                    val newOffset = renderer.offsetForColor(mergedColor.value, parentSize) + directionOffset
+                    val updatedColor = renderer.colorForOffset(mergedColor.value, newOffset, parentSize)
+                    onChange(updatedColor, newOffset, parentSize)
                     true
                 }
                 .graphicsLayer {
-                    val offset = renderer.offsetForColor(mergedColor.value, IntSize(constraints.maxWidth, constraints.maxHeight))
+                    val offset = renderer.offsetForColor(mergedColor.value, parentSize)
                     translationX = offset.x - (size.width / 2)
                     translationY = offset.y - (size.width / 2)
                 }
@@ -159,58 +165,66 @@ fun KmpColorPicker(
     },
     modifier: Modifier = Modifier,
 ) {
+    val lambdaColors by rememberUpdatedState(colors)
     var draggingColor by remember { mutableStateOf<HsvColor?>(null) }
     var draggingKey by remember { mutableStateOf<String?>(null) }
     val interactionSourceRegister = remember { mutableMapOf<String, MutableInteractionSource>() }
     val focusRequesterRegister = remember { mutableMapOf<String, FocusRequester>() }
 
     BoxWithConstraints(
-        modifier = Modifier
-            .requiredSizeIn(minWidth = 1.dp, minHeight = 1.dp)
-            .defaultMinSize(minWidth = 100.dp, minHeight = 100.dp)
-            .pointerInput(Unit) {
-                awaitEachGesture {
-                    val down = awaitFirstDown(requireUnconsumed = false)
-                    val activeKey = run {
-                        var minDistance = Pair<String?, Float>(null, Float.MAX_VALUE)
-                        colors.forEach { (key, color) ->
-                            val distance = cartesianDistance(down.position, renderer.offsetForColor(color, size))
-                            if (distance > minDistance.second) return@forEach
-                            minDistance = Pair(key, distance)
-                        }
-                        minDistance.first ?: return@awaitEachGesture
-                    }
-
-                    val downColor = renderer.colorForOffset(colors[activeKey] ?: HsvColor.Black, down.position, size)
-                    draggingColor = downColor
-                    draggingKey = activeKey
-                    onChange(activeKey, downColor, down.position, size)
-
-                    val pressInteraction = PressInteraction.Press(down.position)
-                    interactionSourceRegister[activeKey]?.tryEmit(pressInteraction)
-                    focusRequesterRegister[activeKey]?.requestFocus()
-
-                    var lastPosition = down.position
-                    drag(down.id) {
-                        lastPosition = it.position
-                        val updatedColor = renderer.colorForOffset(draggingColor ?: HsvColor.Black, it.position, size)
-                        draggingColor = updatedColor
-                        onChange(activeKey, updatedColor, it.position, size)
-                        it.consume()
-                    }
-
-                    val upColor = renderer.colorForOffset(draggingColor ?: HsvColor.Black, lastPosition, size)
-                    draggingKey = null
-                    onDone(activeKey, upColor, lastPosition, size)
-
-                    interactionSourceRegister[activeKey]?.tryEmit(PressInteraction.Release(pressInteraction))
-                }
-            }
-            .drawBehind {
-                drawIntoCanvas { renderer.draw(colors.values.firstOrNull() ?: HsvColor.Black, it, size, rendererOptions) }
-            }
-            .then(modifier)
+        modifier = modifier
     ) {
+        val parentSize by rememberUpdatedState(IntSize(constraints.maxWidth, constraints.maxHeight))
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        val activeKey = run {
+                            var minDistance = Pair<String?, Float>(null, Float.MAX_VALUE)
+                            lambdaColors.forEach { (key, color) ->
+                                val distance = cartesianDistance(down.position, renderer.offsetForColor(color, size))
+                                if (distance > minDistance.second) return@forEach
+                                minDistance = Pair(key, distance)
+                            }
+                            minDistance.first ?: return@awaitEachGesture
+                        }
+
+                        val downColor = renderer.colorForOffset(lambdaColors[activeKey] ?: HsvColor.Black, down.position, size)
+                        draggingColor = downColor
+                        draggingKey = activeKey
+                        onChange(activeKey, downColor, down.position, size)
+
+                        val pressInteraction = PressInteraction.Press(down.position)
+                        interactionSourceRegister[activeKey]?.tryEmit(pressInteraction)
+                        focusRequesterRegister[activeKey]?.requestFocus()
+
+                        var lastPosition = down.position
+                        drag(down.id) {
+                            lastPosition = it.position
+                            val updatedColor = renderer.colorForOffset(draggingColor ?: HsvColor.Black, it.position, size)
+                            draggingColor = updatedColor
+                            onChange(activeKey, updatedColor, it.position, size)
+                            it.consume()
+                        }
+
+                        val upColor = renderer.colorForOffset(draggingColor ?: HsvColor.Black, lastPosition, size)
+                        draggingKey = null
+                        onDone(activeKey, upColor, lastPosition, size)
+
+                        interactionSourceRegister[activeKey]?.tryEmit(PressInteraction.Release(pressInteraction))
+                    }
+                }
+                .graphicsLayer {
+                    if (rendererOptions.renderAlpha) alpha = (lambdaColors.values.firstOrNull() ?: HsvColor.Black).alpha
+                }
+                .drawBehind {
+                    drawIntoCanvas { renderer.draw(lambdaColors.values.firstOrNull() ?: HsvColor.Black, it, size, rendererOptions) }
+                }
+        )
+
         colors.forEach { (key, color) ->
             key(key) {
                 val mergedColor = rememberUpdatedState(if (draggingKey == key) draggingColor ?: color else color)
@@ -242,17 +256,13 @@ fun KmpColorPicker(
                                 else -> return@onKeyEvent false
                             }
 
-                            val size = IntSize(constraints.maxWidth, constraints.maxHeight)
-                            val newOffset = renderer.offsetForColor(mergedColor.value, size) + directionOffset
-                            val updatedColor = renderer.colorForOffset(mergedColor.value, newOffset, size)
-                            onChange(key, updatedColor, newOffset, size)
+                            val newOffset = renderer.offsetForColor(mergedColor.value, parentSize) + directionOffset
+                            val updatedColor = renderer.colorForOffset(mergedColor.value, newOffset, parentSize)
+                            onChange(key, updatedColor, newOffset, parentSize)
                             true
                         }
                         .graphicsLayer {
-                            val offset = renderer.offsetForColor(
-                                mergedColor.value,
-                                IntSize(constraints.maxWidth, constraints.maxHeight)
-                            )
+                            val offset = renderer.offsetForColor(mergedColor.value, parentSize)
                             translationX = offset.x - (size.width / 2)
                             translationY = offset.y - (size.width / 2)
                         }

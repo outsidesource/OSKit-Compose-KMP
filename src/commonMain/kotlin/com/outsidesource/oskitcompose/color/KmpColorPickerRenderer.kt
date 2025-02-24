@@ -54,16 +54,6 @@ object SvColorPickerRenderer : IKmpColorPickerRenderer {
                 rect = Rect(Offset(0f, 0f), size),
             )
         }
-
-        if (options.renderAlpha) {
-            canvas.drawRect(
-                paint = Paint().apply {
-                    blendMode = BlendMode.DstOut
-                    alpha = 1f - color.alpha
-                },
-                rect = Rect(Offset(0f, 0f), size),
-            )
-        }
     }
 
     override fun colorForOffset(
@@ -123,16 +113,6 @@ object HvColorPickerRenderer : IKmpColorPickerRenderer {
                 rect = Rect(Offset(0f, 0f), size),
             )
         }
-
-        if (options.renderAlpha) {
-            canvas.drawRect(
-                paint = Paint().apply {
-                    blendMode = BlendMode.DstOut
-                    alpha = 1f - color.alpha
-                },
-                rect = Rect(Offset(0f, 0f), size),
-            )
-        }
     }
 
     override fun colorForOffset(
@@ -184,16 +164,6 @@ object HsColorPickerRenderer : IKmpColorPickerRenderer {
                 paint = Paint().apply {
                     this.color = Color.Black
                     alpha = 1f - color.value
-                },
-                rect = Rect(Offset(0f, 0f), size),
-            )
-        }
-
-        if (options.renderAlpha) {
-            canvas.drawRect(
-                paint = Paint().apply {
-                    blendMode = BlendMode.DstOut
-                    alpha = 1f - color.alpha
                 },
                 rect = Rect(Offset(0f, 0f), size),
             )
@@ -261,19 +231,6 @@ object HsCircleColorPickerRenderer : IKmpColorPickerRenderer {
             )
         }
 
-        // Clip path to fix anti-aliasing halo around alpha
-        canvas.clipPath(Path().apply { addArc(size.toRect().inflate(1f), 0f, 360f) })
-
-        if (options.renderAlpha) {
-            canvas.drawRect(
-                rect = size.toRect(),
-                paint = Paint().apply {
-                    blendMode = BlendMode.DstOut
-                    alpha = 1f - color.alpha
-                },
-            )
-        }
-
         canvas.restore()
     }
 
@@ -336,7 +293,7 @@ object HvCircleColorPickerRenderer : IKmpColorPickerRenderer {
             radius = radius,
         )
 
-        // Clip path to fix anti-aliasing halo around alpha and saturation
+        // Clip path to fix anti-aliasing halo around saturation
         canvas.clipPath(Path().apply { addArc(size.toRect().inflate(1f), 0f, 360f) })
 
         if (options.render3rdComponent) {
@@ -349,16 +306,6 @@ object HvCircleColorPickerRenderer : IKmpColorPickerRenderer {
                         colors = listOf(Color.Black, Color.White),
                     )
                     alpha = 1f - color.saturation
-                },
-            )
-        }
-
-        if (options.renderAlpha) {
-            canvas.drawRect(
-                rect = size.toRect(),
-                paint = Paint().apply {
-                    blendMode = BlendMode.DstOut
-                    alpha = 1f - color.alpha
                 },
             )
         }
