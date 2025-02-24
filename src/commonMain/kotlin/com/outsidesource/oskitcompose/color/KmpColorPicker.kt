@@ -8,19 +8,9 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
@@ -29,21 +19,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isShiftPressed
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.outsidesource.oskitcompose.modifier.outerShadow
-import io.ktor.events.Events
-import kotlin.collections.set
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -68,6 +49,7 @@ fun KmpColorPicker(
 
     BoxWithConstraints(
         modifier = Modifier
+            .requiredSizeIn(minWidth = 1.dp, minHeight = 1.dp)
             .defaultMinSize(minWidth = 100.dp, minHeight = 100.dp)
             .pointerInput(Unit) {
                 awaitEachGesture {
@@ -87,6 +69,7 @@ fun KmpColorPicker(
                         val updatedColor = renderer.colorForOffset(mergedColor.value, it.position, size)
                         draggingColor = updatedColor
                         onChange(updatedColor, it.position, size)
+                        it.consume()
                     }
 
                     val upColor = renderer.colorForOffset(mergedColor.value, lastPosition, size)
@@ -183,6 +166,7 @@ fun KmpColorPicker(
 
     BoxWithConstraints(
         modifier = Modifier
+            .requiredSizeIn(minWidth = 1.dp, minHeight = 1.dp)
             .defaultMinSize(minWidth = 100.dp, minHeight = 100.dp)
             .pointerInput(Unit) {
                 awaitEachGesture {
@@ -212,6 +196,7 @@ fun KmpColorPicker(
                         val updatedColor = renderer.colorForOffset(draggingColor ?: HsvColor.Black, it.position, size)
                         draggingColor = updatedColor
                         onChange(activeKey, updatedColor, it.position, size)
+                        it.consume()
                     }
 
                     val upColor = renderer.colorForOffset(draggingColor ?: HsvColor.Black, lastPosition, size)
@@ -302,27 +287,6 @@ fun KmpColorPicker(
             }
         }
     }
-}
-
-private fun handleKeyEvent(
-    event: KeyEvent,
-    currentColor: HsvColor,
-    constraints: Constraints,
-    renderer: IKmpColorPickerRenderer,
-): HsvColor? {
-    if (event.type != KeyEventType.KeyDown) return null
-    val multiplier = if (event.isShiftPressed) 10f else 1f
-    val directionOffset = when (event.key) {
-        Key.DirectionUp -> Offset(0f, -1f * multiplier)
-        Key.DirectionRight -> Offset(1f * multiplier, 0f)
-        Key.DirectionDown -> Offset(0f, 1f * multiplier)
-        Key.DirectionLeft -> Offset(-1f * multiplier, 0f)
-        else -> return null
-    }
-
-    val size = IntSize(constraints.maxWidth, constraints.maxHeight)
-    val newOffset = renderer.offsetForColor(currentColor, size) + directionOffset
-    return renderer.colorForOffset(currentColor, newOffset, size)
 }
 
 @Composable
