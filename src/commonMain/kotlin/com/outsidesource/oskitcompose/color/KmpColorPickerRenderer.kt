@@ -23,16 +23,12 @@ object KmpColorPickerRenderer {
     val Hv = HvColorPickerRenderer
     val Hs = HsColorPickerRenderer
     val HsCircle = HsCircleColorPickerRenderer
-    val HvCircle = HvColorPickerRenderer
+    val HvCircle = HvCircleColorPickerRenderer
 }
 
 object SvColorPickerRenderer : IKmpColorPickerRenderer {
     override fun draw(color: HsvColor, canvas: Canvas, size: Size, options: KmpColorPickerRendererOptions) {
         val fullHueColor = Color.hsv(color.hue, 1f, 1f)
-        canvas.drawRect(
-            paint = Paint().apply { this.color = Color.White },
-            rect = Rect(Offset(0f, 0f), size),
-        )
 
         canvas.drawRect(
             paint = Paint().apply {
@@ -92,11 +88,6 @@ object SvColorPickerRenderer : IKmpColorPickerRenderer {
 
 object HvColorPickerRenderer : IKmpColorPickerRenderer {
     override fun draw(color: HsvColor, canvas: Canvas, size: Size, options: KmpColorPickerRendererOptions) {
-        canvas.drawRect(
-            paint = Paint().apply { this.color = Color.White },
-            rect = Rect(Offset(0f, 0f), size),
-        )
-
         canvas.drawRect(
             paint = Paint().apply {
                 shader = LinearGradientShader(
@@ -167,11 +158,6 @@ object HvColorPickerRenderer : IKmpColorPickerRenderer {
 object HsColorPickerRenderer : IKmpColorPickerRenderer {
     override fun draw(color: HsvColor, canvas: Canvas, size: Size, options: KmpColorPickerRendererOptions) {
         canvas.drawRect(
-            paint = Paint().apply { this.color = Color.White },
-            rect = Rect(Offset(0f, 0f), size),
-        )
-
-        canvas.drawRect(
             paint = Paint().apply {
                 shader = LinearGradientShader(
                     from = Offset(0f, 0f),
@@ -240,12 +226,6 @@ object HsCircleColorPickerRenderer : IKmpColorPickerRenderer {
 
         canvas.save()
         canvas.rotate(90f, size.center.x, size.center.y)
-
-        canvas.drawCircle(
-            paint = Paint().apply { this.color = Color.White },
-            center = size.center,
-            radius = radius,
-        )
 
         canvas.drawCircle(
             center = size.center,
@@ -332,12 +312,6 @@ object HvCircleColorPickerRenderer : IKmpColorPickerRenderer {
 
         canvas.save()
         canvas.rotate(90f, size.center.x, size.center.y)
-
-        canvas.drawCircle(
-            paint = Paint().apply { this.color = Color.White },
-            center = size.center,
-            radius = radius,
-        )
 
         canvas.drawCircle(
             center = size.center,
