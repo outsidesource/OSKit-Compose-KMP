@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.IntSize
 import kotlin.math.*
 
 interface IKmpColorPickerRenderer {
+    fun clipPath(color: HsvColor, size: Size, options: KmpColorPickerRendererOptions): Path
     fun draw(color: HsvColor, canvas: Canvas, size: Size, options: KmpColorPickerRendererOptions)
     fun colorForOffset(color: HsvColor, offset: Offset, size: IntSize): HsvColor
     fun offsetForColor(color: HsvColor, size: IntSize): Offset
@@ -14,19 +15,27 @@ interface IKmpColorPickerRenderer {
 
 @Immutable
 data class KmpColorPickerRendererOptions(
-    val renderAlpha: Boolean = false,
+    val renderAlpha: Boolean = true,
+    val renderAlphaChecker: Boolean = true,
     val render3rdComponent: Boolean = true,
 )
 
 object KmpColorPickerRenderer {
-    val Sv = SvColorPickerRenderer
-    val Hv = HvColorPickerRenderer
-    val Hs = HsColorPickerRenderer
-    val HsCircle = HsCircleColorPickerRenderer
-    val HvCircle = HvCircleColorPickerRenderer
+    fun Sv() = SvColorPickerRenderer()
+    fun Hv() = HvColorPickerRenderer()
+    fun Hs() = HsColorPickerRenderer()
+    fun HsCircle() = HsCircleColorPickerRenderer()
+    fun HvCircle() = HvCircleColorPickerRenderer()
 }
 
-object SvColorPickerRenderer : IKmpColorPickerRenderer {
+class SvColorPickerRenderer : IKmpColorPickerRenderer {
+    private val path = Path()
+
+    override fun clipPath(color: HsvColor, size: Size, options: KmpColorPickerRendererOptions): Path = path.apply {
+        reset()
+        addRect(size.toRect())
+    }
+
     override fun draw(color: HsvColor, canvas: Canvas, size: Size, options: KmpColorPickerRendererOptions) {
         val fullHueColor = Color.hsv(color.hue, 1f, 1f)
 
@@ -76,7 +85,14 @@ object SvColorPickerRenderer : IKmpColorPickerRenderer {
     }
 }
 
-object HvColorPickerRenderer : IKmpColorPickerRenderer {
+class HvColorPickerRenderer : IKmpColorPickerRenderer {
+    private val path = Path()
+
+    override fun clipPath(color: HsvColor, size: Size, options: KmpColorPickerRendererOptions): Path = path.apply {
+        reset()
+        addRect(size.toRect())
+    }
+
     override fun draw(color: HsvColor, canvas: Canvas, size: Size, options: KmpColorPickerRendererOptions) {
         canvas.drawRect(
             paint = Paint().apply {
@@ -135,7 +151,14 @@ object HvColorPickerRenderer : IKmpColorPickerRenderer {
     }
 }
 
-object HsColorPickerRenderer : IKmpColorPickerRenderer {
+class HsColorPickerRenderer : IKmpColorPickerRenderer {
+    private val path = Path()
+
+    override fun clipPath(color: HsvColor, size: Size, options: KmpColorPickerRendererOptions): Path = path.apply {
+        reset()
+        addRect(size.toRect())
+    }
+
     override fun draw(color: HsvColor, canvas: Canvas, size: Size, options: KmpColorPickerRendererOptions) {
         canvas.drawRect(
             paint = Paint().apply {
@@ -190,7 +213,14 @@ object HsColorPickerRenderer : IKmpColorPickerRenderer {
     }
 }
 
-object HsCircleColorPickerRenderer : IKmpColorPickerRenderer {
+class HsCircleColorPickerRenderer : IKmpColorPickerRenderer {
+    private val path = Path()
+
+    override fun clipPath(color: HsvColor, size: Size, options: KmpColorPickerRendererOptions): Path = path.apply {
+        reset()
+        addArc(size.toRect(), 0f, 360f)
+    }
+
     override fun draw(color: HsvColor, canvas: Canvas, size: Size, options: KmpColorPickerRendererOptions) {
         val radius = min(size.width, size.height) / 2f
 
@@ -263,7 +293,14 @@ object HsCircleColorPickerRenderer : IKmpColorPickerRenderer {
     }
 }
 
-object HvCircleColorPickerRenderer : IKmpColorPickerRenderer {
+class HvCircleColorPickerRenderer : IKmpColorPickerRenderer {
+    private val path = Path()
+
+    override fun clipPath(color: HsvColor, size: Size, options: KmpColorPickerRendererOptions): Path = path.apply {
+        reset()
+        addArc(size.toRect(), 0f, 360f)
+    }
+
     override fun draw(color: HsvColor, canvas: Canvas, size: Size, options: KmpColorPickerRendererOptions) {
         val radius = min(size.width, size.height) / 2f
 

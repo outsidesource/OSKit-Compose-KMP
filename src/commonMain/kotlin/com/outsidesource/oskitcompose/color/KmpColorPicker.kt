@@ -8,7 +8,10 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,9 +19,11 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.DpOffset
@@ -26,13 +31,14 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.outsidesource.oskitcompose.modifier.outerShadow
 import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 
 @Composable
 fun KmpColorPicker(
     color: HsvColor,
-    renderer: IKmpColorPickerRenderer = KmpColorPickerRenderer.Sv,
+    renderer: IKmpColorPickerRenderer = remember { KmpColorPickerRenderer.Sv() },
     rendererOptions: KmpColorPickerRendererOptions = remember { KmpColorPickerRendererOptions() },
     onChange: (HsvColor, offset: Offset, size: IntSize) -> Unit = { _, _, _ -> },
     onDone: (HsvColor, offset: Offset, size: IntSize) -> Unit = { _, _, _ -> },
@@ -81,6 +87,12 @@ fun KmpColorPicker(
                         onDone(upColor, lastPosition, size)
 
                         interactionSource.tryEmit(PressInteraction.Release(pressInteraction))
+                    }
+                }
+                .drawBehind {
+                    if (!rendererOptions.renderAlphaChecker) return@drawBehind
+                    clipPath(renderer.clipPath(mergedColor.value, size, rendererOptions)) {
+                        drawRect(brush = AlphaCheckerShader(density))
                     }
                 }
                 .graphicsLayer {
@@ -156,7 +168,7 @@ fun KmpColorPicker(
 @Composable
 fun KmpColorPicker(
     colors: Map<String, HsvColor>,
-    renderer: IKmpColorPickerRenderer = KmpColorPickerRenderer.Sv,
+    renderer: IKmpColorPickerRenderer = remember { KmpColorPickerRenderer.Sv() },
     rendererOptions: KmpColorPickerRendererOptions = remember { KmpColorPickerRendererOptions() },
     onChange: (String, HsvColor, offset: Offset, size: IntSize) -> Unit = { _, _, _, _ -> },
     onDone: (String, HsvColor, offset: Offset, size: IntSize) -> Unit = { _, _, _, _ -> },
@@ -217,11 +229,19 @@ fun KmpColorPicker(
                         interactionSourceRegister[activeKey]?.tryEmit(PressInteraction.Release(pressInteraction))
                     }
                 }
+                .drawBehind {
+                    if (!rendererOptions.renderAlphaChecker) return@drawBehind
+                    clipPath(renderer.clipPath(draggingColor ?: HsvColor.Black, size, rendererOptions)) {
+                        drawRect(brush = AlphaCheckerShader(density))
+                    }
+                }
                 .graphicsLayer {
                     if (rendererOptions.renderAlpha) alpha = (lambdaColors.values.firstOrNull() ?: HsvColor.Black).alpha
                 }
                 .drawBehind {
-                    drawIntoCanvas { renderer.draw(lambdaColors.values.firstOrNull() ?: HsvColor.Black, it, size, rendererOptions) }
+                    drawIntoCanvas {
+                        renderer.draw(lambdaColors.values.firstOrNull() ?: HsvColor.Black, it, size, rendererOptions)
+                    }
                 }
         )
 
@@ -324,4 +344,20 @@ private fun cartesianDistance(p1: Offset, p2: Offset): Float {
     val dx = p2.x - p1.x
     val dy = p2.y - p1.y
     return sqrt(dx.pow(2) + dy.pow(2))
+}
+
+class AlphaCheckerShader(val density: Float) : ShaderBrush() {
+    val paint = Paint().apply { color = Color(0x10000000) }
+
+    override fun createShader(size: Size): Shader {
+        val squareSizePx = 8 * density
+        val bitmap = ImageBitmap((squareSizePx * 2).roundToInt(), (squareSizePx * 2).roundToInt())
+        val canvas = Canvas(bitmap)
+        val squareSize = Size(squareSizePx, squareSizePx)
+
+        canvas.drawRect(rect = Rect(Offset.Zero, squareSize), paint = paint)
+        canvas.drawRect(rect = Rect(Offset(squareSizePx, squareSizePx), squareSize), paint = paint)
+
+        return ImageShader(bitmap, tileModeX = TileMode.Repeated, tileModeY = TileMode.Repeated)
+    }
 }
