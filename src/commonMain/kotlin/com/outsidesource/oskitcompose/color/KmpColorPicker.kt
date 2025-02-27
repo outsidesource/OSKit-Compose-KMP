@@ -128,37 +128,37 @@ fun KmpColorPicker(
                     translationX = offset.x - (size.width / 2)
                     translationY = offset.y - (size.width / 2)
                 }
-                // TODO: This allows clicking on the handle outside of the picker, but results in multiple events
-//                .pointerInput(Unit) {
-//                    awaitEachGesture {
-//                        val down = awaitFirstDown(requireUnconsumed = false)
-//                        val parentSize = IntSize(constraints.maxWidth, constraints.maxHeight)
-//                        val parentOffset = renderer.offsetForColor(mergedColor.value, parentSize)
-//                        var offset = parentOffset + down.position - Offset(size.width / 2f,  size.height / 2f)
-//
-//                        val downColor = renderer.colorForOffset(mergedColor.value, offset, parentSize)
-//                        draggingColor = downColor
-//                        isDragging = true
-//                        onChange(downColor, offset, parentSize)
-//
-//                        val pressInteraction = PressInteraction.Press(down.position)
-//                        interactionSource.tryEmit(pressInteraction)
-//                        focusRequester.requestFocus()
-//
-//                        drag(down.id) {
-//                            offset = offset + (it.position - it.previousPosition)
-//                            val dragColor = renderer.colorForOffset(mergedColor.value, offset, parentSize)
-//                            draggingColor = dragColor
-//                            onChange(dragColor, offset, parentSize)
-//                        }
-//
-//                        val upColor = renderer.colorForOffset(mergedColor.value, offset, size)
-//                        isDragging = false
-//                        onDone(upColor, offset, size)
-//
-//                        interactionSource.tryEmit(PressInteraction.Release(pressInteraction))
-//                    }
-//                }
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        val parentSize = IntSize(constraints.maxWidth, constraints.maxHeight)
+                        val parentOffset = renderer.offsetForColor(mergedColor.value, parentSize)
+                        var offset = parentOffset + down.position - Offset(size.width / 2f,  size.height / 2f)
+
+                        val downColor = renderer.colorForOffset(mergedColor.value, offset, parentSize)
+                        draggingColor = downColor
+                        isDragging = true
+                        onChange(downColor, offset, parentSize)
+
+                        val pressInteraction = PressInteraction.Press(down.position)
+                        interactionSource.tryEmit(pressInteraction)
+                        focusRequester.requestFocus()
+
+                        drag(down.id) {
+                            offset = offset + (it.position - it.previousPosition)
+                            val dragColor = renderer.colorForOffset(mergedColor.value, offset, parentSize)
+                            draggingColor = dragColor
+                            onChange(dragColor, offset, parentSize)
+                            it.consume()
+                        }
+
+                        val upColor = renderer.colorForOffset(mergedColor.value, offset, size)
+                        isDragging = false
+                        onDone(upColor, offset, size)
+
+                        interactionSource.tryEmit(PressInteraction.Release(pressInteraction))
+                    }
+                }
         ) {
             handle(mergedColor.value, interactionSource)
         }
@@ -286,31 +286,31 @@ fun KmpColorPicker(
                             translationX = offset.x - (size.width / 2)
                             translationY = offset.y - (size.width / 2)
                         }
-                    // TODO: This allows clicking on the handle outside of the picker, but results in multiple events
-//                    .pointerInput(Unit) {
-//                        awaitEachGesture {
-//                            val down = awaitFirstDown(requireUnconsumed = false)
-//                            val parentSize = IntSize(constraints.maxWidth, constraints.maxHeight)
-//                            val parentOffset = renderer.offsetForColor(mergedColor.value, parentSize)
-//                            var offset = parentOffset + down.position - Offset(size.width / 2f,  size.height / 2f)
-//
-//                            val downColor = renderer.colorForOffset(mergedColor.value, offset, parentSize)
-//                            draggingColor = downColor
-//                            draggingKey = key
-//                            onChange(key, downColor, offset, parentSize)
-//
-//                            drag(down.id) {
-//                                offset = offset + (it.position - it.previousPosition)
-//                                val dragColor = renderer.colorForOffset(mergedColor.value, offset, parentSize)
-//                                draggingColor = dragColor
-//                                onChange(key, dragColor, offset, parentSize)
-//                            }
-//
-//                            val upColor = renderer.colorForOffset(mergedColor.value, offset, size)
-//                            draggingKey = null
-//                            onDone(key, upColor, offset, size)
-//                        }
-//                    }
+                        .pointerInput(Unit) {
+                            awaitEachGesture {
+                                val down = awaitFirstDown(requireUnconsumed = false)
+                                val parentSize = IntSize(constraints.maxWidth, constraints.maxHeight)
+                                val parentOffset = renderer.offsetForColor(mergedColor.value, parentSize)
+                                var offset = parentOffset + down.position - Offset(size.width / 2f,  size.height / 2f)
+
+                                val downColor = renderer.colorForOffset(mergedColor.value, offset, parentSize)
+                                draggingColor = downColor
+                                draggingKey = key
+                                onChange(key, downColor, offset, parentSize)
+
+                                drag(down.id) {
+                                    offset = offset + (it.position - it.previousPosition)
+                                    val dragColor = renderer.colorForOffset(mergedColor.value, offset, parentSize)
+                                    draggingColor = dragColor
+                                    onChange(key, dragColor, offset, parentSize)
+                                    it.consume()
+                                }
+
+                                val upColor = renderer.colorForOffset(mergedColor.value, offset, size)
+                                draggingKey = null
+                                onDone(key, upColor, offset, size)
+                            }
+                        }
                 ) {
                     handle(mergedColor.value, interactionSource)
                 }
