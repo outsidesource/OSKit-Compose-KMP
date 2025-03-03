@@ -42,12 +42,12 @@ class SvColorPickerRenderer : IKmpColorPickerRenderer {
         canvas.drawRect(
             paint = Paint().apply {
                 shader = LinearGradientShader(
-                    from = Offset(0f, 0f),
+                    from = Offset.Zero,
                     to = Offset(size.width, 0f),
                     colors = listOf(Color.White, fullHueColor),
                 )
             },
-            rect = Rect(Offset(0f, 0f), size),
+            rect = Rect(Offset.Zero, size),
         )
 
         if (options.render3rdComponent) {
@@ -55,12 +55,12 @@ class SvColorPickerRenderer : IKmpColorPickerRenderer {
                 paint = Paint().apply {
                     blendMode = BlendMode.Multiply
                     shader = LinearGradientShader(
-                        from = Offset(0f, 0f),
+                        from = Offset.Zero,
                         to = Offset(0f, size.height),
                         colors = listOf(Color.Transparent, Color.Black),
                     )
                 },
-                rect = Rect(Offset(0f, 0f), size),
+                rect = Rect(Offset.Zero, size),
             )
         }
     }
@@ -97,36 +97,36 @@ class HvColorPickerRenderer : IKmpColorPickerRenderer {
         canvas.drawRect(
             paint = Paint().apply {
                 shader = LinearGradientShader(
-                    from = Offset(0f, 0f),
+                    from = Offset.Zero,
                     to = Offset(size.width, 0f),
-                    colors = listOf(Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red),
+                    colors = hueColors,
                 )
             },
-            rect = Rect(Offset(0f, 0f), size),
+            rect = Rect(Offset.Zero, size),
         )
 
         canvas.drawRect(
             paint = Paint().apply {
                 shader = LinearGradientShader(
-                    from = Offset(0f, 0f),
+                    from = Offset.Zero,
                     to = Offset(0f, size.height),
                     colors = listOf(Color.Transparent, Color.Black),
                 )
             },
-            rect = Rect(Offset(0f, 0f), size),
+            rect = Rect(Offset.Zero, size),
         )
 
         if (options.render3rdComponent) {
             canvas.drawRect(
                 paint = Paint().apply {
                     shader = LinearGradientShader(
-                        from = Offset(0f, 0f),
+                        from = Offset.Zero,
                         to = Offset(0f, size.height),
                         colors = listOf(Color.White, Color.Black),
                     )
                     alpha = 1f - color.saturation
                 },
-                rect = Rect(Offset(0f, 0f), size),
+                rect = Rect(Offset.Zero, size),
             )
         }
     }
@@ -163,23 +163,23 @@ class HsColorPickerRenderer : IKmpColorPickerRenderer {
         canvas.drawRect(
             paint = Paint().apply {
                 shader = LinearGradientShader(
-                    from = Offset(0f, 0f),
+                    from = Offset.Zero,
                     to = Offset(size.width, 0f),
-                    colors = listOf(Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red),
+                    colors = hueColors,
                 )
             },
-            rect = Rect(Offset(0f, 0f), size),
+            rect = Rect(Offset.Zero, size),
         )
 
         canvas.drawRect(
             paint = Paint().apply {
                 shader = LinearGradientShader(
-                    from = Offset(0f, 0f),
+                    from = Offset.Zero,
                     to = Offset(0f, size.height),
                     colors = listOf(Color.White, Color.Transparent),
                 )
             },
-            rect = Rect(Offset(0f, 0f), size),
+            rect = Rect(Offset.Zero, size),
         )
 
         if (options.render3rdComponent) {
@@ -188,7 +188,7 @@ class HsColorPickerRenderer : IKmpColorPickerRenderer {
                     this.color = Color.Black
                     alpha = 1f - color.value
                 },
-                rect = Rect(Offset(0f, 0f), size),
+                rect = Rect(Offset.Zero, size),
             )
         }
     }
@@ -232,7 +232,7 @@ class HsCircleColorPickerRenderer : IKmpColorPickerRenderer {
             paint = Paint().apply {
                 shader = SweepGradientShader(
                     center = size.center,
-                    colors = listOf(Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red),
+                    colors = hueColors,
                 )
             },
             radius = radius,
@@ -312,7 +312,7 @@ class HvCircleColorPickerRenderer : IKmpColorPickerRenderer {
             paint = Paint().apply {
                 shader = SweepGradientShader(
                     center = size.center,
-                    colors = listOf(Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red),
+                    colors = hueColors,
                 )
             },
             radius = radius,
@@ -381,3 +381,5 @@ class HvCircleColorPickerRenderer : IKmpColorPickerRenderer {
 
 fun Double.toDegree(): Double = this * 180.0 / PI.toDouble()
 fun Float.toRadians(): Double = this * PI.toDouble() / 180.0
+
+internal val hueColors = listOf(Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red)
