@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
-import com.outsidesource.oskitcompose.generated.resources.Res
+import com.outsidesource.oskit_compose.generated.resources.Res
 import com.outsidesource.oskitcompose.lib.VarRef
 import kotlinx.browser.document
 import org.jetbrains.compose.resources.ExperimentalResourceApi
