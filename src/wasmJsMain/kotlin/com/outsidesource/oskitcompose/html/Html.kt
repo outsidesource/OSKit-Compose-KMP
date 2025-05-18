@@ -18,8 +18,12 @@ import androidx.compose.ui.unit.dp
 import com.outsidesource.oskit_compose.generated.resources.Res
 import com.outsidesource.oskitcompose.lib.VarRef
 import kotlinx.browser.document
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.w3c.dom.*
+import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -204,6 +208,14 @@ data class HtmlState(
     fun emit(event: CustomEvent) = container.dispatchEvent(event)
     fun addListener(type: String, listener: EventListener) = container.addEventListener(type, listener)
     fun removeListener(type: String, listener: EventListener) = container.removeEventListener(type, listener)
+    fun listen(type: String): Flow<CustomEvent> = callbackFlow {
+        val listener: (Event) -> Unit = listener@{
+            if (it !is CustomEvent) return@listener
+            emit(it)
+        }
+        container.addEventListener(type, listener)
+        awaitClose { container.removeEventListener(type, listener) }
+    }
 }
 
 private external class ResizeEventDetail : JsAny {
