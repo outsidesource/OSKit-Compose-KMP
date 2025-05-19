@@ -41,14 +41,13 @@ import kotlin.uuid.Uuid
  *
  * JavaScript:
  *   [Html] supports both inline scripts and ES6 module scripts. All inline JS is injected as an ES6 module in order
- *   to isolate definitions. All scripts may import [HtmlState.runtimeJsUrl] to gain access to the `Env` object which
- *   provides access to the `container`, `content` elements as well as providing a mechanism to send and receive
- *   [CustomEvent]s to Kotlin.
+ *   to isolate definitions. Inline JS automatically imports [HtmlState.runtimeJsUrl] that provides the `Env` object
+ *   giving access to the `container`, `content` elements as well as providing a mechanism to send and receive
+ *   [CustomEvent]s to Kotlin. JavaScript files passed via the [scripts] parameter must be included as an ES6 module
+ *   manually.
  *
  *   inlineJs example:
  *   ```js
- *   import { Env } from "${htmlState.runtimeJsUrl()}"
- *
  *   function foo() {
  *      Env.emit(new CustomEvent("bar"))
  *   }
@@ -87,9 +86,9 @@ import kotlin.uuid.Uuid
 fun Html(
     state: HtmlState = rememberHtmlState(),
     modifier: Modifier = Modifier,
-    inlineJs: (() -> String)? = null,
+    inlineJs: ((HtmlState) -> String)? = null,
     scripts: List<String> = emptyList(),
-    html: () -> String,
+    html: (HtmlState) -> String,
 ) {
     val focusManager = LocalFocusManager.current
     val density = LocalDensity.current
@@ -99,7 +98,7 @@ fun Html(
 
     DisposableEffect(state) {
         val shadowRoot = state.container.shadowRoot ?: return@DisposableEffect onDispose {  }
-        state.content.innerHTML = html()
+        state.content.innerHTML = html(state)
         shadowRoot.appendChild(state.content)
 
         state.container.addEventListener("compose-html-resize") {
@@ -116,7 +115,7 @@ fun Html(
         if (inlineJs != null) {
             val script: HTMLScriptElement = document.createElement("script") as HTMLScriptElement
             script.type = "module"
-            script.textContent = inlineJs().trimIndent()
+            script.textContent = state.importRuntimeJs() + inlineJs(state).trimIndent()
             shadowRoot.appendChild(script)
         }
 
@@ -167,6 +166,9 @@ fun Html(
     }
 }
 
+/**
+ * Creates a remembered instance of [HtmlState]
+ */
 @Composable
 fun rememberHtmlState(): HtmlState = remember(Unit) { HtmlState() }
 
@@ -177,11 +179,19 @@ fun rememberHtmlState(): HtmlState = remember(Unit) { HtmlState() }
 @OptIn(ExperimentalUuidApi::class, ExperimentalResourceApi::class)
 @Immutable
 data class HtmlState(
-    val container: HTMLDivElement = document.createElement("div") as HTMLDivElement,
-    val content: HTMLDivElement = document.createElement("div") as HTMLDivElement,
+    val container: HTMLElement = document.createElement("div") as HTMLDivElement,
+    val content: HTMLElement = document.createElement("div") as HTMLDivElement,
 ) {
 
+    /**
+     * Returns the URL for the runtime JavaScript file. The runtime provides access to the
+     * `Env` variable in any inline JS or included scripts.
+     */
     val runtimeJsUrl: String
+
+    /**
+     * Returns a URL encoded string of the URL for the runtime JavaScript.
+     */
     val runtimeJsUrlEncoded: String
 
     init {
@@ -205,9 +215,26 @@ data class HtmlState(
         container.shadowRoot?.appendChild(runtimeScript)
     }
 
+    internal fun importRuntimeJs() = "import { Env } from \"$runtimeJsUrl\";\n"
+
+    /**
+     * Send an event from Kotlin to the JS environment
+     */
     fun emit(event: CustomEvent) = container.dispatchEvent(event)
+
+    /**
+     * Add an event listener
+     */
     fun addListener(type: String, listener: (Event) -> Unit) = container.addEventListener(type, listener)
+
+    /**
+     * Remove an event listener
+     */
     fun removeListener(type: String, listener: (Event) -> Unit) = container.removeEventListener(type, listener)
+
+    /**
+     * Listen to events from JS. Cancelling collection will remove the listener in JS.
+     */
     fun listen(type: String): Flow<CustomEvent> = callbackFlow {
         val listener: (Event) -> Unit = listener@{
             if (it !is CustomEvent) return@listener
