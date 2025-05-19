@@ -73,6 +73,7 @@ import kotlin.uuid.Uuid
  *   2. Accessibility will not flow naturally as the DOM elements are outside the canvas.
  *   3. Using `iframe` will prevent scrolling while hovering over the iframe. This is due to iframes not bubbling their
  *      events up to any parent documents.
+ *   4. Popups will not render over HTML content.
  *
  * @param state The state for the Html. This provides access to the created DOM nodes used and provides some helper
  *   functions for dispatching and listening to events.
