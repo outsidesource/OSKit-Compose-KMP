@@ -96,6 +96,7 @@ kotlin {
                 implementation(libs.kotlinx.atomicfu)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
+                implementation(libs.material.icons)
             }
         }
 

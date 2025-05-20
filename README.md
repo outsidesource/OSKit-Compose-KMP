@@ -88,6 +88,10 @@ implementation("com.outsidesource:oskit-compose:4.0.0")
 <https://github.com/outsidesource/OSKit-Example-App-KMP>
 
 ## Changelog
+### 4.0.1 - 2025-05-20
+* Kotlin 2.1.10 support
+* Compose multiplatform 1.8.0
+
 ### 4.0.0 - 2025-02-07
 #### Added
 * Kotlin 2.1.0 support
