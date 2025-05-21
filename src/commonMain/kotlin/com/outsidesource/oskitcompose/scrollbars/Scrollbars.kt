@@ -2,6 +2,7 @@ package com.outsidesource.oskitcompose.scrollbars
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -16,6 +17,11 @@ expect interface ScrollbarAdapter
 @Composable
 expect fun rememberKmpScrollbarAdapter(
     scrollState: LazyListState,
+): ScrollbarAdapter
+
+@Composable
+expect fun rememberKmpScrollbarAdapter(
+    scrollState: LazyGridState,
 ): ScrollbarAdapter
 
 @Composable

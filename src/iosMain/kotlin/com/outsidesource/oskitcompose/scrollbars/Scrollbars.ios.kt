@@ -4,6 +4,7 @@ import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,18 +14,17 @@ actual typealias ScrollbarAdapter = androidx.compose.foundation.v2.ScrollbarAdap
 @Composable
 actual fun rememberKmpScrollbarAdapter(
     scrollState: LazyListState,
-): ScrollbarAdapter =
-    rememberScrollbarAdapter(
-        scrollState = scrollState
-    )
+): ScrollbarAdapter = rememberScrollbarAdapter(scrollState = scrollState)
 
 @Composable
 actual fun rememberKmpScrollbarAdapter(
     scrollState: ScrollState,
-): ScrollbarAdapter =
-    rememberScrollbarAdapter(
-        scrollState = scrollState
-    )
+): ScrollbarAdapter = rememberScrollbarAdapter(scrollState = scrollState)
+
+@Composable
+actual fun rememberKmpScrollbarAdapter(
+    scrollState: LazyGridState
+): ScrollbarAdapter = rememberScrollbarAdapter(scrollState = scrollState)
 
 @Composable
 actual fun KmpVerticalScrollbar(
