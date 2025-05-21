@@ -60,8 +60,12 @@ fun VerticalGrid(
             rowHeights[i] = maxItemHeight
         }
 
+        val calculatedHeight = (rowHeights.sumOf { it } + vSpacing + vPadding)
         val layoutWidth = constraints.maxWidth
-        val layoutHeight = max(constraints.minHeight, rowHeights.sumOf { it } + vSpacing + vPadding)
+        val layoutHeight = when {
+            constraints.hasFixedHeight || constraints.hasBoundedHeight -> calculatedHeight.coerceIn(constraints.minHeight, constraints.maxHeight)
+            else -> calculatedHeight.coerceAtLeast(constraints.minHeight)
+        }
 
         layout(layoutWidth, layoutHeight) {
             val yPositions = IntArray(rowCount)
