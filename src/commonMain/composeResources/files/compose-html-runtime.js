@@ -23,7 +23,7 @@ export const Env = (() => {
     pointerEvents.forEach((type) => container.addEventListener(type, (ev) => canvas.dispatchEvent(new PointerEvent(type, ev))))
     const touchEvents = ["touchstart", "touchend", "touchmove", "touchcancel"]
     touchEvents.forEach((type) => container.addEventListener(type, (ev) => canvas.dispatchEvent(new TouchEvent(type, ev))))
-    const mouseEvents = ["click", "dblclick", "mousedown", "mouseenter", "mouseleave", "mouseout", "mouseover", "mouseup"]
+    const mouseEvents = ["click", "dblclick", "mousedown", "mouseenter", "mousemove", "mouseleave", "mouseout", "mouseover", "mouseup"]
     mouseEvents.forEach((type) => container.addEventListener(type, (ev) => canvas.dispatchEvent(new MouseEvent(type, ev))))
 
     const keyboardEvents = ["keyup", "keypress"]
