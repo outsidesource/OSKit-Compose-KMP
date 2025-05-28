@@ -20,7 +20,7 @@ internal val localCoordinatorObserver = staticCompositionLocalOf<ICoordinatorObs
         override fun addRouteLifecycleListener(listener: IRouteLifecycleListener) {}
         override fun hasBackStack() = false
         override fun markTransitionStatus(status: RouteTransitionStatus) {}
-        override fun pop() {}
+        override fun pop(ignoreTransitionLock: Boolean) {}
     }
 }
 val LocalRoute = staticCompositionLocalOf { RouteStackEntry(object : IRoute {}) }
