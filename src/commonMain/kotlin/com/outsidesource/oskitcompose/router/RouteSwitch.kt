@@ -45,7 +45,7 @@ fun RouteSwitch(
             override val routeStack: List<RouteStackEntry>
                 get() = router.routeStack
             override fun hasBackStack(): Boolean = router.hasBackStack()
-            override fun pop() = router.pop()
+            override fun pop(ignoreTransitionLock: Boolean) = router.pop(ignoreTransitionLock)
             override fun markTransitionStatus(status: RouteTransitionStatus) = router.markTransitionStatus(status)
             override fun addRouteLifecycleListener(listener: IRouteLifecycleListener) =
                 router.addRouteLifecycleListener(listener)
