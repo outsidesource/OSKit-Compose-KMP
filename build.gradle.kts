@@ -96,6 +96,7 @@ kotlin {
                 implementation(libs.kotlinx.atomicfu)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
                 implementation(libs.material.icons)
             }
         }
@@ -141,6 +142,10 @@ kotlin {
             }
         }
     }
+}
+
+dependencies {
+    debugImplementation(libs.androidx.ui.tooling)
 }
 
 android {
