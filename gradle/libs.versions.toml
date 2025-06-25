@@ -1,22 +1,23 @@
 [versions]
-kotlin = "2.1.21"
+kotlin = "2.2.0"
 activityCompose = "1.10.1"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 koin = "4.0.0"
 compose = "1.8.1"
 ktor-client-core = "3.0.3"
-lifecycleProcess = "2.9.0"
+lifecycleProcess = "2.9.1"
 markdown = "0.7.3"
 okio = "3.9.1"
 oskitKmp = "5.1.0"
-compose-ui = "1.8.2"
+compose-ui = "1.8.3"
 kotlinx-atomicfu = "0.26.1"
-kotlinx-datetime = "0.6.1"
+kotlinx-datetime = "0.6.2"
 kotlinx-coroutines-core = "1.10.2"
 kotlinx-browser = "0.3"
 dokka = "2.0.0"
 material-icons = "1.7.3"
+uiTooling = "1.8.3"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -38,6 +39,7 @@ okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 oskit-kmp = { module = "com.outsidesource:oskit-kmp", version.ref = "oskitKmp" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose-ui" }
 material-icons = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "material-icons" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "uiTooling" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

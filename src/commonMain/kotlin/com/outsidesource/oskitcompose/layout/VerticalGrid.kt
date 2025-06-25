@@ -42,7 +42,7 @@ fun VerticalGrid(
         val topPadding = contentPadding.calculateTopPadding().roundToPx()
         val hPadding = startPadding + contentPadding.calculateEndPadding(layoutDirection).roundToPx()
         val vPadding = topPadding + contentPadding.calculateBottomPadding().roundToPx()
-        val cellWidth = (constraints.maxWidth - hSpacing - hPadding) / columns
+        val cellWidth = maxOf((constraints.maxWidth - hSpacing - hPadding) / columns, 0)
 
         for (i in 0..< rowCount) {
             var maxItemHeight = 0

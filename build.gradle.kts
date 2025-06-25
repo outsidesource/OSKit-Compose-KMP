@@ -96,6 +96,7 @@ kotlin {
                 implementation(libs.kotlinx.atomicfu)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
                 implementation(libs.material.icons)
             }
         }
@@ -141,6 +142,10 @@ kotlin {
             }
         }
     }
+}
+
+dependencies {
+    debugImplementation(libs.androidx.ui.tooling)
 }
 
 android {
@@ -200,18 +205,14 @@ mavenPublishing {
 
 // To get compose compiler metrics run: ./gradlew publishToMavenLocal -PcomposeCompilerReports=true
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        if (project.findProperty("composeCompilerReports") == "true") {
-            freeCompilerArgs += listOf(
-                "-P",
-                "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${project.buildDir.absolutePath}/compose_compiler"
-            )
-        }
-        if (project.findProperty("composeCompilerMetrics") == "true") {
-            freeCompilerArgs += listOf(
-                "-P",
-                "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${project.buildDir.absolutePath}/compose_compiler"
-            )
+    kotlin {
+        compilerOptions {
+            if (project.findProperty("composeCompilerReports") == "true") {
+                freeCompilerArgs.add("-P plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${projectDir.resolve("/build").absolutePath}/compose_compiler")
+            }
+            if (project.findProperty("composeCompilerMetrics") == "true") {
+                freeCompilerArgs.add("-P plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${projectDir.resolve("/build").absolutePath}/compose_compiler")
+            }
         }
     }
 }

@@ -6,9 +6,13 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Density
@@ -79,5 +83,19 @@ internal class ImageLoadErrorPainter(density: Density) : Painter() {
             start = Offset(edgeDistance, size.height - edgeDistance),
             end = Offset(size.width - edgeDistance, edgeDistance)
         )
+    }
+}
+
+
+private class ShapePainter(
+    private val shape: Shape,
+    private val color: Color = Color.Black,
+    private val style: DrawStyle = Fill
+) : Painter() {
+    override val intrinsicSize: Size get() = Size.Unspecified
+
+    override fun DrawScope.onDraw() {
+        val outline = shape.createOutline(size, layoutDirection, this)
+        drawOutline(outline = outline, color = color, style = style)
     }
 }
