@@ -7,8 +7,12 @@ import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import com.outsidesource.oskitkmp.coordinator.Coordinator
 import com.outsidesource.oskitkmp.coordinator.ICoordinatorObserver
@@ -108,37 +112,30 @@ fun RouteSwitch(
         }
     } else {
         LaunchedEffect(currentRoute) {
-            // This ensures we don't animate after the back gesture is cancelled and we
+            // This ensures we don't animate after the back gesture is canceled and we
             // are already on the current state
             if (transitionState.currentState != currentRoute) {
                 transitionState.animateTo(currentRoute)
             } else {
-                // convert from nanoseconds to milliseconds
-                val totalDuration = transition.totalDurationNanos / 1_000_000
-                // When the predictive back gesture is cancel, we need to manually animate
+                val totalDurationMillis = transition.totalDurationNanos / 1_000_000
+                // When the predictive back gesture is canceled on iOS, we need to manually animate
                 // the SeekableTransitionState from where it left off, to zero and then
                 // snapTo the final position.
                 animate(
                     initialValue = transitionState.fraction,
                     targetValue = 0f,
-                    animationSpec = tween((transitionState.fraction * totalDuration).toInt())
+                    animationSpec = tween((transitionState.fraction * totalDurationMillis).toInt())
                 ) { value, _ ->
                     this@LaunchedEffect.launch {
-                        if (value > 0) {
-                            // Seek the original transition back to the currentState
-                            transitionState.seekTo(value)
-                        }
-                        if (value == 0f) {
-                            // Once we animate to the start, we need to snap to the right state.
-                            transitionState.snapTo(currentRoute)
-                        }
+                        if (value > 0) transitionState.seekTo(value)
+                        if (value == 0f) transitionState.snapTo(currentRoute)
                     }
                 }
             }
         }
     }
 
-    // Example: https://github.com/JetBrains/compose-multiplatform-core/blob/00374fd96c631a5df051dc4c6e917ffb011235ce/navigation/navigation-compose/src/commonMain/kotlin/androidx/navigation/compose/NavHost.kt
+    // Example: https://github.com/JetBrains/compose-multiplatform-core/blob/jb-main/navigation/navigation-compose/src/commonMain/kotlin/androidx/navigation/compose/NavHost.kt
     transition.AnimatedContent(
         transitionSpec = createComposeRouteTransition().let { composeTransition ->
             {
@@ -148,13 +145,14 @@ fun RouteSwitch(
                 } else {
                     composeTransition()
                 }
-                
-                // TODO: Redo zlayering to match NavHost
+
                 val initialZIndex = zIndices[initialState.id] ?: 0f.also { zIndices[initialState.id] = 0f }
                 val targetZ = when {
+                    targetState.id == initialState.id -> initialZIndex
                     inPredictiveBack -> initialZIndex - 1f
                     else -> initialZIndex + contentTransform.targetContentZIndex
-                }.also { z -> zIndices[targetState.id] = z }
+                }
+                zIndices[targetState.id] = targetZ
 
                 ContentTransform(
                     targetContentEnter = contentTransform.targetContentEnter,
@@ -180,7 +178,29 @@ fun RouteSwitch(
                 saveableStateHolder.removeState(state.id)
             }
             saveableStateHolder.SaveableStateProvider(state.id) {
-                content(state.route)
+                Box {
+                    content(state.route)
+
+                    val targetZ = zIndices[transition.targetState.id] ?: 0f
+                    val currentZ = zIndices[transition.segment.initialState.id] ?: 0f
+                    val isPopping = transition.targetState.id < transition.segment.initialState.id
+                    val showMask = if (isPopping) {
+                        targetZ < currentZ && state.id == transition.targetState.id
+                    } else {
+                        currentZ < targetZ && state.id == transition.segment.initialState.id
+                    }
+
+                    if (showMask) {
+                        val blackoutFraction = if (isPopping) 1 - transitionState.fraction else transitionState.fraction
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .drawBehind {
+                                    drawRect(Color.Black, alpha = 0.106f * blackoutFraction)
+                                }
+                        )
+                    }
+                }
             }
         }
     }

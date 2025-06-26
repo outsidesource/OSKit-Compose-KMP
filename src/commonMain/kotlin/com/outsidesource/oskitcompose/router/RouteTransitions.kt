@@ -40,6 +40,8 @@ data class ComposeRouteTransition(
     val exit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
     val popEnter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
     val popExit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
+    val targetZ: Float = 0f,
+    val popTargetZ: Float = 0f,
 ) : IRouteTransition
 
 val PushFromTopRouteTransition = ComposeRouteTransition(
