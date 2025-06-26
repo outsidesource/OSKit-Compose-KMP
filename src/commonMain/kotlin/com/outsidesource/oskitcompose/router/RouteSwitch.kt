@@ -9,8 +9,7 @@ import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import com.outsidesource.oskitcompose.lib.VarRef
-import com.outsidesource.oskitcompose.lib.rememberLastNonNullValue
+import androidx.compose.ui.platform.LocalDensity
 import com.outsidesource.oskitkmp.coordinator.Coordinator
 import com.outsidesource.oskitkmp.coordinator.ICoordinatorObserver
 import com.outsidesource.oskitkmp.router.*
@@ -82,11 +81,13 @@ fun RouteSwitch(
     var progress by remember { mutableStateOf(0f) }
     var inPredictiveBack by remember { mutableStateOf(false) }
     val zIndices = remember { mutableMapOf<Int, Float>() }
+    val density = LocalDensity.current
 
     KmpPredictiveBackHandler(coordinatorObserver.hasBackStack()) { ev ->
         progress = 0f
         try {
             ev.collect {
+                // TODO: Limit to one edge on iOS?
                 inPredictiveBack = true
                 progress = it.progress
             }
@@ -139,22 +140,27 @@ fun RouteSwitch(
 
     // Example: https://github.com/JetBrains/compose-multiplatform-core/blob/00374fd96c631a5df051dc4c6e917ffb011235ce/navigation/navigation-compose/src/commonMain/kotlin/androidx/navigation/compose/NavHost.kt
     transition.AnimatedContent(
-        transitionSpec = createComposeRouteTransition().let {
+        transitionSpec = createComposeRouteTransition().let { composeTransition ->
             {
-                val isPopping = targetState.id < initialState.id
-                val transition = it()
+                val contentTransform = if (inPredictiveBack) {
+                    // TODO: This is a test if I can override the predictive back transition
+                    PredictiveBackTransition.toContentTransform(this, true, density)
+                } else {
+                    composeTransition()
+                }
+                
+                // TODO: Redo zlayering to match NavHost
                 val initialZIndex = zIndices[initialState.id] ?: 0f.also { zIndices[initialState.id] = 0f }
                 val targetZ = when {
-                    targetState.id == initialState.id -> 0f
-                    isPopping || inPredictiveBack -> initialZIndex - 1f
-                    else -> initialZIndex + 1f
+                    inPredictiveBack -> initialZIndex - 1f
+                    else -> initialZIndex + contentTransform.targetContentZIndex
                 }.also { z -> zIndices[targetState.id] = z }
 
                 ContentTransform(
-                    targetContentEnter = transition.targetContentEnter,
-                    initialContentExit = transition.initialContentExit,
+                    targetContentEnter = contentTransform.targetContentEnter,
+                    initialContentExit = contentTransform.initialContentExit,
                     targetContentZIndex = targetZ,
-                    sizeTransform = transition.sizeTransform,
+                    sizeTransform = contentTransform.sizeTransform,
                 )
             }
         },

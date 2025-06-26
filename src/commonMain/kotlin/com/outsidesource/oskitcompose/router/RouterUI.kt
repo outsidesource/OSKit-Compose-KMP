@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import com.outsidesource.oskitkmp.coordinator.ICoordinatorObserver
 import com.outsidesource.oskitkmp.router.*
 import com.outsidesource.oskitkmp.tuples.Tup3
@@ -35,9 +36,24 @@ internal fun createComposeRouteTransition(): AnimatedContentTransitionScope<Rout
         val route = if (isPopping) initialState else targetState
         val transition = (route.transition as? ComposeRouteTransition) ?: NoRouteTransition
 
-        (if (isPopping) transition.popEnter else transition.enter)(density) togetherWith
-                (if (isPopping) transition.popExit else transition.exit)(density)
+        ContentTransform(
+            targetContentEnter = (if (isPopping) transition.popEnter else transition.enter)(density),
+            initialContentExit = (if (isPopping) transition.popExit else transition.exit)(density),
+            targetContentZIndex = if (isPopping) transition.popTargetZ else transition.targetZ,
+        )
     }
+}
+
+internal fun ComposeRouteTransition.toContentTransform(
+    animationScope: AnimatedContentTransitionScope<RouteStackEntry>,
+    isPopping: Boolean,
+    density: Density,
+): ContentTransform {
+    return ContentTransform(
+        targetContentEnter = (if (isPopping) popEnter else enter)(animationScope, density),
+        initialContentExit = (if (isPopping) popExit else exit)(animationScope, density),
+        targetContentZIndex = if (isPopping) popTargetZ else targetZ,
+    )
 }
 
 /**
