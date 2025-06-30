@@ -1,12 +1,20 @@
 package com.outsidesource.oskitcompose.router
 
-import androidx.compose.animation.*
-import androidx.compose.runtime.*
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.NonRestartableComposable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
+import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitkmp.coordinator.ICoordinatorObserver
-import com.outsidesource.oskitkmp.router.*
+import com.outsidesource.oskitkmp.router.IRoute
+import com.outsidesource.oskitkmp.router.IRouteLifecycleListener
+import com.outsidesource.oskitkmp.router.RouteStackEntry
+import com.outsidesource.oskitkmp.router.RouteTransitionStatus
 import com.outsidesource.oskitkmp.tuples.Tup3
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,32 +36,23 @@ val LocalRoute = staticCompositionLocalOf { RouteStackEntry(object : IRoute {}) 
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-internal fun createComposeRouteTransition(): AnimatedContentTransitionScope<RouteStackEntry>.() -> ContentTransform {
+internal fun createComposeRouteTransition(
+    transitionRef: VarRef<ComposeRouteTransition?>,
+): AnimatedContentTransitionScope<RouteStackEntry>.() -> ContentTransform {
     val density = LocalDensity.current
 
     return {
         val isPopping = targetState.id < initialState.id
         val route = if (isPopping) initialState else targetState
         val transition = (route.transition as? ComposeRouteTransition) ?: NoRouteTransition
+        transitionRef.value = transition
 
         ContentTransform(
             targetContentEnter = (if (isPopping) transition.popEnter else transition.enter)(density),
             initialContentExit = (if (isPopping) transition.popExit else transition.exit)(density),
-            targetContentZIndex = if (isPopping) transition.popTargetZ else transition.targetZ,
+            targetContentZIndex = if (isPopping) transition.enterZ * -1 else transition.enterZ,
         )
     }
-}
-
-internal fun ComposeRouteTransition.toContentTransform(
-    animationScope: AnimatedContentTransitionScope<RouteStackEntry>,
-    isPopping: Boolean,
-    density: Density,
-): ContentTransform {
-    return ContentTransform(
-        targetContentEnter = (if (isPopping) popEnter else enter)(animationScope, density),
-        initialContentExit = (if (isPopping) popExit else exit)(animationScope, density),
-        targetContentZIndex = if (isPopping) popTargetZ else targetZ,
-    )
 }
 
 /**

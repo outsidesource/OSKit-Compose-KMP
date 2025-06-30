@@ -10,14 +10,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
+import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitkmp.coordinator.Coordinator
 import com.outsidesource.oskitkmp.coordinator.ICoordinatorObserver
 import com.outsidesource.oskitkmp.router.*
-import io.ktor.utils.io.CancellationException
+import io.ktor.utils.io.*
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -85,7 +82,6 @@ fun RouteSwitch(
     var progress by remember { mutableStateOf(0f) }
     var inPredictiveBack by remember { mutableStateOf(false) }
     val zIndices = remember { mutableMapOf<Int, Float>() }
-    val density = LocalDensity.current
 
     KmpPredictiveBackHandler(coordinatorObserver.hasBackStack()) { ev ->
         progress = 0f
@@ -135,17 +131,14 @@ fun RouteSwitch(
         }
     }
 
+    // TODO: Fix this. This is nasty
+    val rawComposeTransition = remember { VarRef<ComposeRouteTransition?>(null) }
+
     // Example: https://github.com/JetBrains/compose-multiplatform-core/blob/jb-main/navigation/navigation-compose/src/commonMain/kotlin/androidx/navigation/compose/NavHost.kt
     transition.AnimatedContent(
-        transitionSpec = createComposeRouteTransition().let { composeTransition ->
+        transitionSpec = createComposeRouteTransition(rawComposeTransition).let { composeTransition ->
             {
-                val contentTransform = if (inPredictiveBack) {
-                    // TODO: This is a test if I can override the predictive back transition
-                    PredictiveBackTransition.toContentTransform(this, true, density)
-                } else {
-                    composeTransition()
-                }
-
+                val contentTransform = composeTransition()
                 val initialZIndex = zIndices[initialState.id] ?: 0f.also { zIndices[initialState.id] = 0f }
                 val targetZ = when {
                     targetState.id == initialState.id -> initialZIndex
@@ -181,25 +174,20 @@ fun RouteSwitch(
                 Box {
                     content(state.route)
 
-                    val targetZ = zIndices[transition.targetState.id] ?: 0f
+                    val targetZ = zIndices[transition.segment.targetState.id] ?: 0f
                     val currentZ = zIndices[transition.segment.initialState.id] ?: 0f
-                    val isPopping = transition.targetState.id < transition.segment.initialState.id
-                    val showMask = if (isPopping) {
-                        targetZ < currentZ && state.id == transition.targetState.id
+                    val isPopping = transition.segment.targetState.id < transition.segment.initialState.id
+                    val showMask = if (transition.isRunning) {
+                        if (isPopping) {
+                            targetZ < currentZ && state.id == transition.segment.targetState.id
+                        } else {
+                            currentZ < targetZ && state.id == transition.segment.initialState.id
+                        }
                     } else {
-                        currentZ < targetZ && state.id == transition.segment.initialState.id
+                        false
                     }
 
-                    if (showMask) {
-                        val blackoutFraction = if (isPopping) 1 - transitionState.fraction else transitionState.fraction
-                        Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .drawBehind {
-                                    drawRect(Color.Black, alpha = 0.106f * blackoutFraction)
-                                }
-                        )
-                    }
+                    if (showMask) rawComposeTransition.value?.lowerLayerMask?.invoke(this, isPopping, transitionState)
                 }
             }
         }

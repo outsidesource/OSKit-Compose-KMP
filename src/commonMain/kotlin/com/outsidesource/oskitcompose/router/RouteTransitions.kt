@@ -2,12 +2,17 @@ package com.outsidesource.oskitcompose.router
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.outsidesource.oskitcompose.animation.CubicBezierEaseInEaseOut
-import com.outsidesource.oskitcompose.animation.CubicBezierEaseOutCirc
 import com.outsidesource.oskitkmp.router.IAnimatedRoute
 import com.outsidesource.oskitkmp.router.IRouteTransition
 import com.outsidesource.oskitkmp.router.RouteStackEntry
@@ -40,8 +45,8 @@ data class ComposeRouteTransition(
     val exit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
     val popEnter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
     val popExit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
-    val targetZ: Float = 0f,
-    val popTargetZ: Float = 0f,
+    val enterZ: Float = 0f,
+    val lowerLayerMask: (@Composable BoxScope.(isPopping: Boolean, transition: SeekableTransitionState<RouteStackEntry>) -> Unit)? = null,
 ) : IRouteTransition
 
 val PushFromTopRouteTransition = ComposeRouteTransition(
@@ -74,6 +79,17 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
         val offsetX = with(it) { 40.dp.toPx() }.toInt()
         slideOut(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) } + fadeOut(tween(250, easing = EaseInOut))
     },
+    enterZ = 1f,
+    lowerLayerMask = { isPopping, transitionState ->
+        val blackoutFraction = if (isPopping) 1 - transitionState.fraction else transitionState.fraction
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .drawBehind {
+                    drawRect(Color.Black, alpha = blackoutFraction)
+                }
+        )
+    }
 )
 
 //val PushFromRightRouteTransition = ComposeRouteTransition(
