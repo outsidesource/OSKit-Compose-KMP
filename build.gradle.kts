@@ -111,7 +111,7 @@ kotlin {
             dependencies {
                 implementation(libs.activity.compose)
                 implementation(libs.lifecycle.process)
-                implementation(libs.compose.ui)
+                implementation(libs.compose.multiplatform)
                 implementation(libs.core.ktx)
                 implementation(libs.ktor.client.cio)
             }
