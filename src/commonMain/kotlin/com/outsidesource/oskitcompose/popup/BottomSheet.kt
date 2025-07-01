@@ -29,6 +29,7 @@ import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitcompose.modifier.OuterShadow
 import com.outsidesource.oskitcompose.modifier.outerShadow
 import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
@@ -139,6 +140,7 @@ fun BottomSheet(
 
                     LaunchedEffect(isVisible) {
                         if (isVisible) {
+                            delay(16) // TODO: Temporary fix due to issue in iOS since compose-multiplatform 1.8.0-beta02 causing this animation not to play
                             offsetAnim.snapTo(swipeData.size.value.height.toFloat())
                             offsetAnim.animateTo(0f, tween(styles.transitionDuration))
                         } else if (!offsetAnim.isRunning) {
