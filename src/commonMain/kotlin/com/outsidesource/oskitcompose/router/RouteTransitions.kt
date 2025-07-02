@@ -2,6 +2,7 @@ package com.outsidesource.oskitcompose.router
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -39,6 +40,8 @@ fun routeTransition(transition: IRouteTransition): IAnimatedRoute {
  * @param [exit] The animation for the outgoing content during a push()
  * @param [popEnter] The animation for incoming content during a pop()
  * @param [popExit] The animation for outgoing content during a pop()
+ * @param [predictiveBackEnter] An optional animation for predictive back. If no animation is supplied, the enter animation will be used
+ * @param [predictiveBackExit] An optional animation for predictive back. If no animation is supplied, the exit animation will be used
  * @param [enterZ] The z-layer for the enter animation. By default, the enter animation will be on top of the exit
  *   animation. Valid values are 1f or -1f. The exit animation will be placed on the inverse z-layer. For example,
  *   if [enterZ] is set to 1f, the exit animation is set to -1f.
@@ -50,6 +53,8 @@ data class ComposeRouteTransition(
     val exit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
     val popEnter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
     val popExit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
+    val predictiveBackEnter: ((swipeEdge: Int) -> AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition)? = null,
+    val predictiveBackExit: ((swipeEdge: Int) -> AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition)? = null,
     val enterZ: Float = 1f,
     val baseLayerOverlay: (@Composable BoxScope.(isPopping: Boolean, transition: SeekableTransitionState<RouteStackEntry>) -> Unit)? = null,
 ) : IRouteTransition
@@ -83,6 +88,23 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
     popExit = {
         val offsetX = with(it) { 40.dp.toPx() }.toInt()
         fadeOut(tween(250, easing = EaseInOut)) + slideOut(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) }
+    },
+    predictiveBackEnter = { edge ->
+        {
+            slideIntoContainer(
+                towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(durationMillis = 250, easing = LinearEasing),
+                initialOffset = { fullOffset -> (fullOffset * 0.3f).toInt() }
+            )
+        }
+    },
+    predictiveBackExit = { edge ->
+        {
+            slideOutOfContainer(
+                towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(durationMillis = 250, easing = LinearEasing)
+            )
+        }
     },
     baseLayerOverlay = { isPopping, transitionState ->
         Box(

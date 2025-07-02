@@ -82,7 +82,7 @@ fun RouteSwitch(
     val saveableStateHolder = rememberSaveableStateHolder()
     val currentRoute by coordinatorObserver.routeFlow.collectAsState()
     var progress by remember { mutableStateOf(0f) }
-    var inPredictiveBack by remember { mutableStateOf(false) }
+    var predictiveBackEdge by remember { mutableStateOf<Int?>(null) }
     val zIndices = remember { mutableMapOf<Int, Float>() }
 
     KmpPredictiveBackHandler(coordinatorObserver.hasBackStack()) { ev ->
@@ -90,20 +90,20 @@ fun RouteSwitch(
         try {
             ev.collect {
                 // TODO: Limit to one edge on iOS?
-                inPredictiveBack = true
+                predictiveBackEdge = it.swipeEdge
                 progress = it.progress
             }
-            inPredictiveBack = false
+            predictiveBackEdge = null
             coordinatorObserver.pop(ignoreTransitionLock = true)
         } catch (_: CancellationException) {
-            inPredictiveBack = false
+            predictiveBackEdge = null
         }
     }
 
     val transitionState = remember { SeekableTransitionState(currentRoute) }
     val transition = rememberTransition(transitionState)
 
-    if (inPredictiveBack) {
+    if (predictiveBackEdge != null) {
         LaunchedEffect(progress) {
             val previousEntry = coordinatorObserver.routeStack[coordinatorObserver.routeStack.size - 2]
             transitionState.seekTo(progress, previousEntry)
@@ -143,17 +143,32 @@ fun RouteSwitch(
             val transition = (route.transition as? ComposeRouteTransition) ?: NoRouteTransition
             composeTransitionRef.value = transition
 
+            val localPredictiveBackEdge = predictiveBackEdge
             val initialZIndex = zIndices[initialState.id] ?: (0f.also { zIndices[initialState.id] = 0f })
             val targetZ = when {
                 targetState.id == initialState.id -> initialZIndex
-                inPredictiveBack -> initialZIndex - 1f
+                predictiveBackEdge != null -> initialZIndex - 1f
                 else -> initialZIndex + (if (isPopping) transition.enterZ * -1 else transition.enterZ)
             }
             zIndices[targetState.id] = targetZ
 
+            val enterAnim = when {
+                localPredictiveBackEdge != null ->
+                    transition.predictiveBackEnter?.invoke(localPredictiveBackEdge) ?: transition.popEnter
+                isPopping -> transition.popEnter
+                else -> transition.enter
+            }
+
+            val exitAnim = when {
+                localPredictiveBackEdge != null ->
+                    transition.predictiveBackExit?.invoke((localPredictiveBackEdge)) ?: transition.popExit
+                isPopping -> transition.popExit
+                else -> transition.exit
+            }
+
             ContentTransform(
-                targetContentEnter = (if (isPopping) transition.popEnter else transition.enter)(density),
-                initialContentExit = (if (isPopping) transition.popExit else transition.exit)(density),
+                targetContentEnter = enterAnim(density),
+                initialContentExit = exitAnim(density),
                 targetContentZIndex = targetZ,
             )
         },
