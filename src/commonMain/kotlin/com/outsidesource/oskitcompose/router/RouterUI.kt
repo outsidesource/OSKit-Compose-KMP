@@ -1,15 +1,10 @@
 package com.outsidesource.oskitcompose.router
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.node.Ref
-import androidx.compose.ui.platform.LocalDensity
-import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitkmp.coordinator.ICoordinatorObserver
 import com.outsidesource.oskitkmp.router.IRoute
 import com.outsidesource.oskitkmp.router.IRouteLifecycleListener
@@ -33,27 +28,6 @@ internal val localCoordinatorObserver = staticCompositionLocalOf<ICoordinatorObs
     }
 }
 val LocalRoute = staticCompositionLocalOf { RouteStackEntry(object : IRoute {}) }
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-internal fun createComposeRouteTransition(
-    transitionRef: VarRef<ComposeRouteTransition?>,
-): AnimatedContentTransitionScope<RouteStackEntry>.() -> ContentTransform {
-    val density = LocalDensity.current
-
-    return {
-        val isPopping = targetState.id < initialState.id
-        val route = if (isPopping) initialState else targetState
-        val transition = (route.transition as? ComposeRouteTransition) ?: NoRouteTransition
-        transitionRef.value = transition
-
-        ContentTransform(
-            targetContentEnter = (if (isPopping) transition.popEnter else transition.enter)(density),
-            initialContentExit = (if (isPopping) transition.popExit else transition.exit)(density),
-            targetContentZIndex = if (isPopping) transition.enterZ * -1 else transition.enterZ,
-        )
-    }
-}
 
 /**
  * [RouteDestroyedEffect] runs only once when the [IRoute] is popped off the backstack. If the route the effect is

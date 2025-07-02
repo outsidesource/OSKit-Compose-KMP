@@ -10,6 +10,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.platform.LocalDensity
 import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitkmp.coordinator.Coordinator
 import com.outsidesource.oskitkmp.coordinator.ICoordinatorObserver
@@ -77,6 +78,7 @@ fun RouteSwitch(
     coordinatorObserver: ICoordinatorObserver,
     content: @Composable (route: IRoute) -> Unit,
 ) {
+    val density = LocalDensity.current
     val saveableStateHolder = rememberSaveableStateHolder()
     val currentRoute by coordinatorObserver.routeFlow.collectAsState()
     var progress by remember { mutableStateOf(0f) }
@@ -131,29 +133,29 @@ fun RouteSwitch(
         }
     }
 
-    // TODO: Fix this. This is nasty
-    val rawComposeTransition = remember { VarRef<ComposeRouteTransition?>(null) }
+    val composeTransitionRef = remember { VarRef<ComposeRouteTransition?>(null) }
 
     // Example: https://github.com/JetBrains/compose-multiplatform-core/blob/jb-main/navigation/navigation-compose/src/commonMain/kotlin/androidx/navigation/compose/NavHost.kt
     transition.AnimatedContent(
-        transitionSpec = createComposeRouteTransition(rawComposeTransition).let { composeTransition ->
-            {
-                val contentTransform = composeTransition()
-                val initialZIndex = zIndices[initialState.id] ?: 0f.also { zIndices[initialState.id] = 0f }
-                val targetZ = when {
-                    targetState.id == initialState.id -> initialZIndex
-                    inPredictiveBack -> initialZIndex - 1f
-                    else -> initialZIndex + contentTransform.targetContentZIndex
-                }
-                zIndices[targetState.id] = targetZ
+        transitionSpec = {
+            val isPopping = targetState.id < initialState.id
+            val route = if (isPopping) initialState else targetState
+            val transition = (route.transition as? ComposeRouteTransition) ?: NoRouteTransition
+            composeTransitionRef.value = transition
 
-                ContentTransform(
-                    targetContentEnter = contentTransform.targetContentEnter,
-                    initialContentExit = contentTransform.initialContentExit,
-                    targetContentZIndex = targetZ,
-                    sizeTransform = contentTransform.sizeTransform,
-                )
+            val initialZIndex = zIndices[initialState.id] ?: (0f.also { zIndices[initialState.id] = 0f })
+            val targetZ = when {
+                targetState.id == initialState.id -> initialZIndex
+                inPredictiveBack -> initialZIndex - 1f
+                else -> initialZIndex + (if (isPopping) transition.enterZ * -1 else transition.enterZ)
             }
+            zIndices[targetState.id] = targetZ
+
+            ContentTransform(
+                targetContentEnter = (if (isPopping) transition.popEnter else transition.enter)(density),
+                initialContentExit = (if (isPopping) transition.popExit else transition.exit)(density),
+                targetContentZIndex = targetZ,
+            )
         },
         contentKey = { it.id }
     ) { state ->
@@ -187,7 +189,7 @@ fun RouteSwitch(
                         false
                     }
 
-                    if (showMask) rawComposeTransition.value?.lowerLayerMask?.invoke(this, isPopping, transitionState)
+                    if (showMask) composeTransitionRef.value?.baseLayerOverlay?.invoke(this, isPopping, transitionState)
                 }
             }
         }

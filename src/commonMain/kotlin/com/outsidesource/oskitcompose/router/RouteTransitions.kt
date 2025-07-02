@@ -39,14 +39,19 @@ fun routeTransition(transition: IRouteTransition): IAnimatedRoute {
  * @param [exit] The animation for the outgoing content during a push()
  * @param [popEnter] The animation for incoming content during a pop()
  * @param [popExit] The animation for outgoing content during a pop()
+ * @param [enterZ] The z-layer for the enter animation. By default, the enter animation will be on top of the exit
+ *   animation. Valid values are 1f or -1f. The exit animation will be placed on the inverse z-layer. For example,
+ *   if [enterZ] is set to 1f, the exit animation is set to -1f.
+ * @param [baseLayerOverlay] An optional overlay for the bottom-most layer when transitioning. This allows
+ *   placing a scrim or blackout transition during the animation.
  */
 data class ComposeRouteTransition(
     val enter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
     val exit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
     val popEnter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
     val popExit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
-    val enterZ: Float = 0f,
-    val lowerLayerMask: (@Composable BoxScope.(isPopping: Boolean, transition: SeekableTransitionState<RouteStackEntry>) -> Unit)? = null,
+    val enterZ: Float = 1f,
+    val baseLayerOverlay: (@Composable BoxScope.(isPopping: Boolean, transition: SeekableTransitionState<RouteStackEntry>) -> Unit)? = null,
 ) : IRouteTransition
 
 val PushFromTopRouteTransition = ComposeRouteTransition(
@@ -73,20 +78,19 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
     },
     popEnter = {
         val offsetX = with(it) { -40.dp.toPx() }.toInt()
-        fadeIn(tween(250, easing = EaseInOut)) + slideIn(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) }
+        slideIn(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) }
     },
     popExit = {
         val offsetX = with(it) { 40.dp.toPx() }.toInt()
-        slideOut(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) } + fadeOut(tween(250, easing = EaseInOut))
+        fadeOut(tween(250, easing = EaseInOut)) + slideOut(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) }
     },
-    enterZ = 1f,
-    lowerLayerMask = { isPopping, transitionState ->
-        val blackoutFraction = if (isPopping) 1 - transitionState.fraction else transitionState.fraction
+    baseLayerOverlay = { isPopping, transitionState ->
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .drawBehind {
-                    drawRect(Color.Black, alpha = blackoutFraction)
+                    val blackoutFraction = if (isPopping) 1 - transitionState.fraction else transitionState.fraction
+                    drawRect(Color.Black, alpha = .106f * blackoutFraction)
                 }
         )
     }

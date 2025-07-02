@@ -50,7 +50,7 @@ import com.outsidesource.oskitcompose.modifier.OuterShadow
 import com.outsidesource.oskitcompose.modifier.outerShadow
 import com.outsidesource.oskitcompose.popup.Modal
 import com.outsidesource.oskitkmp.lib.snapTo
-import com.outsidesource.oskitkmp.text.NumberFormatter
+import com.outsidesource.oskitkmp.text.KmpNumberFormatter
 import com.outsidesource.oskitkmp.text.parseFloatOrNull
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.math.*
@@ -1536,7 +1536,7 @@ private fun KmpSliderPreview() {
             label = "Logarithmic",
             range = 20f..20_000f,
             valueFormatter = remember {
-                val numberFormatter = NumberFormatter(maximumFractionDigits = 0)
+                val numberFormatter = KmpNumberFormatter(maximumFractionDigits = 0)
                 return@remember { numberFormatter.format(it) }
             },
             units = "hz",
