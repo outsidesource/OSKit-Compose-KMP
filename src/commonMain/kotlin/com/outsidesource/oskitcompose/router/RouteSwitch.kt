@@ -15,7 +15,7 @@ import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitkmp.coordinator.Coordinator
 import com.outsidesource.oskitkmp.coordinator.ICoordinatorObserver
 import com.outsidesource.oskitkmp.router.*
-import io.ktor.utils.io.*
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -90,6 +90,9 @@ fun RouteSwitch(
     KmpPredictiveBackHandler(coordinatorObserver.hasBackStack()) { ev ->
         try {
             ev.collect {
+                val transition = coordinatorObserver.routeFlow.value.transition as? ComposeRouteTransition
+                if (transition?.supportsPredictiveBack(it.swipeEdge) == false) return@collect
+
                 // TODO: Limit to one edge on iOS?
                 predictiveBackEdge = it.swipeEdge
                 val previousEntry = coordinatorObserver.routeStack[coordinatorObserver.routeStack.size - 2]
@@ -148,14 +151,14 @@ fun RouteSwitch(
 
             val enterAnim = when {
                 localPredictiveBackEdge != null ->
-                    transition.predictiveBackEnter?.invoke(localPredictiveBackEdge) ?: transition.popEnter
+                    transition.predictiveBackEnter(localPredictiveBackEdge) ?: transition.popEnter
                 isPopping -> transition.popEnter
                 else -> transition.enter
             }
 
             val exitAnim = when {
                 localPredictiveBackEdge != null ->
-                    transition.predictiveBackExit?.invoke((localPredictiveBackEdge)) ?: transition.popExit
+                    transition.predictiveBackExit(localPredictiveBackEdge) ?: transition.popExit
                 isPopping -> transition.popExit
                 else -> transition.exit
             }
