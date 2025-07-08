@@ -81,17 +81,21 @@ fun RouteSwitch(
     val density = LocalDensity.current
     val saveableStateHolder = rememberSaveableStateHolder()
     val currentRoute by coordinatorObserver.routeFlow.collectAsState()
-    var progress by remember { mutableStateOf(0f) }
     var predictiveBackEdge by remember { mutableStateOf<Int?>(null) }
     val zIndices = remember { mutableMapOf<Int, Float>() }
 
+    val transitionState = remember { SeekableTransitionState(currentRoute) }
+    val transition = rememberTransition(transitionState)
+
     KmpPredictiveBackHandler(coordinatorObserver.hasBackStack()) { ev ->
-        progress = 0f
         try {
             ev.collect {
                 // TODO: Limit to one edge on iOS?
                 predictiveBackEdge = it.swipeEdge
-                progress = it.progress
+
+                if (coordinatorObserver.routeStack.size <= 1) return@collect
+                val previousEntry = coordinatorObserver.routeStack[coordinatorObserver.routeStack.size - 2]
+                transitionState.seekTo(it.progress, previousEntry)
             }
             predictiveBackEdge = null
             coordinatorObserver.pop(ignoreTransitionLock = true)
@@ -100,15 +104,7 @@ fun RouteSwitch(
         }
     }
 
-    val transitionState = remember { SeekableTransitionState(currentRoute) }
-    val transition = rememberTransition(transitionState)
-
-    if (predictiveBackEdge != null) {
-        LaunchedEffect(progress) {
-            val previousEntry = coordinatorObserver.routeStack[coordinatorObserver.routeStack.size - 2]
-            transitionState.seekTo(progress, previousEntry)
-        }
-    } else {
+    if (predictiveBackEdge == null) {
         LaunchedEffect(currentRoute) {
             // This ensures we don't animate after the back gesture is canceled and we
             // are already on the current state
