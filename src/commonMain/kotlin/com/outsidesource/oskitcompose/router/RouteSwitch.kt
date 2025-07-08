@@ -92,8 +92,6 @@ fun RouteSwitch(
             ev.collect {
                 // TODO: Limit to one edge on iOS?
                 predictiveBackEdge = it.swipeEdge
-
-                if (coordinatorObserver.routeStack.size <= 1) return@collect
                 val previousEntry = coordinatorObserver.routeStack[coordinatorObserver.routeStack.size - 2]
                 transitionState.seekTo(it.progress, previousEntry)
             }
