@@ -55,14 +55,21 @@ data class ComposeRouteTransition(
     val exit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
     val popEnter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
     val popExit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
-    val predictiveBackEnter: (swipeEdge: Int) -> (AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition)? = { popEnter },
-    val predictiveBackExit: (swipeEdge: Int) -> (AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition)? = { popExit },
+    val supportsPredictiveBackForEdge: (edge: Int) -> Boolean = DefaultPredictiveBackSupport,
+    val predictiveBackEnter: (swipeEdge: Int) -> (AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition) = { popEnter },
+    val predictiveBackExit: (swipeEdge: Int) -> (AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition) = { popExit },
     val enterZ: Float = 1f,
     val baseLayerOverlay: (@Composable BoxScope.(isPopping: Boolean, transition: SeekableTransitionState<RouteStackEntry>) -> Unit)? = null,
 ) : IRouteTransition {
 
-    internal fun supportsPredictiveBack(edge: Int): Boolean =
-        predictiveBackExit(edge) != null && predictiveBackEnter(edge) != null
+    companion object {
+        val DefaultPredictiveBackSupport: (edge: Int) -> Boolean = { edge ->
+            when {
+                Platform.current == Platform.IOS -> edge == 0
+                else -> true
+            }
+        }
+    }
 }
 
 val PushFromTopRouteTransition = ComposeRouteTransition(
@@ -96,8 +103,6 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
         fadeOut(tween(250, easing = EaseInOut)) + slideOut(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) }
     },
     predictiveBackEnter = { edge ->
-        if (Platform.current == Platform.IOS && edge == 1) return@ComposeRouteTransition null
-
         {
             slideIntoContainer(
                 towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
@@ -107,8 +112,6 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
         }
     },
     predictiveBackExit = { edge ->
-        if (Platform.current == Platform.IOS && edge == 1) return@ComposeRouteTransition null
-
         {
             slideOutOfContainer(
                 towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,

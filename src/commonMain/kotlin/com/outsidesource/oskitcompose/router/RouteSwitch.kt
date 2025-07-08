@@ -93,7 +93,9 @@ fun RouteSwitch(
             ev.collect {
                 val transition = coordinatorObserver.routeFlow.value.transition as? ComposeRouteTransition
                     ?: return@collect
-                if (supportsPredictiveBack == null) supportsPredictiveBack = transition.supportsPredictiveBack(it.swipeEdge)
+                if (supportsPredictiveBack == null) {
+                    supportsPredictiveBack = transition.supportsPredictiveBackForEdge(it.swipeEdge)
+                }
                 if (!supportsPredictiveBack) return@collect
 
                 predictiveBackEdge = it.swipeEdge
@@ -152,15 +154,13 @@ fun RouteSwitch(
             zIndices[targetState.id] = targetZ
 
             val enterAnim = when {
-                localPredictiveBackEdge != null ->
-                    transition.predictiveBackEnter(localPredictiveBackEdge) ?: transition.popEnter
+                localPredictiveBackEdge != null -> transition.predictiveBackEnter(localPredictiveBackEdge)
                 isPopping -> transition.popEnter
                 else -> transition.enter
             }
 
             val exitAnim = when {
-                localPredictiveBackEdge != null ->
-                    transition.predictiveBackExit(localPredictiveBackEdge) ?: transition.popExit
+                localPredictiveBackEdge != null -> transition.predictiveBackExit(localPredictiveBackEdge)
                 isPopping -> transition.popExit
                 else -> transition.exit
             }
