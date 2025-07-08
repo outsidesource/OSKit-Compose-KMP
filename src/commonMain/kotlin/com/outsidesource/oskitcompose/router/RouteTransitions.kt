@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.outsidesource.oskitkmp.lib.Platform
+import com.outsidesource.oskitkmp.lib.current
 import com.outsidesource.oskitkmp.router.IAnimatedRoute
 import com.outsidesource.oskitkmp.router.IRouteTransition
 import com.outsidesource.oskitkmp.router.RouteStackEntry
@@ -94,6 +96,8 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
         fadeOut(tween(250, easing = EaseInOut)) + slideOut(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) }
     },
     predictiveBackEnter = { edge ->
+        if (Platform.current == Platform.IOS && edge == 1) return@ComposeRouteTransition null
+
         {
             slideIntoContainer(
                 towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
@@ -103,6 +107,8 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
         }
     },
     predictiveBackExit = { edge ->
+        if (Platform.current == Platform.IOS && edge == 1) return@ComposeRouteTransition null
+
         {
             slideOutOfContainer(
                 towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,

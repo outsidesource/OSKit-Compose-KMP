@@ -89,11 +89,13 @@ fun RouteSwitch(
 
     KmpPredictiveBackHandler(coordinatorObserver.hasBackStack()) { ev ->
         try {
+            var supportsPredictiveBack: Boolean? = null
             ev.collect {
                 val transition = coordinatorObserver.routeFlow.value.transition as? ComposeRouteTransition
-                if (transition?.supportsPredictiveBack(it.swipeEdge) == false) return@collect
+                    ?: return@collect
+                if (supportsPredictiveBack == null) supportsPredictiveBack = transition.supportsPredictiveBack(it.swipeEdge)
+                if (!supportsPredictiveBack) return@collect
 
-                // TODO: Limit to one edge on iOS?
                 predictiveBackEdge = it.swipeEdge
                 val previousEntry = coordinatorObserver.routeStack[coordinatorObserver.routeStack.size - 2]
                 transitionState.seekTo(it.progress, previousEntry)
