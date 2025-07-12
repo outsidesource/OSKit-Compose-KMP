@@ -105,7 +105,7 @@ fun RouteSwitch(
                 transitionState.seekTo(it.progress, previousEntry)
             }
             predictiveBackEdge = null
-            coordinatorObserver.pop(ignoreTransitionLock = true)
+            if (supportsPredictiveBack == true) coordinatorObserver.pop(ignoreTransitionLock = true)
         } catch (_: CancellationException) {
             predictiveBackEdge = null
         }
