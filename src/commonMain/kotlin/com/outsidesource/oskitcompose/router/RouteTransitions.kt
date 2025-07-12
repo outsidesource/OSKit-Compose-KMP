@@ -1,8 +1,10 @@
 package com.outsidesource.oskitcompose.router
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -151,6 +153,33 @@ val SlideFromBottomRouteTransition = ComposeRouteTransition(
     exit = { fadeOut(tween(400), .99f) + scaleOut(tween(400), targetScale = .9f) },
     popEnter = { fadeIn(tween(400), 0f) + scaleIn(tween(400), initialScale = .9f) },
     popExit = { slideOut(tween(400)) { IntOffset(0, (it.height * .5).toInt()) } + fadeOut(tween(400)) },
+)
+
+val SlideFromRightRouteTransition = ComposeRouteTransition(
+    enter = { slideIntoContainer(animationSpec = tween(300), towards = AnimatedContentTransitionScope.SlideDirection.Start) },
+    exit = { slideOutOfContainer(animationSpec = tween(300), towards = AnimatedContentTransitionScope.SlideDirection.Start) { it / 3 } },
+    popEnter = { slideIntoContainer(animationSpec = tween(300), towards = AnimatedContentTransitionScope.SlideDirection.End) { it / 3 } },
+    popExit = { slideOutOfContainer(animationSpec = tween(300), towards = AnimatedContentTransitionScope.SlideDirection.End) },
+    predictiveBackEnter = { _, _ ->
+        val easing = if (Platform.current == Platform.IOS) LinearEasing else FastOutSlowInEasing
+        slideIntoContainer(animationSpec = tween(300, easing = easing), towards = AnimatedContentTransitionScope.SlideDirection.End) { it / 3 }
+    },
+    predictiveBackExit = { _, _ ->
+        val easing = if (Platform.current == Platform.IOS) LinearEasing else FastOutSlowInEasing
+        slideOutOfContainer(animationSpec = tween(300, easing = easing), towards = AnimatedContentTransitionScope.SlideDirection.End)
+    },
+    popEnterZ = -1f,
+    predictiveBackEnterZ = -1f,
+    baseLayerOverlay = { isPopping, isPredictiveBack, transition ->
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .drawBehind {
+                    val level = if (isPopping) 1f - transition.fraction else transition.fraction
+                    drawRect(Color.Black, alpha = .106f * level)
+                }
+        )
+    }
 )
 
 val ScaleRouteTransition = ComposeRouteTransition(
