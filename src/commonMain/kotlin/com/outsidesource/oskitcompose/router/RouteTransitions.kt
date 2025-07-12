@@ -1,6 +1,7 @@
 package com.outsidesource.oskitcompose.router
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.tween
@@ -13,7 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.outsidesource.oskitcompose.animation.CubicBezierEaseOutCirc
+import com.outsidesource.oskitcompose.router.ComposeRouteTransition.Companion.defaultIosPredictiveEnter
+import com.outsidesource.oskitcompose.router.ComposeRouteTransition.Companion.defaultIosPredictiveExit
 import com.outsidesource.oskitkmp.lib.Platform
 import com.outsidesource.oskitkmp.lib.current
 import com.outsidesource.oskitkmp.router.IAnimatedRoute
@@ -56,8 +58,8 @@ data class ComposeRouteTransition(
     val popEnter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition,
     val popExit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition,
     val supportsPredictiveBackForEdge: (edge: Int) -> Boolean = DefaultPredictiveBackSupport,
-    val predictiveBackEnter: (swipeEdge: Int) -> (AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition) = { popEnter },
-    val predictiveBackExit: (swipeEdge: Int) -> (AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition) = { popExit },
+    val predictiveBackEnter: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density, swipeEdge: Int) -> EnterTransition = { density, edge -> popEnter(density) },
+    val predictiveBackExit: AnimatedContentTransitionScope<RouteStackEntry>.(density: Density, swipeEdge: Int) -> ExitTransition = { density, edge -> popExit(density) },
     val enterZ: Float = 1f,
     val popEnterZ: Float = 1f,
     val predictiveBackEnterZ: Float = 1f,
@@ -66,10 +68,26 @@ data class ComposeRouteTransition(
 
     companion object {
         val DefaultPredictiveBackSupport: (edge: Int) -> Boolean = { edge ->
-            when {
-                Platform.current == Platform.IOS -> edge == 0
-                else -> true
+            when (Platform.current) {
+                Platform.IOS -> edge == 0
+                Platform.Android -> true
+                else -> false
             }
+        }
+
+        fun AnimatedContentTransitionScope<RouteStackEntry>.defaultIosPredictiveEnter(density: Density, swipeEdge: Int): EnterTransition {
+            return slideIntoContainer(
+                towards = if (swipeEdge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(durationMillis = 300, easing = LinearEasing),
+                initialOffset = { (it * 0.3f).toInt() }
+            )
+        }
+
+        fun AnimatedContentTransitionScope<RouteStackEntry>.defaultIosPredictiveExit(density: Density, swipeEdge: Int): ExitTransition {
+            return slideOutOfContainer(
+                towards = if (swipeEdge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(durationMillis = 300, easing = LinearEasing)
+            )
         }
     }
 }
@@ -88,8 +106,8 @@ val PushFromTopRouteTransition = ComposeRouteTransition(
 )
 
 val PushFromRightRouteTransition = run {
-    val pushFromRightDuration = 400
-    val pushFromRightEase = CubicBezierEaseOutCirc
+    val pushFromRightDuration = 300
+    val pushFromRightEase = FastOutSlowInEasing
 
     ComposeRouteTransition(
         enter = {
@@ -109,33 +127,28 @@ val PushFromRightRouteTransition = run {
             slideOut(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
         },
         predictiveBackEnterZ = -1f,
-        predictiveBackEnter = { edge ->
-            {
-                slideIntoContainer(
-                    towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
-                    animationSpec = tween(durationMillis = pushFromRightDuration, easing = LinearEasing),
-                    initialOffset = { fullOffset -> (fullOffset * 0.3f).toInt() }
-                )
-            }
+        predictiveBackEnter = { density, edge ->
+            if (Platform.current == Platform.IOS) return@ComposeRouteTransition defaultIosPredictiveEnter(density, edge)
+
+            val offsetX = with(density) { -40.dp.toPx() }.toInt()
+            slideIn { IntOffset(offsetX, 0) }
         },
-        predictiveBackExit = { edge ->
-            {
-                slideOutOfContainer(
-                    towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
-                    animationSpec = tween(durationMillis = pushFromRightDuration, easing = LinearEasing)
-                )
-            }
+        predictiveBackExit = { density, edge ->
+            if (Platform.current == Platform.IOS) return@ComposeRouteTransition defaultIosPredictiveExit(density, edge)
+
+            val offsetX = with(density) { 40.dp.toPx() }.toInt()
+            slideOut { IntOffset(offsetX, 0) } + fadeOut()
         },
         baseLayerOverlay = { isPopping, isPredictiveBack, transitionState ->
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .drawBehind {
-                        val blackoutFraction = if (isPredictiveBack) 1 - transitionState.fraction else transitionState.fraction
+                        val blackoutFraction = if (isPredictiveBack && Platform.current == Platform.IOS) 1 - transitionState.fraction else transitionState.fraction
                         drawRect(Color.Black, alpha = .106f * blackoutFraction)
                     }
             )
-        }
+        },
     )
 }
 

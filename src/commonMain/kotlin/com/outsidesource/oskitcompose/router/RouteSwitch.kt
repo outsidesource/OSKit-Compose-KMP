@@ -153,21 +153,17 @@ fun RouteSwitch(
             }
             zIndices[targetState.id] = targetZ
 
-            val enterAnim = when {
-                localPredictiveBackEdge != null -> transition.predictiveBackEnter(localPredictiveBackEdge)
-                isPopping -> transition.popEnter
-                else -> transition.enter
-            }
-
-            val exitAnim = when {
-                localPredictiveBackEdge != null -> transition.predictiveBackExit(localPredictiveBackEdge)
-                isPopping -> transition.popExit
-                else -> transition.exit
-            }
-
             ContentTransform(
-                targetContentEnter = enterAnim(density),
-                initialContentExit = exitAnim(density),
+                targetContentEnter = when {
+                    localPredictiveBackEdge != null -> transition.predictiveBackEnter(this, density, localPredictiveBackEdge)
+                    isPopping -> transition.popEnter(this, density)
+                    else -> transition.enter(this, density)
+                },
+                initialContentExit = when {
+                    localPredictiveBackEdge != null -> transition.predictiveBackExit(this, density, localPredictiveBackEdge)
+                    isPopping -> transition.popExit(this, density)
+                    else -> transition.exit(this, density)
+                },
                 targetContentZIndex = targetZ,
             )
         },
