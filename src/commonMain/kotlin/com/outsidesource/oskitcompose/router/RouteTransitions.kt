@@ -87,54 +87,57 @@ val PushFromTopRouteTransition = ComposeRouteTransition(
     },
 )
 
-private val pushFromRightDuration = 400
-private val pushFromRightEase = CubicBezierEaseOutCirc
-val PushFromRightRouteTransition = ComposeRouteTransition(
-    enter = {
-        val offsetX = with(it) { 40.dp.toPx() }.toInt()
-        fadeIn(tween(pushFromRightDuration, easing = pushFromRightEase)) + slideIn(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
-    },
-    exit = {
-        val offsetX = with(it) { -40.dp.toPx() }.toInt()
-        slideOut(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
-    },
-    popEnter = {
-        val offsetX = with(it) { -40.dp.toPx() }.toInt()
-        fadeIn(tween(pushFromRightDuration, easing = pushFromRightEase)) + slideIn(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
-    },
-    popExit = {
-        val offsetX = with(it) { 40.dp.toPx() }.toInt()
-        slideOut(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
-    },
-    predictiveBackEnterZ = -1f,
-    predictiveBackEnter = { edge ->
-        {
-            slideIntoContainer(
-                towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
-                animationSpec = tween(durationMillis = pushFromRightDuration, easing = LinearEasing),
-                initialOffset = { fullOffset -> (fullOffset * 0.3f).toInt() }
+val PushFromRightRouteTransition = run {
+    val pushFromRightDuration = 400
+    val pushFromRightEase = CubicBezierEaseOutCirc
+
+    ComposeRouteTransition(
+        enter = {
+            val offsetX = with(it) { 40.dp.toPx() }.toInt()
+            fadeIn(tween(pushFromRightDuration, easing = pushFromRightEase)) + slideIn(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
+        },
+        exit = {
+            val offsetX = with(it) { -40.dp.toPx() }.toInt()
+            slideOut(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
+        },
+        popEnter = {
+            val offsetX = with(it) { -40.dp.toPx() }.toInt()
+            fadeIn(tween(pushFromRightDuration, easing = pushFromRightEase)) + slideIn(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
+        },
+        popExit = {
+            val offsetX = with(it) { 40.dp.toPx() }.toInt()
+            slideOut(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
+        },
+        predictiveBackEnterZ = -1f,
+        predictiveBackEnter = { edge ->
+            {
+                slideIntoContainer(
+                    towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
+                    animationSpec = tween(durationMillis = pushFromRightDuration, easing = LinearEasing),
+                    initialOffset = { fullOffset -> (fullOffset * 0.3f).toInt() }
+                )
+            }
+        },
+        predictiveBackExit = { edge ->
+            {
+                slideOutOfContainer(
+                    towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
+                    animationSpec = tween(durationMillis = pushFromRightDuration, easing = LinearEasing)
+                )
+            }
+        },
+        baseLayerOverlay = { isPopping, isPredictiveBack, transitionState ->
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .drawBehind {
+                        val blackoutFraction = if (isPredictiveBack) 1 - transitionState.fraction else transitionState.fraction
+                        drawRect(Color.Black, alpha = .106f * blackoutFraction)
+                    }
             )
         }
-    },
-    predictiveBackExit = { edge ->
-        {
-            slideOutOfContainer(
-                towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
-                animationSpec = tween(durationMillis = pushFromRightDuration, easing = LinearEasing)
-            )
-        }
-    },
-    baseLayerOverlay = { isPopping, isPredictiveBack, transitionState ->
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .drawBehind {
-                    val blackoutFraction = if (isPredictiveBack) 1 - transitionState.fraction else transitionState.fraction
-                    drawRect(Color.Black, alpha = blackoutFraction)
-                }
-        )
-    }
-)
+    )
+}
 
 val SlideFromBottomRouteTransition = ComposeRouteTransition(
     enter = {
