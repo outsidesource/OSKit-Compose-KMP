@@ -81,6 +81,7 @@ fun RouteSwitch(
     val density = LocalDensity.current
     val saveableStateHolder = rememberSaveableStateHolder()
     val currentRoute by coordinatorObserver.routeFlow.collectAsState()
+    val isPredictiveBackTransitionRunning = remember { VarRef(false) }
     var predictiveBackEdge by remember { mutableStateOf<Int?>(null) }
     val zIndices = remember { mutableMapOf<Int, Float>() }
 
@@ -98,6 +99,7 @@ fun RouteSwitch(
                 }
                 if (!supportsPredictiveBack) return@collect
 
+                isPredictiveBackTransitionRunning.value = true
                 predictiveBackEdge = it.swipeEdge
                 val previousEntry = coordinatorObserver.routeStack[coordinatorObserver.routeStack.size - 2]
                 transitionState.seekTo(it.progress, previousEntry)
@@ -111,13 +113,12 @@ fun RouteSwitch(
 
     if (predictiveBackEdge == null) {
         LaunchedEffect(currentRoute) {
-            // This ensures we don't animate after the back gesture is canceled and we
-            // are already on the current state
+            // This ensures we don't animate after the back gesture is canceled and we are already on the current state
             if (transitionState.currentState != currentRoute) {
                 transitionState.animateTo(currentRoute)
             } else {
                 val totalDurationMillis = transition.totalDurationNanos / 1_000_000
-                // When the predictive back gesture is canceled on iOS, we need to manually animate
+                // When the predictive back gesture is canceled, we need to manually animate
                 // the SeekableTransitionState from where it left off, to zero and then
                 // snapTo the final position.
                 animate(
@@ -199,7 +200,8 @@ fun RouteSwitch(
                         false
                     }
 
-                    if (showMask) composeTransitionRef.value?.baseLayerOverlay?.invoke(this, isPopping, predictiveBackEdge != null, transitionState)
+                    if (showMask) composeTransitionRef.value?.baseLayerOverlay?.invoke(this, isPopping, isPredictiveBackTransitionRunning.value, transitionState)
+                    if (!transition.isRunning) isPredictiveBackTransitionRunning.value = false
                 }
             }
         }

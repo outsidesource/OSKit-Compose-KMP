@@ -144,7 +144,7 @@ val PushFromRightRouteTransition = run {
                 modifier = Modifier
                     .matchParentSize()
                     .drawBehind {
-                        val blackoutFraction = if (isPredictiveBack && Platform.current == Platform.IOS) 1 - transitionState.fraction else transitionState.fraction
+                        val blackoutFraction = if (isPredictiveBack) 1 - transitionState.fraction else transitionState.fraction
                         drawRect(Color.Black, alpha = .106f * blackoutFraction)
                     }
             )
