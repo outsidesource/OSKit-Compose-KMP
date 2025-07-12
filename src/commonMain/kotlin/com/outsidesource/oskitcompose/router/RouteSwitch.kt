@@ -190,20 +190,20 @@ fun RouteSwitch(
                 Box {
                     content(state.route)
 
+                    val initialZ = zIndices[transition.segment.initialState.id] ?: 0f
                     val targetZ = zIndices[transition.segment.targetState.id] ?: 0f
-                    val currentZ = zIndices[transition.segment.initialState.id] ?: 0f
                     val isPopping = transition.segment.targetState.id < transition.segment.initialState.id
                     val showMask = if (transition.isRunning) {
-                        if (isPopping) {
-                            targetZ < currentZ && state.id == transition.segment.targetState.id
+                        if (state.id == transition.segment.initialState.id) {
+                            initialZ < targetZ
                         } else {
-                            currentZ < targetZ && state.id == transition.segment.initialState.id
+                            targetZ < initialZ
                         }
                     } else {
                         false
                     }
 
-                    if (showMask) composeTransitionRef.value?.baseLayerOverlay?.invoke(this, isPopping, transitionState)
+                    if (showMask) composeTransitionRef.value?.baseLayerOverlay?.invoke(this, isPopping, predictiveBackEdge != null, transitionState)
                 }
             }
         }

@@ -61,7 +61,7 @@ data class ComposeRouteTransition(
     val enterZ: Float = 1f,
     val popEnterZ: Float = 1f,
     val predictiveBackEnterZ: Float = 1f,
-    val baseLayerOverlay: (@Composable BoxScope.(isPopping: Boolean, transition: SeekableTransitionState<RouteStackEntry>) -> Unit)? = null,
+    val baseLayerOverlay: (@Composable BoxScope.(isPopping: Boolean, isPredictiveBack: Boolean, transition: SeekableTransitionState<RouteStackEntry>) -> Unit)? = null,
 ) : IRouteTransition {
 
     companion object {
@@ -124,13 +124,13 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
             )
         }
     },
-    baseLayerOverlay = { isPopping, transitionState ->
+    baseLayerOverlay = { isPopping, isPredictiveBack, transitionState ->
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .drawBehind {
-                    val blackoutFraction = if (isPopping) 1 - transitionState.fraction else transitionState.fraction
-                    drawRect(Color.Black, alpha = .106f * blackoutFraction)
+                    val blackoutFraction = if (isPredictiveBack) 1 - transitionState.fraction else transitionState.fraction
+                    drawRect(Color.Black, alpha = blackoutFraction)
                 }
         )
     }
