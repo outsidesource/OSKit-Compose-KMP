@@ -148,8 +148,8 @@ fun RouteSwitch(
             val initialZIndex = zIndices[initialState.id] ?: (0f.also { zIndices[initialState.id] = 0f })
             val targetZ = when {
                 targetState.id == initialState.id -> initialZIndex
-                predictiveBackEdge != null -> initialZIndex - 1f
-                else -> initialZIndex + (if (isPopping) transition.enterZ * -1 else transition.enterZ)
+                predictiveBackEdge != null -> initialZIndex + transition.predictiveBackEnterZ
+                else -> initialZIndex + (if (isPopping) transition.popEnterZ else transition.enterZ)
             }
             zIndices[targetState.id] = targetZ
 

@@ -1,7 +1,6 @@
 package com.outsidesource.oskitcompose.router
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.tween
@@ -14,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.outsidesource.oskitcompose.animation.CubicBezierEaseOutCirc
 import com.outsidesource.oskitkmp.lib.Platform
 import com.outsidesource.oskitkmp.lib.current
 import com.outsidesource.oskitkmp.router.IAnimatedRoute
@@ -59,6 +59,8 @@ data class ComposeRouteTransition(
     val predictiveBackEnter: (swipeEdge: Int) -> (AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> EnterTransition) = { popEnter },
     val predictiveBackExit: (swipeEdge: Int) -> (AnimatedContentTransitionScope<RouteStackEntry>.(density: Density) -> ExitTransition) = { popExit },
     val enterZ: Float = 1f,
+    val popEnterZ: Float = 1f,
+    val predictiveBackEnterZ: Float = 1f,
     val baseLayerOverlay: (@Composable BoxScope.(isPopping: Boolean, transition: SeekableTransitionState<RouteStackEntry>) -> Unit)? = null,
 ) : IRouteTransition {
 
@@ -85,28 +87,31 @@ val PushFromTopRouteTransition = ComposeRouteTransition(
     },
 )
 
+private val pushFromRightDuration = 400
+private val pushFromRightEase = CubicBezierEaseOutCirc
 val PushFromRightRouteTransition = ComposeRouteTransition(
     enter = {
         val offsetX = with(it) { 40.dp.toPx() }.toInt()
-        fadeIn(tween(250, easing = EaseInOut)) + slideIn(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) }
+        fadeIn(tween(pushFromRightDuration, easing = pushFromRightEase)) + slideIn(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
     },
     exit = {
         val offsetX = with(it) { -40.dp.toPx() }.toInt()
-        slideOut(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) }
+        slideOut(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
     },
     popEnter = {
         val offsetX = with(it) { -40.dp.toPx() }.toInt()
-        slideIn(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) }
+        fadeIn(tween(pushFromRightDuration, easing = pushFromRightEase)) + slideIn(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
     },
     popExit = {
         val offsetX = with(it) { 40.dp.toPx() }.toInt()
-        fadeOut(tween(250, easing = EaseInOut)) + slideOut(tween(250, easing = EaseInOut)) { IntOffset(offsetX, 0) }
+        slideOut(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
     },
+    predictiveBackEnterZ = -1f,
     predictiveBackEnter = { edge ->
         {
             slideIntoContainer(
                 towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
-                animationSpec = tween(durationMillis = 250, easing = LinearEasing),
+                animationSpec = tween(durationMillis = pushFromRightDuration, easing = LinearEasing),
                 initialOffset = { fullOffset -> (fullOffset * 0.3f).toInt() }
             )
         }
@@ -115,7 +120,7 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
         {
             slideOutOfContainer(
                 towards = if (edge == 0) AnimatedContentTransitionScope.SlideDirection.End else AnimatedContentTransitionScope.SlideDirection.Start,
-                animationSpec = tween(durationMillis = 250, easing = LinearEasing)
+                animationSpec = tween(durationMillis = pushFromRightDuration, easing = LinearEasing)
             )
         }
     },
@@ -130,25 +135,6 @@ val PushFromRightRouteTransition = ComposeRouteTransition(
         )
     }
 )
-
-//val PushFromRightRouteTransition = ComposeRouteTransition(
-//    enter = {
-//        val offsetX = with(it) { 80.dp.toPx() }.toInt()
-//        slideIn(tween(350, easing = CubicBezierEaseInEaseOut)) { IntOffset(it.width, 0) }
-//    },
-//    exit = {
-//        val offsetX = with(it) { -80.dp.toPx() }.toInt()
-//        slideOut(tween(350, easing = CubicBezierEaseInEaseOut)) { IntOffset(offsetX, 0) }
-//    },
-//    popEnter = {
-//        val offsetX = with(it) { -80.dp.toPx() }.toInt()
-//        slideIn(tween(350, easing = CubicBezierEaseInEaseOut)) { IntOffset(offsetX, 0) }
-//    },
-//    popExit = {
-//        val offsetX = with(it) { 80.dp.toPx() }.toInt()
-//        slideOut(tween(350, easing = CubicBezierEaseInEaseOut)) { IntOffset(it.width, 0) }
-//    },
-//)
 
 val SlideFromBottomRouteTransition = ComposeRouteTransition(
     enter = {
