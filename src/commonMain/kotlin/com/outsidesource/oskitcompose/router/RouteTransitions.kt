@@ -105,52 +105,47 @@ val PushFromTopRouteTransition = ComposeRouteTransition(
     },
 )
 
-val PushFromRightRouteTransition = run {
-    val pushFromRightDuration = 300
-    val pushFromRightEase = FastOutSlowInEasing
+val PushFromRightRouteTransition = ComposeRouteTransition(
+    enter = {
+        val offsetX = with(it) { 40.dp.toPx() }.toInt()
+        fadeIn() + slideIn { IntOffset(offsetX, 0) }
+    },
+    exit = {
+        val offsetX = with(it) { -40.dp.toPx() }.toInt()
+        slideOut { IntOffset(offsetX, 0) }
+    },
+    popEnter = {
+        val offsetX = with(it) { -40.dp.toPx() }.toInt()
+        fadeIn() + slideIn { IntOffset(offsetX, 0) }
+    },
+    popExit = {
+        val offsetX = with(it) { 40.dp.toPx() }.toInt()
+        slideOut { IntOffset(offsetX, 0) }
+    },
+    predictiveBackEnterZ = -1f,
+    predictiveBackEnter = { density, edge ->
+        if (Platform.current == Platform.IOS) return@ComposeRouteTransition defaultIosPredictiveEnter(density, edge)
 
-    ComposeRouteTransition(
-        enter = {
-            val offsetX = with(it) { 40.dp.toPx() }.toInt()
-            fadeIn(tween(pushFromRightDuration, easing = pushFromRightEase)) + slideIn(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
-        },
-        exit = {
-            val offsetX = with(it) { -40.dp.toPx() }.toInt()
-            slideOut(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
-        },
-        popEnter = {
-            val offsetX = with(it) { -40.dp.toPx() }.toInt()
-            fadeIn(tween(pushFromRightDuration, easing = pushFromRightEase)) + slideIn(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
-        },
-        popExit = {
-            val offsetX = with(it) { 40.dp.toPx() }.toInt()
-            slideOut(tween(pushFromRightDuration, easing = pushFromRightEase)) { IntOffset(offsetX, 0) }
-        },
-        predictiveBackEnterZ = -1f,
-        predictiveBackEnter = { density, edge ->
-            if (Platform.current == Platform.IOS) return@ComposeRouteTransition defaultIosPredictiveEnter(density, edge)
+        val offsetX = with(density) { -40.dp.toPx() }.toInt()
+        slideIn { IntOffset(offsetX, 0) }
+    },
+    predictiveBackExit = { density, edge ->
+        if (Platform.current == Platform.IOS) return@ComposeRouteTransition defaultIosPredictiveExit(density, edge)
 
-            val offsetX = with(density) { -40.dp.toPx() }.toInt()
-            slideIn { IntOffset(offsetX, 0) }
-        },
-        predictiveBackExit = { density, edge ->
-            if (Platform.current == Platform.IOS) return@ComposeRouteTransition defaultIosPredictiveExit(density, edge)
-
-            val offsetX = with(density) { 40.dp.toPx() }.toInt()
-            slideOut { IntOffset(offsetX, 0) } + fadeOut()
-        },
-        baseLayerOverlay = { isPopping, isPredictiveBack, transitionState ->
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .drawBehind {
-                        val blackoutFraction = if (isPredictiveBack) 1 - transitionState.fraction else transitionState.fraction
-                        drawRect(Color.Black, alpha = .106f * blackoutFraction)
-                    }
-            )
-        },
-    )
-}
+        val offsetX = with(density) { 40.dp.toPx() }.toInt()
+        slideOut { IntOffset(offsetX, 0) } + fadeOut()
+    },
+    baseLayerOverlay = { isPopping, isPredictiveBack, transitionState ->
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .drawBehind {
+                    val blackoutFraction = if (isPredictiveBack) 1 - transitionState.fraction else transitionState.fraction
+                    drawRect(Color.Black, alpha = .106f * blackoutFraction)
+                }
+        )
+    }
+)
 
 val SlideFromBottomRouteTransition = ComposeRouteTransition(
     enter = {
