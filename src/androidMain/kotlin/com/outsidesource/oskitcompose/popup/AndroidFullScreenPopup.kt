@@ -3,14 +3,14 @@ package com.outsidesource.oskitcompose.popup
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
+import android.os.Build.VERSION.SDK_INT
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
+import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
-import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.activity.findViewTreeOnBackPressedDispatcherOwner
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +24,10 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.window.SecureFlagPolicy
-import androidx.lifecycle.*
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.*
@@ -156,6 +159,22 @@ internal class FullScreenPopupLayout(
 
     @Composable
     override fun Content() {
+        DisposableEffect(Unit) {
+            if (SDK_INT < 33) return@DisposableEffect onDispose { }
+            
+            val dispatcher = findOnBackInvokedDispatcher() ?: return@DisposableEffect onDispose { }
+            val callback = OnBackInvokedCallback {
+                if (properties.dismissOnBackPress) {
+                    onDismissRequest?.invoke()
+                } else if (backPressedDispatcherOwner?.onBackPressedDispatcher?.hasEnabledCallbacks() == true) {
+                    backPressedDispatcherOwner.onBackPressedDispatcher.onBackPressed()
+                }
+            }
+
+            dispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
+            onDispose { dispatcher.unregisterOnBackInvokedCallback(callback) }
+        }
+
         content()
     }
 
