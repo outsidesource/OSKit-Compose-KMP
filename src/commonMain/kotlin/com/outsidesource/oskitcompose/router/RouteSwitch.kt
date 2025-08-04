@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalDensity
 import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitkmp.coordinator.Coordinator
 import com.outsidesource.oskitkmp.coordinator.ICoordinatorObserver
+import com.outsidesource.oskitkmp.lib.printAll
 import com.outsidesource.oskitkmp.router.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.StateFlow
@@ -83,7 +84,6 @@ fun RouteSwitch(
     val currentRoute by coordinatorObserver.routeFlow.collectAsState()
     val isPredictiveBackTransitionRunning = remember { VarRef(false) }
     var predictiveBackEdge by remember { mutableStateOf<Int?>(null) }
-    val zIndices = remember { mutableMapOf<Int, Float>() }
 
     val transitionState = remember { SeekableTransitionState(currentRoute) }
     val transition = rememberTransition(transitionState)
@@ -144,15 +144,7 @@ fun RouteSwitch(
             val route = if (isPopping) initialState else targetState
             val transition = (route.transition as? ComposeRouteTransition) ?: NoRouteTransition
             composeTransitionRef.value = transition
-
             val localPredictiveBackEdge = predictiveBackEdge
-            val initialZIndex = zIndices[initialState.id] ?: (0f.also { zIndices[initialState.id] = 0f })
-            val targetZ = when {
-                targetState.id == initialState.id -> initialZIndex
-                predictiveBackEdge != null -> initialZIndex + transition.predictiveBackEnterZ
-                else -> initialZIndex + (if (isPopping) transition.popEnterZ else transition.enterZ)
-            }
-            zIndices[targetState.id] = targetZ
 
             ContentTransform(
                 targetContentEnter = when {
@@ -165,7 +157,7 @@ fun RouteSwitch(
                     isPopping -> transition.popExit(this, density)
                     else -> transition.exit(this, density)
                 },
-                targetContentZIndex = targetZ,
+                targetContentZIndex = (if (isPopping) transition.popEnterZ else transition.enterZ),
             )
         },
         contentKey = { it.id }
@@ -187,31 +179,22 @@ fun RouteSwitch(
                 Box {
                     content(state.route)
 
-                    val initialZ = zIndices[transition.segment.initialState.id] ?: 0f
-                    val targetZ = zIndices[transition.segment.targetState.id] ?: 0f
                     val isPopping = transition.segment.targetState.id < transition.segment.initialState.id
                     val showMask = if (transition.isRunning) {
-                        if (state.id == transition.segment.initialState.id) {
-                            initialZ < targetZ
+                        if (isPopping) {
+                            state.id == transition.segment.targetState.id && (composeTransitionRef.value?.popEnterZ ?: 0f) < 0f
                         } else {
-                            targetZ < initialZ
+                            state.id == transition.segment.targetState.id && (composeTransitionRef.value?.enterZ ?: 0f) < 0f
                         }
                     } else {
                         false
                     }
+                    printAll(showMask, state.route, isPopping, composeTransitionRef.value?.enterZ)
 
                     if (showMask) composeTransitionRef.value?.baseLayerOverlay?.invoke(this, isPopping, isPredictiveBackTransitionRunning.value, transitionState)
                     if (!transition.isRunning) isPredictiveBackTransitionRunning.value = false
                 }
             }
-        }
-    }
-
-    LaunchedEffect(transition.currentState, transition.targetState) {
-        if (transition.currentState == transition.targetState) {
-            zIndices
-                .filter { it.key != transition.targetState.id }
-                .forEach { zIndices.remove(it.key) }
         }
     }
 }

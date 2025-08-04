@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -20,6 +21,9 @@ import com.outsidesource.oskitkmp.lib.current
 import com.outsidesource.oskitkmp.router.IAnimatedRoute
 import com.outsidesource.oskitkmp.router.IRouteTransition
 import com.outsidesource.oskitkmp.router.RouteStackEntry
+
+// TODO: Fix base overlay for sliding transitions
+// TODO: Fix issue where cancelling predictive back messes up next transition
 
 /**
  * [routeTransition] is a convenience delegate function to help implement [IAnimatedRoute]
@@ -110,7 +114,8 @@ data class ComposeRouteTransition(
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .drawBehind { drawRect(Color.Black, alpha = .106f * transition.fraction) }
+//                    .drawBehind { drawRect(Color.Black, alpha = .106f * transition.fraction) }
+                    .drawBehind { drawRect(Color.Red) }
             )
         }
     }
@@ -153,6 +158,17 @@ val SlideFromBottomRouteTransition = ComposeRouteTransition(
     exit = { fadeOut(tween(400), .99f) + scaleOut(tween(400), targetScale = .9f) },
     popEnter = { fadeIn(tween(400), 0f) + scaleIn(tween(400), initialScale = .9f) },
     popExit = { slideOut(tween(400)) { IntOffset(0, (it.height * .5).toInt()) } + fadeOut(tween(400)) },
+    baseLayerOverlay = { isPopping, isPredictiveBack, transition ->
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .drawBehind {
+                    val level = if (isPopping) 1f - transition.fraction else transition.fraction
+                    drawRect(Color.Black, alpha = .106f * level, topLeft = Offset(-500f, -500f))
+                }
+        )
+    },
+    popEnterZ = -1f,
 )
 
 val SlideFromRightRouteTransition = ComposeRouteTransition(
@@ -187,6 +203,7 @@ val ScaleRouteTransition = ComposeRouteTransition(
     exit = { fadeOut(targetAlpha = 0f) },
     popEnter = { scaleIn(initialScale = 1.1f) + fadeIn(initialAlpha = 0f) },
     popExit = { fadeOut(targetAlpha = .99f) },
+    baseLayerOverlay = null,
 )
 
 val FadeRouteTransition = ComposeRouteTransition(
