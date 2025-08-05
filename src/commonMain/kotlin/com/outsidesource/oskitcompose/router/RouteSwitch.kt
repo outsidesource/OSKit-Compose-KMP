@@ -84,6 +84,7 @@ fun RouteSwitch(
     val currentRoute by coordinatorObserver.routeFlow.collectAsState()
     val isPredictiveBackTransitionRunning = remember { VarRef(false) }
     var predictiveBackEdge by remember { mutableStateOf<Int?>(null) }
+    val zIndices = remember { mutableMapOf<Int, Float>() }
 
     val transitionState = remember { SeekableTransitionState(currentRoute) }
     val transition = rememberTransition(transitionState)
@@ -146,6 +147,14 @@ fun RouteSwitch(
             composeTransitionRef.value = transition
             val localPredictiveBackEdge = predictiveBackEdge
 
+            val initialZIndex = zIndices[initialState.id] ?: (0f.also { zIndices[initialState.id] = 0f })
+            val targetZ = initialZIndex + when {
+                localPredictiveBackEdge != null -> transition.predictiveBackEnterZ
+                isPopping -> transition.popEnterZ
+                else -> transition.enterZ
+            }
+            zIndices[targetState.id] = targetZ
+
             ContentTransform(
                 targetContentEnter = when {
                     localPredictiveBackEdge != null -> transition.predictiveBackEnter(this, density, localPredictiveBackEdge)
@@ -157,7 +166,7 @@ fun RouteSwitch(
                     isPopping -> transition.popExit(this, density)
                     else -> transition.exit(this, density)
                 },
-                targetContentZIndex = (if (isPopping) transition.popEnterZ else transition.enterZ),
+                targetContentZIndex = targetZ
             )
         },
         contentKey = { it.id }
@@ -181,20 +190,29 @@ fun RouteSwitch(
 
                     val isPopping = transition.segment.targetState.id < transition.segment.initialState.id
                     val showMask = if (transition.isRunning) {
-                        if (isPopping) {
-                            state.id == transition.segment.targetState.id && (composeTransitionRef.value?.popEnterZ ?: 0f) < 0f
-                        } else {
-                            state.id == transition.segment.targetState.id && (composeTransitionRef.value?.enterZ ?: 0f) < 0f
+                        val targetZ = if (isPopping) composeTransitionRef.value?.popEnterZ ?: 0f else composeTransitionRef.value?.enterZ ?: 0f
+                        val showMaskOnEnter = targetZ < 0f
+                        when (showMaskOnEnter) {
+                            true if state.id == transition.segment.targetState.id -> true
+                            false if state.id == transition.segment.initialState.id -> true
+                            else -> false
                         }
                     } else {
                         false
                     }
-                    printAll(showMask, state.route, isPopping, composeTransitionRef.value?.enterZ)
 
                     if (showMask) composeTransitionRef.value?.baseLayerOverlay?.invoke(this, isPopping, isPredictiveBackTransitionRunning.value, transitionState)
                     if (!transition.isRunning) isPredictiveBackTransitionRunning.value = false
                 }
             }
+        }
+    }
+
+    LaunchedEffect(transition.currentState, transition.targetState) {
+        if (transition.currentState == transition.targetState) {
+            zIndices
+                .filter { it.key != transition.targetState.id }
+                .forEach { zIndices.remove(it.key) }
         }
     }
 }
