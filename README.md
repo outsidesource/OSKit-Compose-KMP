@@ -88,6 +88,23 @@ implementation("com.outsidesource:oskit-compose:4.0.0")
 <https://github.com/outsidesource/OSKit-Example-App-KMP>
 
 ## Changelog
+### 4.1.0 - 2025-08-07
+#### Added
+* Kotlin 2.2.0 support
+* Predictive back support
+* KmpScrollbarAdapter for LazyGridState
+* ShapePainter
+* HsvColor
+* KmpColorPicker
+* KmpSlider
+* VerticalGrid
+* `Modifier.ifThen`
+* `WindowInfo.widthSizeClass`
+* `WindowInfo.containerSizeDp`
+* `Html` composable for WASM
+#### Breaking Changes
+* Removed kmpWindowInfo as `LocalWindowInfo.current` has implemented all desired functionality
+
 ### 4.0.0 - 2025-02-07
 #### Added
 * Kotlin 2.1.0 support
