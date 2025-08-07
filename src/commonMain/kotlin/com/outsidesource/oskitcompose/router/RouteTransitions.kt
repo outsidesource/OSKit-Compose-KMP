@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.outsidesource.oskitcompose.router.ComposeRouteTransition.Companion.defaultBaseLayerOverlay
 import com.outsidesource.oskitkmp.lib.Platform
 import com.outsidesource.oskitkmp.lib.current
 import com.outsidesource.oskitkmp.router.IAnimatedRoute
@@ -66,15 +69,13 @@ data class ComposeRouteTransition(
         swipeEdge: Int
     ) -> ExitTransition = { density, edge -> popExit(density) },
     val enterZ: Float = 1f,
-    val popEnterZ: Float = 1f,
-    val predictiveBackEnterZ: Float = 1f,
+    val popEnterZ: Float = -1f,
+    val predictiveBackEnterZ: Float = -1f,
     val baseLayerOverlay: (@Composable BoxScope.(
         isPopping: Boolean,
         isPredictiveBack: Boolean,
         transition: SeekableTransitionState<RouteStackEntry>
-    ) -> Unit)? = { isPopping, isPredictiveBack, transitionState ->
-        defaultBaseLayerOverlay(isPopping, isPredictiveBack, transitionState)
-    },
+    ) -> Unit)? = null,
 ) : IRouteTransition {
 
     companion object {
@@ -110,91 +111,117 @@ data class ComposeRouteTransition(
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .drawBehind { drawRect(Color.Black, alpha = .106f * transition.fraction) }
+                    .drawBehind {
+                        val level = if (isPopping) 1f - transition.fraction else transition.fraction
+                        drawRect(Color.Black, alpha = .106f * level)
+                    }
             )
         }
     }
 }
 
-val PushFromTopRouteTransition = ComposeRouteTransition(
-    enter = {
-        val offsetY = with(it) { -25.dp.toPx() }.toInt()
-        fadeIn(initialAlpha = 0f) + slideIn { IntOffset(0, offsetY) }
-    },
-    exit = { fadeOut(targetAlpha = 0f) },
-    popEnter = { fadeIn(initialAlpha = 0f) },
-    popExit = {
-        val offsetY = with(it) { -25.dp.toPx() }.toInt()
-        slideOut { IntOffset(0, offsetY) } + fadeOut(targetAlpha = 0f)
-    },
-)
+val PushFromTopRouteTransition = run {
+    val duration = 300
+    val distance = 40.dp
 
-val PushFromRightRouteTransition = ComposeRouteTransition(
-    enter = {
-        val offsetX = with(it) { 40.dp.toPx() }.toInt()
-        fadeIn() + slideIn { IntOffset(offsetX, 0) }
-    },
-    exit = {
-        val offsetX = with(it) { -40.dp.toPx() }.toInt()
-        slideOut { IntOffset(offsetX, 0) }
-    },
-    popEnter = {
-        val offsetX = with(it) { -40.dp.toPx() }.toInt()
-        fadeIn() + slideIn { IntOffset(offsetX, 0) }
-    },
-    popExit = {
-        val offsetX = with(it) { 40.dp.toPx() }.toInt()
-        slideOut { IntOffset(offsetX, 0) }
-    },
-)
+    ComposeRouteTransition(
+        enter = {
+            val offsetY = with(it) { -distance.toPx() }.toInt()
+            fadeIn(tween(duration), initialAlpha = 0f) + slideIn(tween(duration)) { IntOffset(0, offsetY) }
+        },
+        exit = { fadeOut(tween(duration), targetAlpha = 0f) },
+        popEnter = { fadeIn(tween(duration), initialAlpha = 0f) },
+        popExit = {
+            val offsetY = with(it) { -distance.toPx() }.toInt()
+            slideOut(tween(duration)) { IntOffset(0, offsetY) } + fadeOut(tween(duration), targetAlpha = 0f)
+        },
+        baseLayerOverlay = { isPopping, isPredictiveBack, transitionState ->
+            defaultBaseLayerOverlay(isPopping, isPredictiveBack, transitionState)
+        }
+    )
+}
 
-val SlideFromBottomRouteTransition = ComposeRouteTransition(
-    enter = { slideIn(tween(400)) { IntOffset(0, it.height) } },
-    exit = { fadeOut(tween(400), .99f) + scaleOut(tween(400), targetScale = .9f) },
-    popEnter = { fadeIn(tween(400), 0f) + scaleIn(tween(400), initialScale = .9f) },
-    popExit = { slideOut(tween(400)) { IntOffset(0, (it.height * .5).toInt()) } + fadeOut(tween(400)) },
-)
+val PushFromRightRouteTransition = run {
+    val duration = 300
+    val distance = 60.dp
 
-val SlideFromRightRouteTransition = ComposeRouteTransition(
-    enter = { slideIntoContainer(animationSpec = tween(300), towards = AnimatedContentTransitionScope.SlideDirection.Start) },
-    exit = { slideOutOfContainer(animationSpec = tween(300), towards = AnimatedContentTransitionScope.SlideDirection.Start) { it / 3 } },
-    popEnter = { slideIntoContainer(animationSpec = tween(300), towards = AnimatedContentTransitionScope.SlideDirection.End) { it / 3 } },
-    popExit = { slideOutOfContainer(animationSpec = tween(300), towards = AnimatedContentTransitionScope.SlideDirection.End) },
-    predictiveBackEnter = { _, _ ->
-        val easing = if (Platform.current == Platform.IOS) LinearEasing else FastOutSlowInEasing
-        slideIntoContainer(animationSpec = tween(300, easing = easing), towards = AnimatedContentTransitionScope.SlideDirection.End) { it / 3 }
-    },
-    predictiveBackExit = { _, _ ->
-        val easing = if (Platform.current == Platform.IOS) LinearEasing else FastOutSlowInEasing
-        slideOutOfContainer(animationSpec = tween(300, easing = easing), towards = AnimatedContentTransitionScope.SlideDirection.End)
-    },
-    popEnterZ = -1f,
-    predictiveBackEnterZ = -1f,
-    baseLayerOverlay = { isPopping, isPredictiveBack, transition ->
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .drawBehind {
-                    val level = if (isPopping) 1f - transition.fraction else transition.fraction
-                    drawRect(Color.Black, alpha = .106f * level)
-                }
-        )
-    }
-)
+    ComposeRouteTransition(
+        enter = {
+            val offsetX = with(it) { distance.toPx() }.toInt()
+            fadeIn(tween(duration)) + slideIn(tween(duration)) { IntOffset(offsetX, 0) }
+        },
+        exit = {
+            val offsetX = with(it) { -distance.toPx() }.toInt()
+            slideOut(tween(duration)) { IntOffset(offsetX, 0) }
+        },
+        popEnter = {
+            val offsetX = with(it) { -distance.toPx() }.toInt()
+            slideIn(tween(duration)) { IntOffset(offsetX, 0) }
+        },
+        popExit = {
+            val offsetX = with(it) { distance.toPx() }.toInt()
+            fadeOut(tween(duration)) + slideOut(tween(duration)) { IntOffset(offsetX, 0) }
+        },
+        baseLayerOverlay = { isPopping, isPredictiveBack, transitionState ->
+            defaultBaseLayerOverlay(isPopping, isPredictiveBack, transitionState)
+        }
+    )
+}
 
-val ScaleRouteTransition = ComposeRouteTransition(
-    enter = { fadeIn(initialAlpha = 0f) + scaleIn(initialScale = .9f) },
-    exit = { fadeOut(targetAlpha = 0f) },
-    popEnter = { scaleIn(initialScale = 1.1f) + fadeIn(initialAlpha = 0f) },
-    popExit = { fadeOut(targetAlpha = .99f) },
-)
+val SlideFromBottomRouteTransition = run {
+    val duration = 400
 
-val FadeRouteTransition = ComposeRouteTransition(
-    enter = { fadeIn() },
-    exit = { fadeOut() },
-    popEnter = { fadeIn() },
-    popExit = { fadeOut() },
-)
+    ComposeRouteTransition(
+        enter = { slideIn(tween(duration)) { IntOffset(0, it.height) } },
+        exit = { fadeOut(tween(duration), .99f) + scaleOut(tween(duration), targetScale = .9f) },
+        popEnter = { fadeIn(tween(duration), 0f) + scaleIn(tween(duration), initialScale = .9f) },
+        popExit = { slideOut(tween(duration)) { IntOffset(0, (it.height * .5).toInt()) } + fadeOut(tween(duration)) },
+    )
+}
+
+val SlideFromRightRouteTransition = run {
+    val duration = 300
+
+    ComposeRouteTransition(
+        enter = { slideIntoContainer(animationSpec = tween(duration), towards = AnimatedContentTransitionScope.SlideDirection.Start) },
+        exit = { slideOutOfContainer(animationSpec = tween(duration), towards = AnimatedContentTransitionScope.SlideDirection.Start) { it / 3 } },
+        popEnter = { slideIntoContainer(animationSpec = tween(duration), towards = AnimatedContentTransitionScope.SlideDirection.End) { it / 3 } },
+        popExit = { slideOutOfContainer(animationSpec = tween(duration), towards = AnimatedContentTransitionScope.SlideDirection.End) },
+        predictiveBackEnter = { _, _ ->
+            val easing = if (Platform.current == Platform.IOS) LinearEasing else FastOutSlowInEasing
+            slideIntoContainer(animationSpec = tween(duration, easing = easing), towards = AnimatedContentTransitionScope.SlideDirection.End) { it / 3 }
+        },
+        predictiveBackExit = { _, _ ->
+            val easing = if (Platform.current == Platform.IOS) LinearEasing else FastOutSlowInEasing
+            slideOutOfContainer(animationSpec = tween(duration, easing = easing), towards = AnimatedContentTransitionScope.SlideDirection.End)
+        },
+        baseLayerOverlay = { isPopping, isPredictiveBack, transitionState ->
+            defaultBaseLayerOverlay(isPopping, isPredictiveBack, transitionState)
+        }
+    )
+}
+
+val ScaleRouteTransition = run {
+    val duration = 300
+
+    ComposeRouteTransition(
+        enter = { fadeIn(tween(duration)) + scaleIn(tween(duration), initialScale = .9f) },
+        exit = { fadeOut(tween(duration)) },
+        popEnter = { fadeIn(tween(duration)) },
+        popExit = { fadeOut(tween(duration)) + scaleOut(targetScale = .9f) },
+    )
+}
+
+val FadeRouteTransition = run {
+    val duration = 300
+
+    ComposeRouteTransition(
+        enter = { fadeIn(tween(duration)) },
+        exit = { fadeOut(tween(duration)) },
+        popEnter = { fadeIn(tween(duration)) },
+        popExit = { fadeOut(tween(duration)) },
+    )
+}
 
 val NoRouteTransition = ComposeRouteTransition(
     enter = { EnterTransition.None },

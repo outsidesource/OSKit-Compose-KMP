@@ -171,7 +171,7 @@ internal class FullScreenPopupLayout(
                 }
             }
 
-            dispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
+            dispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY, callback)
             onDispose { dispatcher.unregisterOnBackInvokedCallback(callback) }
         }
 
@@ -189,30 +189,6 @@ internal class FullScreenPopupLayout(
 
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
         val consumed = onKeyEvent(KeyEvent(event))
-        if (event.keyCode != android.view.KeyEvent.KEYCODE_BACK) {
-            return if (consumed) true else super.dispatchKeyEvent(event)
-        }
-
-        val state = keyDispatcherState ?: return consumed
-
-        if (event.action == android.view.KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
-            state.startTracking(event, this)
-            return false
-        } else if (event.action == android.view.KeyEvent.ACTION_UP) {
-            if (consumed) return true
-            if (!state.isTracking(event) || event.isCanceled) return false
-
-            if (properties.dismissOnBackPress) {
-                onDismissRequest?.invoke()
-                return true
-            } else if (backPressedDispatcherOwner?.onBackPressedDispatcher?.hasEnabledCallbacks() == true) {
-                backPressedDispatcherOwner.onBackPressedDispatcher.onBackPressed()
-                return true
-            }
-
-            return false
-        }
-
         return if (consumed) true else super.dispatchKeyEvent(event)
     }
 
