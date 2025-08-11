@@ -29,7 +29,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 /**
  * UI Tests:
@@ -232,7 +233,7 @@ private fun Modifier.drawGrid(state: PanAndScaleState, gridSize: Dp = 20.dp, col
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalTime::class)
 private fun Modifier.panAndScalable(
     state: PanAndScaleState,
     onPan: (DpOffset) -> Unit = {},

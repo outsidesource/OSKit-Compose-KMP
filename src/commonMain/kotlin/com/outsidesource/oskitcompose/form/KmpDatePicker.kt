@@ -36,9 +36,17 @@ import com.outsidesource.oskitcompose.date.getDisplayName
 import com.outsidesource.oskitcompose.date.lengthInDays
 import com.outsidesource.oskitcompose.modifier.defaultMaxSize
 import com.outsidesource.oskitcompose.popup.*
-import kotlinx.datetime.*
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 import kotlin.math.min
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 private val daySize = 40.dp
 val DATE_PICKER_MIN_WIDTH = daySize * 7
@@ -48,6 +56,7 @@ private enum class DatePickerViewType {
     Year,
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpDatePickerModal(
     isVisible: Boolean,
@@ -111,6 +120,7 @@ fun KmpDatePickerModal(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpDatePickerPopover(
     isVisible: Boolean,
@@ -175,6 +185,7 @@ fun KmpDatePickerPopover(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpDatePickerInline(
     modifier: Modifier = Modifier,

@@ -1,6 +1,5 @@
 package com.outsidesource.oskitcompose.popup
 
-import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,7 +30,8 @@ import com.outsidesource.oskitcompose.modifier.outerShadow
 import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @Immutable
 data class BottomSheetStyles(
@@ -73,6 +73,7 @@ data class BottomSheetStyles(
  * @param styles Styles to modify the look of the [BottomSheet]
  * @param content The content to be displayed inside the popup.
  */
+@OptIn(ExperimentalTime::class)
 @Composable
 fun BottomSheet(
     isVisible: Boolean,
