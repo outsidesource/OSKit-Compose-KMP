@@ -786,33 +786,6 @@ fun KmpSliderScope.ManualEntryModal(
     }
 }
 
-private fun Modifier.onThumbKeyEvent(key: String, scope: KmpSliderScope) = with(scope) {
-    this@onThumbKeyEvent.onKeyEvent {
-        if (it.type != KeyEventType.KeyDown) return@onKeyEvent false
-
-        val valueRange = calculateValueRange(currentValues.value)
-        val multiplier = if (it.isShiftPressed) 10f else 1f
-        val distance = when (it.key) {
-            Key.DirectionRight, Key.DirectionUp -> step * multiplier
-            Key.DirectionLeft, Key.DirectionDown -> -step * multiplier
-            else -> return@onKeyEvent false
-        }
-        val clampedDistance = clampDistance(distance, valueRange)
-
-        if (isGroupThumbMode) {
-            onChange(currentValues.value.mapValues { entry -> (entry.value + clampedDistance).coerceIn(range).snapTo(step) })
-        } else if (isRangeThumbMode) {
-            val value = currentValues.value[key] ?: return@onKeyEvent true
-            val newValue = clampToDeadband(key, (value + clampedDistance).coerceIn(range).snapTo(step))
-            onChange(mapOf(key to newValue))
-        } else {
-            val value = currentValues.value[key] ?: return@onKeyEvent true
-            onChange(mapOf(key to (value + clampedDistance).coerceIn(range).snapTo(step)))
-        }
-        true
-    }
-}
-
 private fun KmpSliderScope.measureTicks(
     ticks: List<SliderTick>,
     textMeasurer: TextMeasurer,
@@ -1190,6 +1163,33 @@ data class KmpSliderScope(
         right = if (direction.isHorizontal) mainAxisEnd else crossAxisEnd,
         bottom = if (direction.isHorizontal) crossAxisEnd else mainAxisEnd,
     )
+
+    fun Modifier.onThumbKeyEvent(key: String, scope: KmpSliderScope) = with(scope) {
+        this@onThumbKeyEvent.onKeyEvent {
+            if (it.type != KeyEventType.KeyDown) return@onKeyEvent false
+
+            val valueRange = calculateValueRange(currentValues.value)
+            val multiplier = if (it.isShiftPressed) 10f else 1f
+            val distance = when (it.key) {
+                Key.DirectionRight, Key.DirectionUp -> step * multiplier
+                Key.DirectionLeft, Key.DirectionDown -> -step * multiplier
+                else -> return@onKeyEvent false
+            }
+            val clampedDistance = clampDistance(distance, valueRange)
+
+            if (isGroupThumbMode) {
+                onChange(currentValues.value.mapValues { entry -> (entry.value + clampedDistance).coerceIn(range).snapTo(step) })
+            } else if (isRangeThumbMode) {
+                val value = currentValues.value[key] ?: return@onKeyEvent true
+                val newValue = clampToDeadband(key, (value + clampedDistance).coerceIn(range).snapTo(step))
+                onChange(mapOf(key to newValue))
+            } else {
+                val value = currentValues.value[key] ?: return@onKeyEvent true
+                onChange(mapOf(key to (value + clampedDistance).coerceIn(range).snapTo(step)))
+            }
+            true
+        }
+    }
 }
 
 @Immutable
