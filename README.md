@@ -102,6 +102,8 @@ implementation("com.outsidesource:oskit-compose:4.0.0")
 * `WindowInfo.widthSizeClass`
 * `WindowInfo.containerSizeDp`
 * `Html` composable for WASM
+* DrawScope.drawInnerShadow
+* DrawScope.drawOuterShadow
 #### Breaking Changes
 * Removed kmpWindowInfo as `LocalWindowInfo.current` has implemented all desired functionality
 
