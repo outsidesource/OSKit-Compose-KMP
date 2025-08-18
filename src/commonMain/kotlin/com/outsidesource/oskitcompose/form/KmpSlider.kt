@@ -38,6 +38,7 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -341,7 +342,7 @@ fun KmpSliderScope.Label(
     Text(
         modifier = modifier,
         text = label,
-        style = styles.labelTextStyle,
+        style = if (isEnabled) styles.labelTextStyle else styles.labelTextStyleDisabled,
         overflow = styles.labelTextOverflow,
         maxLines = 1
     )
@@ -362,7 +363,7 @@ fun KmpSliderScope.ValueLabel(
     ) {
         Text(
             text = formatCurrentValueLabel(),
-            style = styles.valueLabelTextStyle,
+            style = if (isEnabled) styles.valueLabelTextStyle else styles.valueLabelTextStyleDisabled,
             overflow = styles.valueLabelTextOverflow,
             maxLines = 1,
         )
@@ -1243,9 +1244,11 @@ data class KmpSliderTrackScope(
 @Immutable
 data class KmpSliderStyle(
     val labelTextStyle: TextStyle = DefaultLabelStyle,
+    val labelTextStyleDisabled: TextStyle = DefaultLabelStyle,
     val labelTextOverflow: TextOverflow = TextOverflow.Ellipsis,
 
     val valueLabelTextStyle: TextStyle = DefaultValueLabelStyle,
+    val valueLabelTextStyleDisabled: TextStyle = DefaultValueLabelStyle,
     val valueLabelTextOverflow: TextOverflow = TextOverflow.Clip,
     val valueLabelBackground: Brush = SolidColor(Color(0xFFE5E7EB)),
     val valueLabelBackgroundDisabled: Brush = SolidColor(Color.Transparent),
