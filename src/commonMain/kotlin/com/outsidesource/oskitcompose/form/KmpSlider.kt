@@ -49,9 +49,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.zIndex
-import com.outsidesource.oskitcompose.modifier.OuterShadow
-import com.outsidesource.oskitcompose.modifier.outerShadow
+import com.outsidesource.oskitcompose.modifier.KmpOuterShadow
+import com.outsidesource.oskitcompose.modifier.kmpOuterShadow
 import com.outsidesource.oskitcompose.popup.Modal
+import com.outsidesource.oskitcompose.popup.ModalStyles
 import com.outsidesource.oskitkmp.lib.snapTo
 import com.outsidesource.oskitkmp.text.KmpNumberFormatter
 import com.outsidesource.oskitkmp.text.parseFloatOrNull
@@ -93,7 +94,7 @@ fun KmpSlider(
     range: ClosedRange<Float>,
     step: Float = 1f,
     isEnabled: Boolean = true,
-    ticks: List<SliderTick> = emptyList(),
+    ticks: List<KmpSliderTick> = emptyList(),
     units: String? = null,
     label: String? = null,
     valueFormatter: ((value: Float) -> String) = remember { { it.roundToInt().toString() } },
@@ -101,7 +102,7 @@ fun KmpSlider(
     direction: KmpSliderDirection = KmpSliderDirection.Horizontal,
     logarithmic: Boolean = false,
 
-    styles: KmpSliderStyles = remember { KmpSliderStyles() },
+    styles: KmpSliderStyle = remember { KmpSliderStyle() },
 
     layoutSlot: @Composable KmpSliderScope.() -> Unit = { DefaultLayout() },
     labelSlot: @Composable KmpSliderScope.() -> Unit = { Label() },
@@ -190,7 +191,7 @@ fun KmpSlider(
     range: ClosedRange<Float>,
     step: Float = 1f,
     isEnabled: Boolean = true,
-    ticks: List<SliderTick> = emptyList(),
+    ticks: List<KmpSliderTick> = emptyList(),
     units: String? = null,
     label: String? = null,
     valueFormatter: ((value: Float) -> String) = remember { { it.roundToInt().toString() } },
@@ -200,7 +201,7 @@ fun KmpSlider(
     deadband: Float? = null,
     logarithmic: Boolean = false,
 
-    styles: KmpSliderStyles = remember { KmpSliderStyles() },
+    styles: KmpSliderStyle = remember { KmpSliderStyle() },
 
     layoutSlot: @Composable KmpSliderScope.() -> Unit = { DefaultLayout() },
     labelSlot: @Composable KmpSliderScope.() -> Unit = { Label() },
@@ -548,7 +549,7 @@ private fun KmpSliderTrackScope.TrackFill() {
         val value = currentValues.value.values.firstOrNull() ?: range.start
 
         when (styles.trackFillAlignment) {
-            SliderAlignment.Start -> {
+            KmpSliderAlignment.Start -> {
                 val size = if (sliderScope.direction.isHorizontal) {
                     Size(
                         width = (mainAxisSize * posMult) + fullSizeTrackOffset,
@@ -568,7 +569,7 @@ private fun KmpSliderTrackScope.TrackFill() {
                 drawRect(brush = trackFill, topLeft = topLeft, size = size)
             }
 
-            SliderAlignment.Center -> {
+            KmpSliderAlignment.Center -> {
                 val rangeCenter = (range.endInclusive - range.start) / 2
                 val start =
                     (if (value >= rangeCenter) mainAxisSize / 2 else mainAxisSize * posMult) + fullSizeTrackOffset
@@ -582,7 +583,7 @@ private fun KmpSliderTrackScope.TrackFill() {
                 }
             }
 
-            SliderAlignment.End -> {
+            KmpSliderAlignment.End -> {
                 val size = if (sliderScope.direction.isHorizontal) {
                     Size(
                         width = (mainAxisSize * (1 - posMult)) + fullSizeTrackOffset,
@@ -618,7 +619,7 @@ fun KmpSliderScope.Thumb(
             .focusable(isEnabled, interactionSource)
             .onThumbKeyEvent(key, this)
             .fillMaxSize()
-            .then(if (styles.thumbShadow != null) Modifier.outerShadow(blur = styles.thumbShadow.blur, color = styles.thumbShadow.color, shape = styles.thumbShadow.shape) else Modifier)
+            .then(if (styles.thumbShadow != null) Modifier.kmpOuterShadow(blur = styles.thumbShadow.blur, color = styles.thumbShadow.color, shape = styles.thumbShadow.shape) else Modifier)
             .border(
                 width = .5.dp,
                 brush = if (isFocused) styles.trackFill else SolidColor(Color.Transparent),
@@ -718,6 +719,8 @@ typealias KmpSliderManualEntrySlot = @Composable KmpSliderScope.(
 fun KmpSliderScope.ManualEntryModal(
     isVisible: Boolean,
     valueString: String,
+    maxWidth: Dp = 300.dp,
+    styles: ModalStyles = ModalStyles(),
     onTextChange: (String) -> Unit,
     onCancel: () -> Unit,
     onCommit: () -> Unit,
@@ -725,7 +728,9 @@ fun KmpSliderScope.ManualEntryModal(
     val focusRequester = remember { FocusRequester() }
 
     Modal(
+        modifier = Modifier.widthIn(max = maxWidth),
         isVisible = isVisible,
+        styles = styles,
         onDismissRequest = onCancel,
     ) {
         LaunchedEffect(Unit) {
@@ -787,7 +792,7 @@ fun KmpSliderScope.ManualEntryModal(
 }
 
 private fun KmpSliderScope.measureTicks(
-    ticks: List<SliderTick>,
+    ticks: List<KmpSliderTick>,
     textMeasurer: TextMeasurer,
 ): TicksMeasurement = with(density) {
     var minPos = 0f
@@ -1075,8 +1080,8 @@ data class KmpSliderScope(
     val units: String?,
     val label: String?,
     val valueFormatter: ((value: Float) -> String),
-    val ticks: List<SliderTick>,
-    val styles: KmpSliderStyles,
+    val ticks: List<KmpSliderTick>,
+    val styles: KmpSliderStyle,
 
     val isEnabled: Boolean,
     val manualEntryState: MutableState<Boolean>?,
@@ -1095,11 +1100,11 @@ data class KmpSliderScope(
     internal val draggingKey: MutableState<String?>,
 ) {
 
-    internal fun SliderTickPosition.calculate(objectSize: Int): Float = with(density) {
+    internal fun KmpSliderTickPosition.calculate(objectSize: Int): Float = with(density) {
         when (alignment) {
-            SliderAlignment.Start -> (-(styles.trackThickness.toPx() / 2) - (objectSize / 2)) + offset.toPx()
-            SliderAlignment.Center -> offset.toPx()
-            SliderAlignment.End -> ((styles.trackThickness.toPx() / 2) + (objectSize / 2)) + offset.toPx()
+            KmpSliderAlignment.Start -> (-(styles.trackThickness.toPx() / 2) - (objectSize / 2)) + offset.toPx()
+            KmpSliderAlignment.Center -> offset.toPx()
+            KmpSliderAlignment.End -> ((styles.trackThickness.toPx() / 2) + (objectSize / 2)) + offset.toPx()
         }
     }
 
@@ -1205,7 +1210,7 @@ data class KmpSliderTrackScope(
     val currentValues = sliderScope.currentValues
     val styles = sliderScope.styles
 
-    internal fun SliderTickPosition.calculate(objectSize: Int): Float = with(sliderScope) { calculate(objectSize) }
+    internal fun KmpSliderTickPosition.calculate(objectSize: Int): Float = with(sliderScope) { calculate(objectSize) }
 
     val Size.mainAxisSize: Float
         get() = if (sliderScope.direction.isHorizontal) width else height
@@ -1236,7 +1241,7 @@ data class KmpSliderTrackScope(
  * @param isTrackFullSize If true, the thumb edges align with the track edges. If false (default), the thumb center aligns with the edges of the track.
  */
 @Immutable
-data class KmpSliderStyles(
+data class KmpSliderStyle(
     val labelTextStyle: TextStyle = DefaultLabelStyle,
     val labelTextOverflow: TextOverflow = TextOverflow.Ellipsis,
 
@@ -1250,7 +1255,7 @@ data class KmpSliderStyles(
     val trackShape: Shape = CircleShape,
     val trackFill: Brush = SolidColor(Color.Black),
     val trackFillDisabled: Brush = SolidColor(Color(0xFF969798)),
-    val trackFillAlignment: SliderAlignment = SliderAlignment.Start,
+    val trackFillAlignment: KmpSliderAlignment = KmpSliderAlignment.Start,
     val trackThickness: Dp = 4.dp,
     val isTrackFullSize: Boolean = false,
 
@@ -1258,12 +1263,12 @@ data class KmpSliderStyles(
     val thumbBackground: Brush = SolidColor(Color.White),
     val thumbBackgroundDisabled: Brush = SolidColor(Color(0xFFF6F6F6)),
     val thumbShape: Shape = CircleShape,
-    val thumbShadow: OuterShadow? = OuterShadow(blur = 4.dp, color = Color.Black.copy(alpha = .15f), shape = thumbShape),
-    val thumbShadowDisabled: OuterShadow? = null,
+    val thumbShadow: KmpOuterShadow? = KmpOuterShadow(blur = 4.dp, color = Color.Black.copy(alpha = .15f), shape = thumbShape),
+    val thumbShadowDisabled: KmpOuterShadow? = null,
 
     val ticksZIndex: Float = 0f,
 ) {
-    companion object {
+    companion object Companion {
         val DefaultLabelStyle = TextStyle.Default.copy(
             fontSize = 12.sp,
         )
@@ -1280,43 +1285,43 @@ enum class MultiThumbMode {
 }
 
 /**
- * [SliderTick] represents a visual indicator for a particular value in a slider
+ * [KmpSliderTick] represents a visual indicator for a particular value in a slider
  *
  * @param value The value the tick should be placed
  * @param label The label for the tick
  * @param style The style for the tick
  */
 @Immutable
-data class SliderTick(
+data class KmpSliderTick(
     val value: Float,
     val label: String? = null,
-    val style: SliderTickStyle = SliderTickStyle(),
+    val style: KmpSliderTickStyle = KmpSliderTickStyle(),
 )
 
 /**
- * The style of a slider [SliderTick]
+ * The style of a slider [KmpSliderTick]
  */
 @Immutable
-data class SliderTickStyle(
+data class KmpSliderTickStyle(
     val shape: Shape? = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 8.dp, bottomEnd = 8.dp),
     val shapeSize: DpAxisSize = DpAxisSize(1.dp, 7.dp),
     val shapeBrush: Brush = SolidColor(Color.Black),
     val shapeDrawStyle: DrawStyle = Fill,
-    val shapePosition: SliderTickPosition = SliderTickPosition(offset = 4.dp),
+    val shapePosition: KmpSliderTickPosition = KmpSliderTickPosition(offset = 4.dp),
     val labelTextStyle: TextStyle = TextStyle(fontSize = 12.sp),
     val labelTextDecoration: TextDecoration? = null,
     val labelDrawStyle: DrawStyle? = null,
     val labelShadow: Shadow? = null,
-    val labelPosition: SliderTickPosition = SliderTickPosition(offset = 15.dp),
+    val labelPosition: KmpSliderTickPosition = KmpSliderTickPosition(offset = 15.dp),
 ) {
     object Line {
-        val Short = SliderTickStyle(shapeSize = DpAxisSize(mainAxis = 1.dp, crossAxis = 3.dp))
-        val Medium = SliderTickStyle(shapeSize = DpAxisSize(mainAxis = 1.dp, crossAxis = 7.dp))
-        val Tall = SliderTickStyle(shapeSize = DpAxisSize(mainAxis = 1.dp, crossAxis = 10.dp))
+        val Short = KmpSliderTickStyle(shapeSize = DpAxisSize(mainAxis = 1.dp, crossAxis = 3.dp))
+        val Medium = KmpSliderTickStyle(shapeSize = DpAxisSize(mainAxis = 1.dp, crossAxis = 7.dp))
+        val Tall = KmpSliderTickStyle(shapeSize = DpAxisSize(mainAxis = 1.dp, crossAxis = 10.dp))
     }
 
     companion object Companion {
-        val Circle = SliderTickStyle(
+        val Circle = KmpSliderTickStyle(
             shape = CircleShape,
             shapeSize = DpAxisSize(4.dp, 4.dp),
         )
@@ -1342,13 +1347,13 @@ data class DpAxisSize(
  *   * End: The cross-axis start of the tick will align with the cross-axis end of the track.
  */
 @Immutable
-data class SliderTickPosition(
+data class KmpSliderTickPosition(
     val offset: Dp = 0.dp,
-    val alignment: SliderAlignment = SliderAlignment.End,
+    val alignment: KmpSliderAlignment = KmpSliderAlignment.End,
 )
 
 @Immutable
-enum class SliderAlignment {
+enum class KmpSliderAlignment {
     Start,
     Center,
     End,
@@ -1392,13 +1397,13 @@ private fun KmpSliderPreview() {
             multiThumbMode = MultiThumbMode.Group,
             values = testValues.value,
             range = -100f..100f,
-            styles = KmpSliderStyles().copy(),
+            styles = KmpSliderStyle().copy(),
             ticks = remember {
                 (-100..100 step 10).map {
-                    SliderTick(
+                    KmpSliderTick(
                         value = it.toFloat(),
                         label = if (it % 20 == 0) it.toString() else null,
-                        style = if (it % 20 == 0) SliderTickStyle.Line.Medium else SliderTickStyle.Line.Short,
+                        style = if (it % 20 == 0) KmpSliderTickStyle.Line.Medium else KmpSliderTickStyle.Line.Short,
                     )
                 }
             },
@@ -1415,10 +1420,10 @@ private fun KmpSliderPreview() {
             isEnabled = !isDisabled,
             units = "%",
             range = -100f..100f,
-            styles = KmpSliderStyles().copy(),
+            styles = KmpSliderStyle().copy(),
             ticks = remember {
                 (-100..100 step 20).map {
-                    SliderTick(
+                    KmpSliderTick(
                         value = it.toFloat(),
                         label = it.toString(),
                     )
@@ -1437,19 +1442,19 @@ private fun KmpSliderPreview() {
             isEnabled = !isDisabled,
             units = "%",
             range = -100f..100f,
-            styles = KmpSliderStyles().copy(
+            styles = KmpSliderStyle().copy(
                 trackFill = Brush.linearGradient(
                     0f to Color.Blue,
                     1f to Color.Red,
                 ),
-                trackFillAlignment = SliderAlignment.Center,
+                trackFillAlignment = KmpSliderAlignment.Center,
             ),
             ticks = remember {
                 (-100..100 step 20).map {
-                    SliderTick(
+                    KmpSliderTick(
                         value = it.toFloat(),
                         label = it.toString(),
-                        style = SliderTickStyle.Line.Medium,
+                        style = KmpSliderTickStyle.Line.Medium,
                     )
                 }
             },
@@ -1466,19 +1471,19 @@ private fun KmpSliderPreview() {
             isEnabled = !isDisabled,
             units = "%",
             range = -100f..100f,
-            styles = KmpSliderStyles().copy(
+            styles = KmpSliderStyle().copy(
                 trackFill = Brush.linearGradient(
                     0f to Color.Blue,
                     1f to Color.LightGray,
                 ),
-                trackFillAlignment = SliderAlignment.End,
+                trackFillAlignment = KmpSliderAlignment.End,
             ),
             ticks = remember {
                 (-100..100 step 20).map {
-                    SliderTick(
+                    KmpSliderTick(
                         value = it.toFloat(),
                         label = it.toString(),
-                        style = SliderTickStyle.Line.Medium,
+                        style = KmpSliderTickStyle.Line.Medium,
                     )
                 }
             },
@@ -1494,32 +1499,32 @@ private fun KmpSliderPreview() {
             label = "Range",
             isEnabled = !isDisabled,
             range = -100f..100f,
-            styles = KmpSliderStyles().copy(),
+            styles = KmpSliderStyle().copy(),
             deadband = 1f,
             ticks = remember {
                 buildList {
-                    SliderTick(
+                    KmpSliderTick(
                         value = -100f,
                         label = "0",
-                        style = SliderTickStyle(
-                            labelPosition = SliderTickPosition(alignment = SliderAlignment.End, offset = 4.dp),
+                        style = KmpSliderTickStyle(
+                            labelPosition = KmpSliderTickPosition(alignment = KmpSliderAlignment.End, offset = 4.dp),
                             shapeSize = DpAxisSize(0.dp, 0.dp),
                         ),
                     ).let { add(it) }
-                    SliderTick(
+                    KmpSliderTick(
                         value = 100f,
                         label = "100",
-                        style = SliderTickStyle(
-                            labelPosition = SliderTickPosition(alignment = SliderAlignment.End, offset = 4.dp),
+                        style = KmpSliderTickStyle(
+                            labelPosition = KmpSliderTickPosition(alignment = KmpSliderAlignment.End, offset = 4.dp),
                             shapeSize = DpAxisSize(0.dp, 0.dp),
                         ),
                     ).let { add(it) }
                     for (i in -90..90 step 10) {
-                        SliderTick(
+                        KmpSliderTick(
                             value = i.toFloat(),
-                            style = SliderTickStyle.Circle.copy(
+                            style = KmpSliderTickStyle.Circle.copy(
                                 shapeBrush = SolidColor(Color.White.copy(alpha = .75f)),
-                                shapePosition = SliderTickPosition(alignment = SliderAlignment.Center),
+                                shapePosition = KmpSliderTickPosition(alignment = KmpSliderAlignment.Center),
                             ),
                         ).let { add(it) }
                     }
@@ -1544,19 +1549,19 @@ private fun KmpSliderPreview() {
             },
             units = "hz",
             logarithmic = true,
-            styles = KmpSliderStyles().copy(),
+            styles = KmpSliderStyle().copy(),
             ticks = remember {
                 buildList {
-                    add(SliderTick(value = 20f, label = "20hz"))
-                    add(SliderTick(value = 50f, label = "50"))
-                    add(SliderTick(value = 100f, label = "100"))
-                    add(SliderTick(value = 200f, label = "200"))
-                    add(SliderTick(value = 500f, label = "500"))
-                    add(SliderTick(value = 1_000f, label = "1k"))
-                    add(SliderTick(value = 2_000f, label = "2k"))
-                    add(SliderTick(value = 5_000f, label = "5k"))
-                    add(SliderTick(value = 10_000f, label = "10k"))
-                    add(SliderTick(value = 20_000f, label = "20k"))
+                    add(KmpSliderTick(value = 20f, label = "20hz"))
+                    add(KmpSliderTick(value = 50f, label = "50"))
+                    add(KmpSliderTick(value = 100f, label = "100"))
+                    add(KmpSliderTick(value = 200f, label = "200"))
+                    add(KmpSliderTick(value = 500f, label = "500"))
+                    add(KmpSliderTick(value = 1_000f, label = "1k"))
+                    add(KmpSliderTick(value = 2_000f, label = "2k"))
+                    add(KmpSliderTick(value = 5_000f, label = "5k"))
+                    add(KmpSliderTick(value = 10_000f, label = "10k"))
+                    add(KmpSliderTick(value = 20_000f, label = "20k"))
                 }
             },
             onChange = remember {
@@ -1577,10 +1582,10 @@ private fun KmpSliderPreview() {
             label = "Basic".uppercase(),
             units = "%",
             range = -100f..100f,
-            styles = KmpSliderStyles().copy(),
+            styles = KmpSliderStyle().copy(),
             ticks = remember {
                 (-100..100 step 20).map {
-                    SliderTick(
+                    KmpSliderTick(
                         value = it.toFloat(),
                         label = it.toString(),
                     )

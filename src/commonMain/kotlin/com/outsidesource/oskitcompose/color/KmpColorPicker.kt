@@ -29,7 +29,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.outsidesource.oskitcompose.modifier.outerShadow
+import com.outsidesource.oskitcompose.modifier.kmpOuterShadow
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -328,7 +328,7 @@ fun KmpColorPickerHandle(
     Box(
         modifier = modifier
             .border(2.dp, color = Color.White, CircleShape)
-            .outerShadow(
+            .kmpOuterShadow(
                 blur = 2.dp,
                 offset = DpOffset(0.dp, 1.dp),
                 color = Color.Black.copy(alpha = .5f),

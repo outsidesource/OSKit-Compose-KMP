@@ -8,7 +8,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
@@ -17,7 +16,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.outsidesource.oskitcompose.canvas.kmpBlur
 
-fun Modifier.innerShadow(
+fun Modifier.kmpInnerShadow(
     blur: Dp,
     spread: Dp = 0.dp,
     color: Color = Color.Black,
@@ -27,11 +26,11 @@ fun Modifier.innerShadow(
 ) = (if (!drawOverContent) graphicsLayer { alpha = .99f } else this) // This forces Android to use alpha compositing
     .drawWithContent {
         if (drawOverContent) drawContent()
-        drawInnerShadow(blur = blur, spread = spread, color = color, shape = shape, offset = offset)
+        drawKmpInnerShadow(blur = blur, spread = spread, color = color, shape = shape, offset = offset)
         if (!drawOverContent) drawContent()
     }
 
-fun DrawScope.drawInnerShadow(
+fun DrawScope.drawKmpInnerShadow(
     topLeft: Offset = Offset.Zero,
     size: Size = this.size,
     blur: Dp,
@@ -69,7 +68,7 @@ fun DrawScope.drawInnerShadow(
     }
 }
 
-data class InnerShadow(
+data class KmpInnerShadow(
     val blur: Dp,
     val spread: Dp = 0.dp,
     val color: Color = Color.Black,
@@ -78,17 +77,17 @@ data class InnerShadow(
     val drawOverContent: Boolean = false,
 )
 
-fun Modifier.outerShadow(
+fun Modifier.kmpOuterShadow(
     blur: Dp,
     spread: Dp = 0.dp,
     color: Color = Color.Black,
     shape: Shape = RectangleShape,
     offset: DpOffset = DpOffset.Zero,
 ) = drawBehind {
-    drawOuterShadow(blur = blur, spread = spread, color = color, shape = shape, offset = offset)
+    drawKmpOuterShadow(blur = blur, spread = spread, color = color, shape = shape, offset = offset)
 }
 
-fun DrawScope.drawOuterShadow(
+fun DrawScope.drawKmpOuterShadow(
     topLeft: Offset = Offset.Zero,
     size: Size = this.size,
     blur: Dp,
@@ -117,7 +116,7 @@ fun DrawScope.drawOuterShadow(
 }
 
 @Immutable
-data class OuterShadow(
+data class KmpOuterShadow(
     val blur: Dp,
     val spread: Dp = 0.dp,
     val color: Color = Color.Black,

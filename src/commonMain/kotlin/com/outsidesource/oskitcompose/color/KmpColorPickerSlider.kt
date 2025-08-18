@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.outsidesource.oskitcompose.form.KmpSlider
 import com.outsidesource.oskitcompose.form.KmpSliderDirection
-import com.outsidesource.oskitcompose.form.KmpSliderStyles
-import com.outsidesource.oskitcompose.modifier.outerShadow
+import com.outsidesource.oskitcompose.form.KmpSliderStyle
+import com.outsidesource.oskitcompose.modifier.kmpOuterShadow
 
 @Composable
 fun KmpColorPickerHueSlider(
@@ -188,7 +188,7 @@ private fun KmpColorPickerComponentSlider(
         valueLabelSlot = null,
         direction = direction,
         styles = remember {
-            KmpSliderStyles(
+            KmpSliderStyle(
                 trackThickness = trackSize,
                 trackShape = CircleShape,
             )
@@ -208,7 +208,7 @@ private fun KmpColorPickerComponentSlider(
                     .onThumbKeyEvent(it, this)
                     .size(trackSize)
                     .padding(2.dp)
-                    .outerShadow(
+                    .kmpOuterShadow(
                         blur = 2.dp,
                         offset = DpOffset(0.dp, 1.dp),
                         color = Color.Black.copy(alpha = .5f),

@@ -25,8 +25,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.lib.VarRef
-import com.outsidesource.oskitcompose.modifier.OuterShadow
-import com.outsidesource.oskitcompose.modifier.outerShadow
+import com.outsidesource.oskitcompose.modifier.KmpOuterShadow
+import com.outsidesource.oskitcompose.modifier.kmpOuterShadow
 import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,7 +38,7 @@ data class BottomSheetStyles(
     val transitionDuration: Int = 300,
     val scrimColor: Color = Color.Black.copy(alpha = .5f),
     val maxWidth: Dp = 500.dp,
-    val shadow: OuterShadow = OuterShadow(
+    val shadow: KmpOuterShadow = KmpOuterShadow(
         blur = 11.dp,
         color = Color.Black.copy(alpha = .25f),
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
@@ -53,7 +53,7 @@ data class BottomSheetStyles(
          */
         val UserDefinedContent = BottomSheetStyles(
             maxWidth = Dp.Unspecified,
-            shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
+            shadow = KmpOuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,
             contentPadding = PaddingValues(0.dp),
@@ -164,7 +164,7 @@ fun BottomSheet(
                                 .offset(y = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
                                 .widthIn(max = styles.maxWidth)
                                 .fillMaxWidth()
-                                .outerShadow(
+                                .kmpOuterShadow(
                                     blur = styles.shadow.blur,
                                     color = styles.shadow.color,
                                     shape = styles.shadow.shape,

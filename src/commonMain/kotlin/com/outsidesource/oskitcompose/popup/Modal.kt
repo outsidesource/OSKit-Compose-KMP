@@ -22,16 +22,16 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.*
-import com.outsidesource.oskitcompose.modifier.OuterShadow
+import com.outsidesource.oskitcompose.modifier.KmpOuterShadow
 import com.outsidesource.oskitcompose.modifier.disablePointerInput
-import com.outsidesource.oskitcompose.modifier.outerShadow
+import com.outsidesource.oskitcompose.modifier.kmpOuterShadow
 import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 
 @Immutable
 data class ModalStyles(
     val transitionDuration: Int = 200,
     val scrimColor: Color = Color.Black.copy(alpha = .5f),
-    val shadow: OuterShadow = OuterShadow(
+    val shadow: KmpOuterShadow = KmpOuterShadow(
         blur = 11.dp,
         color = Color.Black.copy(alpha = .25f),
         shape = RoundedCornerShape(8.dp)
@@ -46,7 +46,7 @@ data class ModalStyles(
          * ModalStyles with all content set to unspecified to allow for custom user definition
          */
         val UserDefinedContent = ModalStyles(
-            shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
+            shadow = KmpOuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,
             windowPadding = PaddingValues(0.dp),
@@ -130,7 +130,7 @@ fun Modal(
                             this.translationY = translate
                         }
                         .padding(styles.windowPadding)
-                        .outerShadow(
+                        .kmpOuterShadow(
                             blur = styles.shadow.blur,
                             color = styles.shadow.color,
                             shape = styles.shadow.shape,

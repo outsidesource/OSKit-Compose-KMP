@@ -24,8 +24,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.lib.VarRef
-import com.outsidesource.oskitcompose.modifier.OuterShadow
-import com.outsidesource.oskitcompose.modifier.outerShadow
+import com.outsidesource.oskitcompose.modifier.KmpOuterShadow
+import com.outsidesource.oskitcompose.modifier.kmpOuterShadow
 import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,7 +37,7 @@ data class DrawerStyles(
     val transitionDuration: Int = 300,
     val scrimColor: Color = Color.Black.copy(alpha = .5f),
     val width: Dp = 300.dp,
-    val shadow: OuterShadow = OuterShadow(
+    val shadow: KmpOuterShadow = KmpOuterShadow(
         blur = 11.dp,
         color = Color.Black.copy(alpha = .25f),
         shape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
@@ -52,7 +52,7 @@ data class DrawerStyles(
          */
         val UserDefinedContent = DrawerStyles(
             width = Dp.Unspecified,
-            shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
+            shadow = KmpOuterShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,
             contentPadding = PaddingValues(0.dp),
@@ -165,7 +165,7 @@ fun Drawer(
                                 .offset(x = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
                                 .width(styles.width)
                                 .fillMaxHeight()
-                                .outerShadow(
+                                .kmpOuterShadow(
                                     blur = styles.shadow.blur,
                                     color = styles.shadow.color,
                                     shape = styles.shadow.shape,
