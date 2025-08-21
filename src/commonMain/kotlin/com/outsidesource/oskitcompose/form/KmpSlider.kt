@@ -38,7 +38,6 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -50,7 +49,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.zIndex
-import com.outsidesource.oskitcompose.modifier.KmpOuterShadow
+import com.outsidesource.oskitcompose.modifier.KmpShadow
 import com.outsidesource.oskitcompose.modifier.kmpOuterShadow
 import com.outsidesource.oskitcompose.popup.Modal
 import com.outsidesource.oskitcompose.popup.ModalStyles
@@ -620,7 +619,7 @@ fun KmpSliderScope.Thumb(
             .focusable(isEnabled, interactionSource)
             .onThumbKeyEvent(key, this)
             .fillMaxSize()
-            .then(if (styles.thumbShadow != null) Modifier.kmpOuterShadow(blur = styles.thumbShadow.blur, color = styles.thumbShadow.color, shape = styles.thumbShadow.shape) else Modifier)
+            .then(if (styles.thumbShadow != null) Modifier.kmpOuterShadow(styles.thumbShadow) else Modifier)
             .border(
                 width = .5.dp,
                 brush = if (isFocused) styles.trackFill else SolidColor(Color.Transparent),
@@ -1266,8 +1265,8 @@ data class KmpSliderStyle(
     val thumbBackground: Brush = SolidColor(Color.White),
     val thumbBackgroundDisabled: Brush = SolidColor(Color(0xFFF6F6F6)),
     val thumbShape: Shape = CircleShape,
-    val thumbShadow: KmpOuterShadow? = KmpOuterShadow(blur = 4.dp, color = Color.Black.copy(alpha = .15f), shape = thumbShape),
-    val thumbShadowDisabled: KmpOuterShadow? = null,
+    val thumbShadow: KmpShadow? = KmpShadow(blur = 4.dp, color = Color.Black.copy(alpha = .15f), shape = thumbShape),
+    val thumbShadowDisabled: KmpShadow? = null,
 
     val ticksZIndex: Float = 0f,
 ) {

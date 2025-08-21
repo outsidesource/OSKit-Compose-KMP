@@ -104,9 +104,10 @@ implementation("com.outsidesource:oskit-compose:4.0.0")
 * `Html` composable for WASM
 * DrawScope.drawKmpInnerShadow
 * DrawScope.drawKmpOuterShadow
+* KmpShadow now supports brushes
 #### Breaking Changes
 * Removed kmpWindowInfo as `LocalWindowInfo.current` has implemented all desired functionality
-* Renamed InnerShadow and OuterShadow to KmpInnerShadow and KmpOuterShadow due to potential conflict with Compose 1.9.0 shadows
+* Renamed InnerShadow and OuterShadow to KmpShadow due to potential conflict with Compose 1.9.0 shadows
 
 ### 4.0.0 - 2025-02-07
 #### Added
