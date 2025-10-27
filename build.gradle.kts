@@ -125,7 +125,6 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(libs.ktor.client.cio)
-                implementation(libs.compose.desktop)
             }
         }
 
