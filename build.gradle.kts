@@ -176,7 +176,7 @@ mavenPublishing {
     pom {
         description.set("An opinionated architecture/library for Compose Multiplatform development")
         name.set(project.name)
-        url.set("https://github.com/outsidesource/OSKit-KMP")
+        url.set("https://github.com/outsidesource/OSKit-Compose-KMP")
         licenses {
             license {
                 name.set("MIT License")
