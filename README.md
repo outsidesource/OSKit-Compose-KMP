@@ -105,9 +105,13 @@ implementation("com.outsidesource:oskit-compose:4.0.0")
 * DrawScope.drawKmpInnerShadow
 * DrawScope.drawKmpOuterShadow
 * KmpShadow now supports brushes
+* Updated rememberInject and rememberInjectForRoute to use koin-compose so that both calls work with IsolatedContexts now
 #### Breaking Changes
 * Removed kmpWindowInfo as `LocalWindowInfo.current` has implemented all desired functionality
 * Renamed InnerShadow and OuterShadow to KmpShadow due to potential conflict with Compose 1.9.0 shadows
+* Removed rememberInteractor
+* Removed rememberInject with key parameters. Keys are handled by koin
+* Removed koinInjector. koinInjector prevented isolated koin contexts from working
 
 ### 4.0.0 - 2025-02-07
 #### Added
