@@ -90,6 +90,7 @@ kotlin {
                 implementation(compose.material)
                 implementation(libs.okio)
                 implementation(libs.koin.core)
+                implementation(libs.koin.compose)
                 implementation(libs.markdown)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.ktor.client.core)

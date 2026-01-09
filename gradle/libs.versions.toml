@@ -5,7 +5,7 @@ compose-multiplatform = "1.9.1"
 activityCompose = "1.10.1"
 coreKtx = "1.17.0"
 junit = "4.13.2"
-koin = "4.1.0"
+koin = "4.1.1"
 ktor-client-core = "3.2.3"
 lifecycleProcess = "2.9.2"
 markdown = "0.7.3"
@@ -24,6 +24,7 @@ core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core" }
 junit = { module = "junit:junit", version.ref = "junit" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "kotlinx-browser" }
 kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "kotlinx-atomicfu" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
