@@ -1,27 +1,38 @@
 package com.outsidesource.oskitcompose.router
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.backhandler.PredictiveBackHandler
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import androidx.compose.runtime.LaunchedEffect
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.NavigationEventTransitionState
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 
 @Composable
-actual fun KmpBackHandler(enabled: Boolean, onBack: () -> Unit) {}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-actual fun KmpPredictiveBackHandler(
+actual fun KmpBackHandler(
     enabled: Boolean,
-    onBack: suspend (Flow<IKmpBackEvent>) -> Unit
-) = PredictiveBackHandler(enabled) { flow ->
-    val mappedFlow = flow.map {
-        KmpBackEvent(
-            progress = it.progress,
-            touchX = it.touchX,
-            touchY = it.touchY,
-            swipeEdge = it.swipeEdge,
+    onCancel: () -> Unit,
+    onProgress: (KmpBackProgressEvent) -> Unit,
+    onBackComplete: () -> Unit,
+) {
+    val navState = rememberNavigationEventState(NavigationEventInfo.None)
+
+    NavigationBackHandler(
+        state = navState,
+        isBackEnabled = enabled,
+        onBackCancelled = onCancel,
+        onBackCompleted = onBackComplete,
+    )
+
+    LaunchedEffect(navState.transitionState) {
+        val transitionState = navState.transitionState
+        if (transitionState !is NavigationEventTransitionState.InProgress) return@LaunchedEffect
+
+        val event = KmpBackProgressEvent(
+            progress = transitionState.latestEvent.progress,
+            touchX = transitionState.latestEvent.touchX,
+            touchY = transitionState.latestEvent.touchY,
+            swipeEdge = transitionState.latestEvent.swipeEdge,
         )
+        onProgress(event)
     }
-    onBack(mappedFlow)
 }

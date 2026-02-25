@@ -1,13 +1,14 @@
 package com.outsidesource.oskitcompose.router
 
 import androidx.compose.runtime.Composable
-import kotlinx.coroutines.flow.Flow
 
 @Composable
-expect fun KmpBackHandler(enabled: Boolean, onBack: () -> Unit)
-
-@Composable
-expect fun KmpPredictiveBackHandler(enabled: Boolean = true, onBack: suspend (Flow<IKmpBackEvent>) -> Unit)
+expect fun KmpBackHandler(
+    enabled: Boolean,
+    onCancel: () -> Unit = {},
+    onProgress: (KmpBackProgressEvent) -> Unit = { },
+    onBackComplete: () -> Unit,
+)
 
 interface IKmpBackEvent {
     val progress: Float
@@ -16,7 +17,7 @@ interface IKmpBackEvent {
     val swipeEdge: Int
 }
 
-data class KmpBackEvent(
+data class KmpBackProgressEvent(
     override val progress: Float,
     override val touchX: Float,
     override val touchY: Float,

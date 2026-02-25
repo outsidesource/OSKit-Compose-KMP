@@ -14,10 +14,10 @@ import androidx.compose.ui.platform.LocalDensity
 import com.outsidesource.oskitcompose.lib.VarRef
 import com.outsidesource.oskitkmp.coordinator.Coordinator
 import com.outsidesource.oskitkmp.coordinator.ICoordinatorObserver
-import com.outsidesource.oskitkmp.lib.printAll
 import com.outsidesource.oskitkmp.router.*
-import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -83,34 +83,42 @@ fun RouteSwitch(
     val saveableStateHolder = rememberSaveableStateHolder()
     val currentRoute by coordinatorObserver.routeFlow.collectAsState()
     val isPredictiveBackTransitionRunning = remember { VarRef(false) }
+    val supportsPredictiveBack = remember { VarRef<Boolean?>(null) }
     var predictiveBackEdge by remember { mutableStateOf<Int?>(null) }
     val zIndices = remember { mutableMapOf<Int, Float>() }
-
     val transitionState = remember { SeekableTransitionState(currentRoute) }
     val transition = rememberTransition(transitionState)
+    val progressChannel = remember { Channel<Float>(Channel.CONFLATED) }
 
-    KmpPredictiveBackHandler(coordinatorObserver.hasBackStack()) { ev ->
-        try {
-            var supportsPredictiveBack: Boolean? = null
-            ev.collect {
-                val transition = coordinatorObserver.routeFlow.value.transition as? ComposeRouteTransition
-                    ?: return@collect
-                if (supportsPredictiveBack == null) {
-                    supportsPredictiveBack = transition.supportsPredictiveBackForEdge(it.swipeEdge)
-                }
-                if (!supportsPredictiveBack) return@collect
-
-                isPredictiveBackTransitionRunning.value = true
-                predictiveBackEdge = it.swipeEdge
+    LaunchedEffect(transitionState) {
+        progressChannel.receiveAsFlow()
+            .collect { progress ->
                 val previousEntry = coordinatorObserver.routeStack[coordinatorObserver.routeStack.size - 2]
-                transitionState.seekTo(it.progress, previousEntry)
+                transitionState.seekTo(fraction = progress, previousEntry)
             }
-            predictiveBackEdge = null
-            if (supportsPredictiveBack == null || supportsPredictiveBack) coordinatorObserver.pop(ignoreTransitionLock = true)
-        } catch (_: CancellationException) {
-            predictiveBackEdge = null
-        }
     }
+
+    KmpBackHandler(
+        enabled = coordinatorObserver.hasBackStack(),
+        onBackComplete = {
+            predictiveBackEdge = null
+            if (supportsPredictiveBack.value == null || supportsPredictiveBack.value == true) coordinatorObserver.pop(ignoreTransitionLock = true)
+        },
+        onCancel = {
+            predictiveBackEdge = null
+        },
+        onProgress = {
+            val transition = coordinatorObserver.routeFlow.value.transition as? ComposeRouteTransition ?: return@KmpBackHandler
+            if (supportsPredictiveBack.value == null) {
+                supportsPredictiveBack.value = transition.supportsPredictiveBackForEdge(it.swipeEdge)
+            }
+            if (supportsPredictiveBack.value == false) return@KmpBackHandler
+
+            isPredictiveBackTransitionRunning.value = true
+            predictiveBackEdge = it.swipeEdge
+            progressChannel.trySend(it.progress)
+        },
+    )
 
     if (predictiveBackEdge == null) {
         LaunchedEffect(currentRoute) {

@@ -107,6 +107,7 @@ implementation("com.outsidesource:oskit-compose:4.0.0")
 * KmpShadow now supports brushes
 * Updated rememberInject and rememberInjectForRoute to use koin-compose so that both calls work with IsolatedContexts now
 #### Breaking Changes
+* KmpBackHandler now accepts parameters for cancellation and progress of back presses
 * Removed kmpWindowInfo as `LocalWindowInfo.current` has implemented all desired functionality
 * Renamed InnerShadow and OuterShadow to KmpShadow due to potential conflict with Compose 1.9.0 shadows
 * Removed rememberInteractor

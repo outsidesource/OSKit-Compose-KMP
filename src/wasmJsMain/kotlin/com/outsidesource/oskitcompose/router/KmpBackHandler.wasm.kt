@@ -4,10 +4,10 @@ import androidx.compose.runtime.Composable
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-actual fun KmpBackHandler(enabled: Boolean, onBack: () -> Unit) {}
-
-@Composable
-actual fun KmpPredictiveBackHandler(
+actual fun KmpBackHandler(
     enabled: Boolean,
-    onBack: suspend (Flow<IKmpBackEvent>) -> Unit
-) {}
+    onCancel: () -> Unit,
+    onProgress: (KmpBackProgressEvent) -> Unit,
+    onBackComplete: () -> Unit,
+) {
+}
