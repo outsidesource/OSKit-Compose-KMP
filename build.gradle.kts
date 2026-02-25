@@ -5,24 +5,16 @@ import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.*
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath(kotlin("gradle-plugin", libs.versions.kotlin.toString()))
-    }
-}
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.compose)
+    alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.dokka)
-    id("com.android.library")
     id("maven-publish")
     id("com.vanniktech.maven.publish") version "0.28.0"
 }
@@ -36,14 +28,7 @@ val versionProperty = Properties().apply {
 group = "com.outsidesource"
 version = versionProperty
 
-repositories {
-    mavenLocal()
-    google()
-    mavenCentral()
-    gradlePluginPortal()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    maven("https://plugins.gradle.org/m2/")
-}
+dependencies { androidRuntimeClasspath(libs.compose.ui.tooling) }
 
 kotlin {
     jvmToolchain(17)
@@ -51,6 +36,24 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
         freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
+    }
+
+    androidLibrary {
+        namespace = "com.outsidesource.oskitcompose"
+        compileSdk { version = release(libs.versions.android.compileSdk.get().toInt()) }
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        androidResources { enable = true }
+
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+
+        withDeviceTest {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            execution = "HOST"
+        }
     }
 
     listOf(
@@ -69,8 +72,6 @@ kotlin {
         }
     }
 
-    androidTarget()
-
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
@@ -85,9 +86,12 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.oskit.kmp)
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material)
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.foundation)
+                implementation(libs.compose.material)
+                implementation(libs.compose.ui)
+                implementation(libs.compose.ui.preview)
+                implementation(libs.compose.resources)
                 implementation(libs.okio)
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
@@ -95,10 +99,9 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.ktor.client.core)
                 implementation(libs.kotlinx.atomicfu)
-                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-                implementation(compose.components.resources)
-                implementation(compose.components.uiToolingPreview)
                 implementation(libs.material.icons)
+                implementation(libs.navigationEvent)
+                implementation(libs.navigationEvent.compose)
             }
         }
 
@@ -112,12 +115,12 @@ kotlin {
             dependencies {
                 implementation(libs.activity.compose)
                 implementation(libs.lifecycle.process)
-                implementation(libs.compose.multiplatform)
                 implementation(libs.core.ktx)
                 implementation(libs.ktor.client.cio)
             }
         }
-        val androidInstrumentedTest by getting {
+
+        val androidDeviceTest by getting {
             dependencies {
                 implementation(libs.junit)
             }
@@ -141,24 +144,6 @@ kotlin {
                 implementation(libs.kotlinx.browser)
             }
         }
-    }
-}
-
-dependencies {
-    debugImplementation(libs.androidx.ui.tooling)
-}
-
-android {
-    namespace = "com.outsidesource.oskitcompose"
-    compileSdk = 35
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        minSdk = 24
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 

@@ -1,22 +1,26 @@
 [versions]
-kotlin = "2.2.0"
+kotlin = "2.3.10"
 oskitKmp = "5.1.0-beta4"
-compose-multiplatform = "1.9.1"
-activityCompose = "1.10.1"
+composeMultiplatform = "1.10.1"
+activityCompose = "1.12.4"
 coreKtx = "1.17.0"
 junit = "4.13.2"
 koin = "4.1.1"
-ktor-client-core = "3.2.3"
-lifecycleProcess = "2.9.2"
+ktor-client-core = "3.4.0"
+lifecycleProcess = "2.10.0"
 markdown = "0.7.3"
-okio = "3.16.0"
-kotlinx-atomicfu = "0.29.0"
+okio = "3.16.4"
+kotlinx-atomicfu = "0.31.0"
 kotlinx-datetime = "0.7.1"
 kotlinx-coroutines-core = "1.10.2"
-kotlinx-browser = "0.3" # Can't update this until Kotlint 2.2.20 is released
-dokka = "2.0.0"
+kotlinx-browser = "0.5.0"
+dokka = "2.1.0"
 material-icons = "1.7.3"
-uiTooling = "1.9.0"
+android-compileSdk = "36"
+android-minSdk = "28"
+androidGradlePlugin = "9.0.1"
+navigationEvent = "1.0.2"
+navigationEventCompose = "1.0.1"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -36,12 +40,20 @@ lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.r
 markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 oskit-kmp = { module = "com.outsidesource:oskit-kmp", version.ref = "oskitKmp" }
-compose-multiplatform = { module = "androidx.compose.ui:ui", version.ref = "compose-multiplatform" }
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
+compose-ui-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
+compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
+compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
+compose-material = { module = "org.jetbrains.compose.material:material", version.ref = "composeMultiplatform" }
 material-icons = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "material-icons" }
-androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "uiTooling" }
+navigationEvent-compose = { module = "org.jetbrains.androidx.navigationevent:navigationevent-compose", version.ref = "navigationEventCompose" }
+navigationEvent = { module = "androidx.navigationevent:navigationevent", version.ref = "navigationEvent" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-compose = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }

@@ -93,7 +93,6 @@ internal class AndroidSystemUiController(
         WindowCompat.getInsetsController(it, view)
     }
 
-
     fun setStatusBarColor(
         color: Color,
         darkIcons: Boolean = color.luminance() > 0.5f,

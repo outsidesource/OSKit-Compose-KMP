@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package com.outsidesource.oskitcompose.html
 
 import androidx.compose.foundation.focusable

@@ -379,7 +379,7 @@ class HvCircleColorPickerRenderer : IKmpColorPickerRenderer {
     }
 }
 
-fun Double.toDegree(): Double = this * 180.0 / PI.toDouble()
-fun Float.toRadians(): Double = this * PI.toDouble() / 180.0
+fun Double.toDegree(): Double = this * 180.0 / PI
+fun Float.toRadians(): Double = this * PI / 180.0
 
 internal val hueColors = listOf(Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red)
