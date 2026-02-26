@@ -1,9 +1,14 @@
 export const Env = (() => {
     const meta = new URL(import.meta.url).searchParams
-    const container = document.querySelector(`#${meta.get("containerId")}`)
-    const content = container.shadowRoot.querySelector(`#${meta.get("contentId")}`)
+    const containerId = meta.get("containerId")
+    const contentId = meta.get("contentId")
+    const composeViewport = window[containerId]
+    delete window[containerId]
+    const container = composeViewport.shadowRoot.querySelector(`#${containerId}`)
+    const content = container.shadowRoot.querySelector(`#${contentId}`)
 
     return Object.freeze({
+        composeViewport: composeViewport,
         container: container,
         content: content,
         emit: (ev) => container.dispatchEvent(ev),
@@ -16,7 +21,7 @@ export const Env = (() => {
 (() =>  {
     const container = Env.container
     const content = Env.content
-    const canvas = document.querySelector("canvas")
+    const canvas = Env.composeViewport.shadowRoot.querySelector("canvas")
 
     container.addEventListener("wheel", (ev) => canvas.dispatchEvent(new WheelEvent("wheel", ev)))
     const pointerEvents = ["pointerover", "pointerenter", "pointerdown", "pointermove", "pointerup", "pointercancel", "pointerout", "pointerleave", "gotpointercapture", "lostpointercapture"]

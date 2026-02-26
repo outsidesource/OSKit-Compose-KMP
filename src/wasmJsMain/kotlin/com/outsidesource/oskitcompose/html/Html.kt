@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.outsidesource.oskit_compose.generated.resources.Res
 import com.outsidesource.oskitcompose.lib.VarRef
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -129,9 +130,9 @@ fun Html(
             shadowRoot.appendChild(script)
         }
 
-        document.body?.appendChild(state.container)
+        state.composeViewport.shadowRoot?.appendChild(state.container)
 
-        onDispose { document.body?.removeChild(state.container) }
+        onDispose { state.composeViewport.shadowRoot?.removeChild(state.container) }
     }
 
     Layout(
@@ -173,15 +174,18 @@ fun Html(
  * Creates a remembered instance of [HtmlState]
  */
 @Composable
-fun rememberHtmlState(): HtmlState = remember(Unit) { HtmlState() }
+fun rememberHtmlState(composeViewport: Element = document.body!!): HtmlState = remember(Unit) {
+    HtmlState(composeViewport = composeViewport)
+}
 
 /**
  * @param container The primary element added to the DOM. All [CustomEvent]s should be dispatched to this element.
- * @param content The content element. This is the node any custom HTML is appended to. Any custom styles
+ * @param content The content element. This is the node any custom HTML is appended to.
  */
 @OptIn(ExperimentalUuidApi::class, ExperimentalResourceApi::class)
 @Immutable
 data class HtmlState(
+    val composeViewport: Element = document.body!!,
     val container: HTMLElement = document.createElement("div") as HTMLDivElement,
     val content: HTMLElement = document.createElement("div") as HTMLDivElement,
 ) {
@@ -215,6 +219,7 @@ data class HtmlState(
         val runtimeScript = document.createElement("script") as HTMLScriptElement
         runtimeScript.type = "module"
         runtimeScript.src = runtimeJsUrl
+        (window as WindowExt)[container.id] = composeViewport
         container.shadowRoot?.appendChild(runtimeScript)
     }
 
@@ -262,4 +267,8 @@ private external fun encodeURIComponent(value: String): String
 private external interface CSSStyleDeclarationExt : JsAny {
     var scale: String
     var translate: String
+}
+
+private external interface WindowExt : JsAny {
+    operator fun set(name: String, value: JsAny)
 }
