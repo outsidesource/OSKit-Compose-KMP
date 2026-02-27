@@ -90,7 +90,7 @@ implementation("com.outsidesource:oskit-compose:4.0.0")
 ## Changelog
 ### 4.1.0 - 2025-08-07
 #### Added
-* Kotlin 2.2.0 support
+* Kotlin 2.3.10 support
 * Predictive back support
 * KmpScrollbarAdapter for LazyGridState
 * ShapePainter
@@ -106,13 +106,15 @@ implementation("com.outsidesource:oskit-compose:4.0.0")
 * DrawScope.drawKmpOuterShadow
 * KmpShadow now supports brushes
 * Updated rememberInject and rememberInjectForRoute to use koin-compose so that both calls work with IsolatedContexts now
+#### Fixes
+* Markdown: fixed initial loading of local images in WASM
 #### Breaking Changes
 * KmpBackHandler now accepts parameters for cancellation and progress of back presses
 * Removed kmpWindowInfo as `LocalWindowInfo.current` has implemented all desired functionality
 * Renamed InnerShadow and OuterShadow to KmpShadow due to potential conflict with Compose 1.9.0 shadows
 * Removed rememberInteractor
 * Removed rememberInject with key parameters. Keys are handled by koin
-* Removed koinInjector. koinInjector prevented isolated koin contexts from working
+* Removed koinInjector.inject which prevented isolated koin contexts from working
 
 ### 4.0.0 - 2025-02-07
 #### Added
