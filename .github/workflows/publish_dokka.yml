@@ -16,7 +16,7 @@ jobs:
           java-version: 17
           distribution: 'zulu'
       - name: Build documentation
-        run: ./gradlew dokkaHtml
+        run: ./gradlew dokkaGenerateHtml
       - name: Publish documentation
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
