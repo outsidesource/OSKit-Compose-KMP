@@ -1,6 +1,5 @@
 package com.outsidesource.oskitcompose.popup
 
-import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,18 +25,20 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.lib.VarRef
-import com.outsidesource.oskitcompose.modifier.OuterShadow
-import com.outsidesource.oskitcompose.modifier.outerShadow
+import com.outsidesource.oskitcompose.modifier.KmpShadow
+import com.outsidesource.oskitcompose.modifier.kmpOuterShadow
 import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @Immutable
 data class BottomSheetStyles(
     val transitionDuration: Int = 300,
     val scrimColor: Color = Color.Black.copy(alpha = .5f),
     val maxWidth: Dp = 500.dp,
-    val shadow: OuterShadow = OuterShadow(
+    val shadow: KmpShadow = KmpShadow(
         blur = 11.dp,
         color = Color.Black.copy(alpha = .25f),
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
@@ -52,7 +53,7 @@ data class BottomSheetStyles(
          */
         val UserDefinedContent = BottomSheetStyles(
             maxWidth = Dp.Unspecified,
-            shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
+            shadow = KmpShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,
             contentPadding = PaddingValues(0.dp),
@@ -72,6 +73,7 @@ data class BottomSheetStyles(
  * @param styles Styles to modify the look of the [BottomSheet]
  * @param content The content to be displayed inside the popup.
  */
+@OptIn(ExperimentalTime::class)
 @Composable
 fun BottomSheet(
     isVisible: Boolean,
@@ -139,6 +141,7 @@ fun BottomSheet(
 
                     LaunchedEffect(isVisible) {
                         if (isVisible) {
+                            delay(16) // TODO: Temporary fix due to issue in iOS since compose-multiplatform 1.8.0-beta02 causing this animation not to play
                             offsetAnim.snapTo(swipeData.size.value.height.toFloat())
                             offsetAnim.animateTo(0f, tween(styles.transitionDuration))
                         } else if (!offsetAnim.isRunning) {
@@ -161,13 +164,7 @@ fun BottomSheet(
                                 .offset(y = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
                                 .widthIn(max = styles.maxWidth)
                                 .fillMaxWidth()
-                                .outerShadow(
-                                    blur = styles.shadow.blur,
-                                    color = styles.shadow.color,
-                                    shape = styles.shadow.shape,
-                                    spread = styles.shadow.spread,
-                                    offset = styles.shadow.offset,
-                                )
+                                .kmpOuterShadow(styles.shadow)
                                 .background(
                                     styles.backgroundColor,
                                     styles.backgroundShape

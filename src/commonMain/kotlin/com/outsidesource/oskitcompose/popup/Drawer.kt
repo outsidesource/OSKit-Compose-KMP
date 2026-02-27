@@ -24,9 +24,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.*
 import com.outsidesource.oskitcompose.lib.VarRef
-import com.outsidesource.oskitcompose.modifier.OuterShadow
-import com.outsidesource.oskitcompose.modifier.outerShadow
+import com.outsidesource.oskitcompose.modifier.KmpShadow
+import com.outsidesource.oskitcompose.modifier.kmpOuterShadow
 import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -36,7 +37,7 @@ data class DrawerStyles(
     val transitionDuration: Int = 300,
     val scrimColor: Color = Color.Black.copy(alpha = .5f),
     val width: Dp = 300.dp,
-    val shadow: OuterShadow = OuterShadow(
+    val shadow: KmpShadow = KmpShadow(
         blur = 11.dp,
         color = Color.Black.copy(alpha = .25f),
         shape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
@@ -51,7 +52,7 @@ data class DrawerStyles(
          */
         val UserDefinedContent = DrawerStyles(
             width = Dp.Unspecified,
-            shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
+            shadow = KmpShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,
             contentPadding = PaddingValues(0.dp),
@@ -141,6 +142,7 @@ fun Drawer(
 
                     LaunchedEffect(isVisible) {
                         if (isVisible) {
+                            delay(16) // TODO: Temporary fix due to issue in iOS since compose-multiplatform 1.8.0-beta02 causing this animation not to play
                             offsetAnim.snapTo(-swipeData.size.value.width.toFloat())
                             offsetAnim.animateTo(0f, tween(styles.transitionDuration))
                         } else if (!offsetAnim.isRunning) {
@@ -163,13 +165,7 @@ fun Drawer(
                                 .offset(x = with(density) { if (isDragging) offset.toDp() else offsetAnim.value.toDp() })
                                 .width(styles.width)
                                 .fillMaxHeight()
-                                .outerShadow(
-                                    blur = styles.shadow.blur,
-                                    color = styles.shadow.color,
-                                    shape = styles.shadow.shape,
-                                    spread = styles.shadow.spread,
-                                    offset = styles.shadow.offset,
-                                )
+                                .kmpOuterShadow(styles.shadow)
                                 .background(
                                     styles.backgroundColor,
                                     styles.backgroundShape

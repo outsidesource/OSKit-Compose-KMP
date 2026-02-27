@@ -22,16 +22,16 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.*
-import com.outsidesource.oskitcompose.modifier.OuterShadow
+import com.outsidesource.oskitcompose.modifier.KmpShadow
 import com.outsidesource.oskitcompose.modifier.disablePointerInput
-import com.outsidesource.oskitcompose.modifier.outerShadow
+import com.outsidesource.oskitcompose.modifier.kmpOuterShadow
 import com.outsidesource.oskitcompose.modifier.preventClickPropagationToParent
 
 @Immutable
 data class ModalStyles(
     val transitionDuration: Int = 200,
     val scrimColor: Color = Color.Black.copy(alpha = .5f),
-    val shadow: OuterShadow = OuterShadow(
+    val shadow: KmpShadow = KmpShadow(
         blur = 11.dp,
         color = Color.Black.copy(alpha = .25f),
         shape = RoundedCornerShape(8.dp)
@@ -46,7 +46,7 @@ data class ModalStyles(
          * ModalStyles with all content set to unspecified to allow for custom user definition
          */
         val UserDefinedContent = ModalStyles(
-            shadow = OuterShadow(blur = 0.dp, color = Color.Transparent),
+            shadow = KmpShadow(blur = 0.dp, color = Color.Transparent),
             backgroundColor = Color.Transparent,
             backgroundShape = RectangleShape,
             windowPadding = PaddingValues(0.dp),
@@ -130,13 +130,7 @@ fun Modal(
                             this.translationY = translate
                         }
                         .padding(styles.windowPadding)
-                        .outerShadow(
-                            blur = styles.shadow.blur,
-                            color = styles.shadow.color,
-                            shape = styles.shadow.shape,
-                            spread = styles.shadow.spread,
-                            offset = styles.shadow.offset,
-                        )
+                        .kmpOuterShadow(styles.shadow)
                         .background(
                             styles.backgroundColor,
                             styles.backgroundShape

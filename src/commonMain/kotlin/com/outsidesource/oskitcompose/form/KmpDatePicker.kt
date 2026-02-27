@@ -39,6 +39,8 @@ import com.outsidesource.oskitcompose.popup.*
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
 import kotlin.math.min
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 private val daySize = 40.dp
 val DATE_PICKER_MIN_WIDTH = daySize * 7
@@ -48,6 +50,7 @@ private enum class DatePickerViewType {
     Year,
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpDatePickerModal(
     isVisible: Boolean,
@@ -111,6 +114,7 @@ fun KmpDatePickerModal(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpDatePickerPopover(
     isVisible: Boolean,
@@ -175,6 +179,7 @@ fun KmpDatePickerPopover(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpDatePickerInline(
     modifier: Modifier = Modifier,
@@ -330,7 +335,7 @@ private fun DatePickerMonthView(
                     }
                 },
             ) {currentDateValue ->
-                val dayOne = currentDateValue - DatePeriod(days = currentDateValue.dayOfMonth - 1)
+                val dayOne = currentDateValue - DatePeriod(days = currentDateValue.day - 1)
                 val startIndex = dayOne.dayOfWeek.sundayFirstOrdinal() + 1
                 val maxIndex = (dayOne.month.lengthInDays(dayOne.year) + startIndex)
 
@@ -358,10 +363,10 @@ private fun DatePickerMonthView(
                                     val isDayEnabled = run {
                                         if (currentDateValue.year < minDate.year) return@run false
                                         if (currentDateValue.year == minDate.year && currentDateValue.month < minDate.month) return@run false
-                                        if (currentDateValue.year == minDate.year && currentDateValue.month == minDate.month && day < minDate.dayOfMonth) return@run false
+                                        if (currentDateValue.year == minDate.year && currentDateValue.month == minDate.month && day < minDate.day) return@run false
                                         if (currentDateValue.year > maxDate.year) return@run false
                                         if (currentDateValue.year == maxDate.year && currentDateValue.month > maxDate.month) return@run false
-                                        if (currentDateValue.year == maxDate.year && currentDateValue.month == maxDate.month && day > maxDate.dayOfMonth) return@run false
+                                        if (currentDateValue.year == maxDate.year && currentDateValue.month == maxDate.month && day > maxDate.day) return@run false
                                         true
                                     }
 
@@ -370,7 +375,7 @@ private fun DatePickerMonthView(
                                         isEnabled = isEnabled && isDayEnabled,
                                         isSelected = currentDateValue.year == selectedDate.value.year &&
                                                 currentDateValue.month == selectedDate.value.month &&
-                                                selectedDate.value.dayOfMonth == day,
+                                                selectedDate.value.day == day,
                                         onClick = {
                                             selectedDate.value =
                                                 LocalDate(currentDateValue.year, currentDateValue.month, day)
@@ -455,21 +460,21 @@ private fun DatePickerYearView(
                 scrollEffect = remember { KmpWheelPickerScrollEffects.magnify(alignment = Alignment.Start, itemHorizontalPadding = pickerHPadding) },
                 onChange = { month ->
                     selectedDate.value = LocalDate(
+                        year = selectedDate.value.year,
                         month = month,
-                        dayOfMonth = min(
-                            selectedDate.value.dayOfMonth,
+                        day = min(
+                            selectedDate.value.day,
                             month.lengthInDays(selectedDate.value.year)
-                        ),
-                        year = selectedDate.value.year
+                        )
                     ).coerceIn(minDate, maxDate)
 
                     viewDate.value = LocalDate(
+                        year = viewDate.value.year,
                         month = month,
-                        dayOfMonth = min(
-                            viewDate.value.dayOfMonth,
+                        day = min(
+                            viewDate.value.day,
                             month.lengthInDays(viewDate.value.year)
-                        ),
-                        year = viewDate.value.year
+                        )
                     ).coerceIn(minDate, maxDate)
 
                     onChange(selectedDate.value)
@@ -502,21 +507,21 @@ private fun DatePickerYearView(
                 indicator = remember { KmpWheelPickerIndicators.window(shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)) },
                 onChange = { year ->
                     selectedDate.value = LocalDate(
+                        year = year,
                         month = selectedDate.value.month,
-                        dayOfMonth = min(
-                            selectedDate.value.dayOfMonth,
+                        day = min(
+                            selectedDate.value.day,
                             selectedDate.value.month.lengthInDays(year)
-                        ),
-                        year = year
+                        )
                     ).coerceIn(minDate, maxDate)
 
                     viewDate.value = LocalDate(
+                        year = year,
                         month = viewDate.value.month,
-                        dayOfMonth = min(
-                            viewDate.value.dayOfMonth,
+                        day = min(
+                            viewDate.value.day,
                             viewDate.value.month.lengthInDays(year)
-                        ),
-                        year = year
+                        )
                     ).coerceIn(minDate, maxDate)
 
                     onChange(selectedDate.value)

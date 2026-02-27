@@ -106,7 +106,7 @@ fun FlexRow(
         }
 
         layout(constraints.maxWidth, largestHeight) {
-            val mainAxisPositions = IntArray(measurables.size) { 0 }
+            val mainAxisPositions = IntArray(measurables.size)
             val childrenSizes = IntArray(measurables.size) { i -> placeables[i]?.width ?: 0 }
             arrangement(constraints.maxWidth, childrenSizes, LayoutDirection.Ltr, density, mainAxisPositions)
 

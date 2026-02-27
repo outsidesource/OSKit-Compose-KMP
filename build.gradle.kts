@@ -5,24 +5,16 @@ import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.*
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath(kotlin("gradle-plugin", libs.versions.kotlin.toString()))
-    }
-}
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.compose)
+    alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.dokka)
-    id("com.android.library")
     id("maven-publish")
     id("com.vanniktech.maven.publish") version "0.28.0"
 }
@@ -36,14 +28,7 @@ val versionProperty = Properties().apply {
 group = "com.outsidesource"
 version = versionProperty
 
-repositories {
-    mavenLocal()
-    google()
-    mavenCentral()
-    gradlePluginPortal()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    maven("https://plugins.gradle.org/m2/")
-}
+dependencies { androidRuntimeClasspath(libs.compose.ui.tooling) }
 
 kotlin {
     jvmToolchain(17)
@@ -51,6 +36,24 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
         freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
+    }
+
+    androidLibrary {
+        namespace = "com.outsidesource.oskitcompose"
+        compileSdk { version = release(libs.versions.android.compileSdk.get().toInt()) }
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        androidResources { enable = true }
+
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+
+        withDeviceTest {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            execution = "HOST"
+        }
     }
 
     listOf(
@@ -69,8 +72,6 @@ kotlin {
         }
     }
 
-    androidTarget()
-
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
@@ -85,18 +86,22 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.oskit.kmp)
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material)
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.foundation)
+                implementation(libs.compose.material)
+                implementation(libs.compose.ui)
+                implementation(libs.compose.ui.preview)
+                implementation(libs.compose.resources)
                 implementation(libs.okio)
                 implementation(libs.koin.core)
+                implementation(libs.koin.compose)
                 implementation(libs.markdown)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.ktor.client.core)
                 implementation(libs.kotlinx.atomicfu)
-                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-                implementation(compose.components.resources)
                 implementation(libs.material.icons)
+                implementation(libs.navigationEvent)
+                implementation(libs.navigationEvent.compose)
             }
         }
 
@@ -110,12 +115,12 @@ kotlin {
             dependencies {
                 implementation(libs.activity.compose)
                 implementation(libs.lifecycle.process)
-                implementation(libs.compose.ui)
                 implementation(libs.core.ktx)
                 implementation(libs.ktor.client.cio)
             }
         }
-        val androidInstrumentedTest by getting {
+
+        val androidDeviceTest by getting {
             dependencies {
                 implementation(libs.junit)
             }
@@ -124,7 +129,6 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(libs.ktor.client.cio)
-                implementation(libs.compose.desktop)
             }
         }
 
@@ -143,27 +147,13 @@ kotlin {
     }
 }
 
-android {
-    namespace = "com.outsidesource.oskitcompose"
-    compileSdk = 34
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        minSdk = 24
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-}
-
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.S01, automaticRelease = true)
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
     signAllPublications()
 
     configure(
         platform = KotlinMultiplatform(
-            javadocJar = JavadocJar.Dokka("dokkaHtml"),
+            javadocJar = JavadocJar.Dokka("dokkaGenerateHtml"),
             sourcesJar = true,
             androidVariantsToPublish = listOf("debug", "release"),
         )
@@ -172,7 +162,7 @@ mavenPublishing {
     pom {
         description.set("An opinionated architecture/library for Compose Multiplatform development")
         name.set(project.name)
-        url.set("https://github.com/outsidesource/OSKit-KMP")
+        url.set("https://github.com/outsidesource/OSKit-Compose-KMP")
         licenses {
             license {
                 name.set("MIT License")
@@ -200,18 +190,14 @@ mavenPublishing {
 
 // To get compose compiler metrics run: ./gradlew publishToMavenLocal -PcomposeCompilerReports=true
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        if (project.findProperty("composeCompilerReports") == "true") {
-            freeCompilerArgs += listOf(
-                "-P",
-                "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${project.buildDir.absolutePath}/compose_compiler"
-            )
-        }
-        if (project.findProperty("composeCompilerMetrics") == "true") {
-            freeCompilerArgs += listOf(
-                "-P",
-                "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${project.buildDir.absolutePath}/compose_compiler"
-            )
+    kotlin {
+        compilerOptions {
+            if (project.findProperty("composeCompilerReports") == "true") {
+                freeCompilerArgs.add("-P plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${projectDir.resolve("/build").absolutePath}/compose_compiler")
+            }
+            if (project.findProperty("composeCompilerMetrics") == "true") {
+                freeCompilerArgs.add("-P plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${projectDir.resolve("/build").absolutePath}/compose_compiler")
+            }
         }
     }
 }

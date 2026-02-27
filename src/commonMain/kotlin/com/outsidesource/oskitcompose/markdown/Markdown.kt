@@ -69,9 +69,11 @@ private val LocalMarkdownContext = staticCompositionLocalOf { MarkdownContext() 
  *   example: ![attrs(width=20, height=20, hAlign=start, vAlign=center) image description](local:my-image-id)
  *
  * Note: Android and iOS do not support svg images
+ * Note: WASM code block Monospace font is not reliably provided. It is best to load a custom monospace font if
+ *   [Markdown] is being used in WASM
  *
- * [loadAsync] If true Markdown will parse the content string on the IO thread.
- * [onLoaded] called after the markdown has been parsed if passing in a string
+ * @param [loadAsync] If true Markdown will parse the content string on the IO thread.
+ * @param [onLoaded] called after the markdown has been parsed if passing in a string
  *
  * TODO: Wrap with SelectionContainer when SelectionContainer does not block clicking of links
  */
@@ -79,7 +81,7 @@ private val LocalMarkdownContext = staticCompositionLocalOf { MarkdownContext() 
 fun Markdown(
     text: String,
     modifier: Modifier = Modifier,
-    styles: MarkdownStyles = MarkdownStyles(),
+    styles: MarkdownStyles = remember { MarkdownStyles() },
     localImageMap: Map<String, Painter> = emptyMap(),
     loadAsync: Boolean = false,
     onLoaded: () -> Unit = {},
@@ -107,7 +109,7 @@ fun Markdown(
 fun LazyMarkdown(
     text: String,
     modifier: Modifier = Modifier,
-    styles: MarkdownStyles = MarkdownStyles(),
+    styles: MarkdownStyles = remember { MarkdownStyles() },
     localImageMap: Map<String, Painter> = emptyMap(),
     lazyListState: LazyListState = rememberLazyListState(),
     loadAsync: Boolean = false,
@@ -539,6 +541,7 @@ private fun MarkdownImage(image: MarkdownBlock.Image) {
             DpSize(image.width, image.height)
         ),
         key1 = image.type,
+        key2 = if (image.type is MarkdownImageType.Local) markdownContext.localPainterCache else null
     ) {
         withContext(KmpDispatchers.IO) {
             value = resolvePainterAndSizeForImage(density, image, markdownContext)

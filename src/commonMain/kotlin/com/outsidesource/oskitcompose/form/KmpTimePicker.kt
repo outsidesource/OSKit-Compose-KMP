@@ -20,11 +20,13 @@ import androidx.compose.ui.unit.sp
 import com.outsidesource.oskitcompose.modifier.defaultMaxSize
 import com.outsidesource.oskitcompose.popup.*
 import com.outsidesource.oskitkmp.lib.snapTo
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpTimePickerModal(
     isVisible: Boolean,
@@ -86,6 +88,7 @@ fun KmpTimePickerModal(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpTimePickerPopover(
     isVisible: Boolean,
@@ -148,6 +151,7 @@ fun KmpTimePickerPopover(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpTimePickerInline(
     modifier: Modifier = Modifier,

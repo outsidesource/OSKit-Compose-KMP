@@ -64,7 +64,6 @@ fun Month.getDisplayName(format: DateTextFormat): String = when(this) {
         DateTextFormat.Full -> "December"
         DateTextFormat.Short -> "Dec"
     }
-    else -> ""
 }
 
 fun DayOfWeek.getDisplayName(format: DateTextFormat): String = when(this) {
@@ -96,7 +95,6 @@ fun DayOfWeek.getDisplayName(format: DateTextFormat): String = when(this) {
         DateTextFormat.Full -> "Saturday"
         DateTextFormat.Short -> "Sat"
     }
-    else -> ""
 }
 
 fun LocalDate.isLeapYear(): Boolean = isLeapYear(year)
