@@ -88,7 +88,11 @@ implementation("com.outsidesource:oskit-compose:4.0.0")
 <https://github.com/outsidesource/OSKit-Example-App-KMP>
 
 ## Changelog
-### 4.1.0 - 2025-08-07
+### 4.1.1 - 2026-02-28
+#### Fixed
+* Fixed Html rendering on high density devices
+
+### 4.1.0 - 2026-02-27
 #### Added
 * Kotlin 2.3.10 support
 * Predictive back support

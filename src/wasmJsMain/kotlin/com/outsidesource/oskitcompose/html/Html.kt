@@ -154,12 +154,12 @@ fun Html(
                 state.container.style.width = "${bounds.width}px"
                 state.container.style.transform = "translate(${bounds.left}px, ${bounds.top}px)"
 
-                state.content.style.width = if (constraintsRef.value.hasFixedWidth) "${constraintsRef.value.minWidth}px" else "auto"
-                state.content.style.minWidth = if (constraintsRef.value.hasBoundedWidth) "${constraintsRef.value.minWidth}px" else "auto"
-                state.content.style.maxWidth = if (constraintsRef.value.hasBoundedWidth) "${constraintsRef.value.maxWidth}px" else "auto"
-                state.content.style.height = if (constraintsRef.value.hasFixedHeight) "${constraintsRef.value.minHeight}px" else "auto"
-                state.content.style.minHeight = if (constraintsRef.value.hasBoundedHeight) "${constraintsRef.value.minHeight}px" else "auto"
-                state.content.style.maxHeight = if (constraintsRef.value.hasBoundedHeight) "${constraintsRef.value.maxHeight}px" else "auto"
+                state.content.style.width = if (constraintsRef.value.hasFixedWidth) "${constraintsRef.value.minWidth / density.density}px" else "auto"
+                state.content.style.minWidth = if (constraintsRef.value.hasBoundedWidth) "${constraintsRef.value.minWidth / density.density}px" else "auto"
+                state.content.style.maxWidth = if (constraintsRef.value.hasBoundedWidth) "${constraintsRef.value.maxWidth / density.density}px" else "auto"
+                state.content.style.height = if (constraintsRef.value.hasFixedHeight) "${constraintsRef.value.minHeight / density.density}px" else "auto"
+                state.content.style.minHeight = if (constraintsRef.value.hasBoundedHeight) "${constraintsRef.value.minHeight / density.density}px" else "auto"
+                state.content.style.maxHeight = if (constraintsRef.value.hasBoundedHeight) "${constraintsRef.value.maxHeight / density.density}px" else "auto"
 
                 val top = if (bounds.height < size.height && rootPos.y < bounds.top) rootPos.y - bounds.top else 0
                 val left = if (bounds.width < size.width && rootPos.x < bounds.left) rootPos.x - bounds.left else 0
