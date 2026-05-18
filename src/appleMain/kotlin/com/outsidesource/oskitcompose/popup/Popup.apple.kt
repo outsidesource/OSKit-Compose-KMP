@@ -33,7 +33,7 @@ actual fun KmpPopup(
         properties = PopupProperties(
             focusable = focusable,
             dismissOnBackPress = dismissOnBackPress,
-            usePlatformInsets = !isFullScreen,
+            usePlatformInsets = false,
         ),
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent,
@@ -61,7 +61,7 @@ actual fun KmpPopup(
         properties = PopupProperties(
             focusable = focusable,
             dismissOnBackPress = dismissOnBackPress,
-            usePlatformInsets = !isFullScreen,
+            usePlatformInsets = false,
         ),
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent,
