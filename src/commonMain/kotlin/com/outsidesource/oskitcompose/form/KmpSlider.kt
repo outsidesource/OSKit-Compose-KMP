@@ -407,9 +407,11 @@ fun KmpSliderScope.Track() {
                         )
 
                         if (callOnStart) onDragStart(change)
-                        if (change.isNotEmpty()) onChange(change)
-                        draggingValues.value = userValues.value.toMutableMap().apply {
-                            change.forEach { this[it.key] = it.value }
+                        if (change.isNotEmpty()) {
+                            onChange(change)
+                            draggingValues.value = userValues.value.toMutableMap().apply {
+                                change.forEach { this[it.key] = it.value }
+                            }
                         }
                         return change
                     }
