@@ -769,7 +769,7 @@ fun KmpSliderScope.ManualEntryModal(
                     .focusRequester(focusRequester)
                     .onKeyEvent {
                         if (!isEnabled) return@onKeyEvent false
-                        if (it.key != Key.Enter || it.type != KeyEventType.KeyUp) return@onKeyEvent false
+                        if ((it.key != Key.Enter && it.key != Key.NumPadEnter) || it.type != KeyEventType.KeyUp) return@onKeyEvent false
                         onCommit()
                         return@onKeyEvent true
                     },
