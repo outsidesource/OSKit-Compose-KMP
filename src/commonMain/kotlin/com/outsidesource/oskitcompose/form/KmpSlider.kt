@@ -227,7 +227,9 @@ fun KmpSlider(
     val draggingKey = remember { mutableStateOf<String?>(null) }
     val draggingValues = remember { mutableStateOf(mapOf<String, Float>()) }
     val userValues = rememberUpdatedState(values)
-    val currentValues = rememberUpdatedState(if (draggingKey.value != null) draggingValues.value else values)
+    val currentValues = remember {
+        derivedStateOf { if (draggingKey.value != null) draggingValues.value else userValues.value }
+    }
 
     val scope = KmpSliderScope(
         userValues = userValues,
