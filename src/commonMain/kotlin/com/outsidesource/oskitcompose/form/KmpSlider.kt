@@ -470,9 +470,10 @@ fun KmpSliderScope.Track() {
                 thumbSlot("")
             } else {
                 currentValues.value.entries.forEach { (key, _) ->
-                    Box(modifier = Modifier
-                        .layoutId(key)
-                        .zIndex(if (draggingKey.value == key) 1.1f else 1f)
+                    Box(
+                        modifier = Modifier
+                            .layoutId(key)
+                            .zIndex(if (draggingKey.value == key) 1.1f else 1f)
                     ) {
                         thumbSlot(key)
                     }
@@ -490,11 +491,13 @@ fun KmpSliderTrackScope.TrackDecoration(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .then(if (sliderScope.direction.isHorizontal) {
-                Modifier.padding(horizontal = if (styles.isTrackFullSize) 0.dp else styles.thumbSize.mainAxisSize / 2)
-            } else {
-                Modifier.padding(vertical = if (styles.isTrackFullSize) 0.dp else styles.thumbSize.mainAxisSize / 2)
-            })
+            .then(
+                if (sliderScope.direction.isHorizontal) {
+                    Modifier.padding(horizontal = if (styles.isTrackFullSize) 0.dp else styles.thumbSize.mainAxisSize / 2)
+                } else {
+                    Modifier.padding(vertical = if (styles.isTrackFullSize) 0.dp else styles.thumbSize.mainAxisSize / 2)
+                }
+            )
             .clip(styles.trackShape)
             .background(brush = styles.trackBackground)
             .then(modifier),
@@ -506,7 +509,7 @@ fun KmpSliderTrackScope.TrackDecoration(
 @Composable
 private fun KmpSliderTrackScope.TrackFill() {
     val density = LocalDensity.current
-    val thumbSizePx = remember (styles.thumbSize, density) { with (density) { styles.thumbSize.crossAxisSize.toPx() } }
+    val thumbSizePx = remember(styles.thumbSize, density) { with(density) { styles.thumbSize.crossAxisSize.toPx() } }
 
     val posMultRange = remember(
         currentValues.value,
@@ -629,7 +632,10 @@ fun KmpSliderScope.Thumb(
                 brush = if (isFocused) styles.trackFill else SolidColor(Color.Transparent),
                 shape = styles.thumbShape,
             )
-            .background(brush = if (isEnabled) styles.thumbBackground else styles.thumbBackgroundDisabled, shape = styles.thumbShape)
+            .background(
+                brush = if (isEnabled) styles.thumbBackground else styles.thumbBackgroundDisabled,
+                shape = styles.thumbShape
+            )
             .then(modifier),
     )
 }
@@ -640,17 +646,20 @@ private fun KmpSliderTrackScope.Ticks() {
         modifier = Modifier
             .fillMaxSize()
             .zIndex(styles.ticksZIndex)
-            .then(if (sliderScope.direction.isHorizontal) {
-                Modifier.padding(horizontal = styles.thumbSize.mainAxisSize / 2f)
-            } else {
-                Modifier.padding(vertical = styles.thumbSize.mainAxisSize / 2f)
-            })
+            .then(
+                if (sliderScope.direction.isHorizontal) {
+                    Modifier.padding(horizontal = styles.thumbSize.mainAxisSize / 2f)
+                } else {
+                    Modifier.padding(vertical = styles.thumbSize.mainAxisSize / 2f)
+                }
+            )
             .drawWithCache {
                 onDrawBehind {
                     ticks.forEachIndexed { i, tick ->
                         val posMult = calculatePosMultForValue(tick.value, sliderScope)
                         val shapeMainAxisSizePx = tick.style.shapeSize.mainAxis.toPx() / 2
-                        val shapePos = tick.style.shapePosition.calculate(tick.style.shapeSize.crossAxis.roundToPx()) - (tick.style.shapeSize.crossAxis.toPx() / 2)
+                        val shapePos =
+                            tick.style.shapePosition.calculate(tick.style.shapeSize.crossAxis.roundToPx()) - (tick.style.shapeSize.crossAxis.toPx() / 2)
                         val additionalOffset = if (ticksOffset < 0.dp) abs(ticksOffset.toPx()) else 0f
 
                         if (tick.style.shape != null) {
@@ -815,7 +824,11 @@ private fun KmpSliderScope.measureTicks(
         val shapeSize = tick.style.shapeSize.crossAxis.toPx()
         val shapeOffset = tick.style.shapePosition.calculate(tick.style.shapeSize.crossAxis.roundToPx())
         val labelSize = tick.label?.let { labelMeasurement?.size?.crossAxisSize?.toFloat() } ?: 0f
-        val labelOffset = tick.label?.let { tick.style.labelPosition.calculate(labelMeasurement?.size?.crossAxisSize ?: return@let 0f) } ?: 0f
+        val labelOffset = tick.label?.let {
+            tick.style.labelPosition.calculate(
+                labelMeasurement?.size?.crossAxisSize ?: return@let 0f
+            )
+        } ?: 0f
 
         minPos = minOf(minPos, labelOffset - (labelSize / 2), shapeOffset - (shapeSize / 2))
         maxPos = maxOf(maxPos, labelOffset + (labelSize / 2), shapeOffset + (shapeSize / 2))
@@ -880,7 +893,7 @@ private fun KmpSliderScope.clampToDeadband(key: String, targetValue: Float): Flo
 private fun KmpSliderScope.sliderMeasurePolicy(
     ticksSize: Dp,
     ticksOffset: Dp,
-) : MeasurePolicy = MeasurePolicy { measurables, constraints ->
+): MeasurePolicy = MeasurePolicy { measurables, constraints ->
     val track = measurables[0].measure(constraints)
     val ticks = measurables[1].measure(constraints.copyMaxCrossAxis(ticksSize.roundToPx()))
     val thumbMeasurables = measurables.subList(2, measurables.size)
@@ -896,7 +909,10 @@ private fun KmpSliderScope.sliderMeasurePolicy(
             maxValue = max(maxValue, value)
         }
 
-        calculatePosMultForValue(minValue, this@sliderMeasurePolicy)..calculatePosMultForValue(maxValue, this@sliderMeasurePolicy)
+        calculatePosMultForValue(minValue, this@sliderMeasurePolicy)..calculatePosMultForValue(
+            maxValue,
+            this@sliderMeasurePolicy
+        )
     }
 
     val thumbSize = run {
@@ -910,10 +926,12 @@ private fun KmpSliderScope.sliderMeasurePolicy(
     }.coerceAtLeast(styles.thumbSize.mainAxisSize.roundToPx())
 
     val thumbs = thumbMeasurables.map {
-        it.measure(Constraints.fixed(
-            width = if (direction.isHorizontal) thumbSize else styles.thumbSize.width.roundToPx(),
-            height = if (direction.isHorizontal) styles.thumbSize.height.roundToPx() else thumbSize,
-        ))
+        it.measure(
+            Constraints.fixed(
+                width = if (direction.isHorizontal) thumbSize else styles.thumbSize.width.roundToPx(),
+                height = if (direction.isHorizontal) styles.thumbSize.height.roundToPx() else thumbSize,
+            )
+        )
     }
 
     val trackAndThumbSize = maxOf(track.crossAxisSize, thumbs.firstOrNull()?.crossAxisSize ?: 0)
@@ -945,7 +963,9 @@ private fun KmpSliderScope.sliderMeasurePolicy(
         }
 
         thumbs.forEachIndexed { i, thumb ->
-            val actualValue = if (draggingKey.value != null && draggingKey.value == thumbMeasurables.getOrNull(i)?.layoutId) draggingValues.value[draggingKey.value] ?: currentValues.value[draggingKey.value] ?: range.start else valueList[i]
+            val actualValue =
+                if (draggingKey.value != null && draggingKey.value == thumbMeasurables.getOrNull(i)?.layoutId) draggingValues.value[draggingKey.value]
+                    ?: currentValues.value[draggingKey.value] ?: range.start else valueList[i]
             val posMult = if (isGroupThumbMode) {
                 if (direction.isHorizontal) groupPosMultRange.start else groupPosMultRange.endInclusive
             } else {
@@ -970,8 +990,14 @@ private fun AwaitPointerEventScope.isGestureOnThumb(
     val buffer = 10.dp.toPx()
 
     if (isGroupThumbMode) {
-        val start = calculatePosMultForValue(valueRange.start, scope) * (size.mainAxisSize - styles.thumbSize.mainAxisSize.toPx())
-        val end = calculatePosMultForValue(valueRange.endInclusive, scope) * (size.mainAxisSize - styles.thumbSize.mainAxisSize.toPx())
+        val start = calculatePosMultForValue(
+            valueRange.start,
+            scope
+        ) * (size.mainAxisSize - styles.thumbSize.mainAxisSize.toPx())
+        val end = calculatePosMultForValue(
+            valueRange.endInclusive,
+            scope
+        ) * (size.mainAxisSize - styles.thumbSize.mainAxisSize.toPx())
 
         val thumbRect = Rect(
             mainAxisStart = if (direction.isHorizontal) start - buffer else end - buffer,
@@ -1065,9 +1091,11 @@ private fun calculateValueForPos(
 ): Float {
     val mult = (pos.coerceIn(0f, size) / size).let { if (scope.direction.isHorizontal) it else 1 - it }
     return if (scope.logarithmic) {
-        ((10f.pow(mult * log10(scope.range.endInclusive / scope.range.start))) * scope.range.start).coerceIn(scope.range).snapTo(scope.step)
+        ((10f.pow(mult * log10(scope.range.endInclusive / scope.range.start))) * scope.range.start).coerceIn(scope.range)
+            .snapTo(scope.step)
     } else {
-        (scope.range.start + (mult * (scope.range.endInclusive - scope.range.start).absoluteValue)).coerceIn(scope.range).snapTo(scope.step)
+        (scope.range.start + (mult * (scope.range.endInclusive - scope.range.start).absoluteValue)).coerceIn(scope.range)
+            .snapTo(scope.step)
     }
 }
 
@@ -1187,7 +1215,9 @@ data class KmpSliderScope(
             val clampedDistance = clampDistance(distance, valueRange)
 
             if (isGroupThumbMode) {
-                onChange(currentValues.value.mapValues { entry -> (entry.value + clampedDistance).coerceIn(range).snapTo(step) })
+                onChange(currentValues.value.mapValues { entry ->
+                    (entry.value + clampedDistance).coerceIn(range).snapTo(step)
+                })
             } else if (isRangeThumbMode) {
                 val value = currentValues.value[key] ?: return@onKeyEvent true
                 val newValue = clampToDeadband(key, (value + clampedDistance).coerceIn(range).snapTo(step))
@@ -1501,7 +1531,14 @@ private fun KmpSliderPreview() {
         )
 
         KmpSlider(
-            values = remember { derivedStateOf { mapOf("0" to (testValues.value["0"] ?: 0f), "2" to (testValues.value["2"] ?: 0f)) } }.value,
+            values = remember {
+                derivedStateOf {
+                    mapOf(
+                        "0" to (testValues.value["0"] ?: 0f),
+                        "2" to (testValues.value["2"] ?: 0f)
+                    )
+                }
+            }.value,
             label = "Range",
             isEnabled = !isDisabled,
             range = -100f..100f,
