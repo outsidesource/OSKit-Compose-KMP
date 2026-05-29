@@ -84,6 +84,7 @@ import kotlin.math.*
  * @param manualEntryState Mutable state to control if the manual entry is open or not
  * @param manualEntrySlot An optional composable to control the look and layout of manual entry
  *
+ * @param onDoubleTap The callback for when the user double taps on the slider (typically used to reset)
  * @param onDragStart The callback for when the user begins interacting with a thumb
  * @param onDragDone The callback for when the user stops interacting with a thumb
  * @param onChange The callback for when the value changes
@@ -121,6 +122,7 @@ fun KmpSlider(
         )
     },
 
+    onDoubleTap: () -> Unit = { },
     onDragStart: (Float) -> Unit = { },
     onDragDone: (Float) -> Unit = { },
     onChange: (Float) -> Unit,
@@ -147,6 +149,7 @@ fun KmpSlider(
     manualEntryState = manualEntryState,
     manualEntrySlot = manualEntrySlot,
 
+    onDoubleTap = onDoubleTap,
     onDragStart = { onDragStart(it.values.firstOrNull() ?: return@KmpSlider) },
     onDragDone = { onDragDone(it.values.firstOrNull() ?: return@KmpSlider) },
     onChange = { onChange(it.values.firstOrNull() ?: return@KmpSlider) },
@@ -181,6 +184,7 @@ fun KmpSlider(
  * @param manualEntryState Mutable state to control if the manual entry is open or not
  * @param manualEntrySlot An optional composable to control the look and layout of manual entry
  *
+ * @param onDoubleTap The callback for when the user double taps on the slider (typically used to reset)
  * @param onDragStart The callback for when the user begins interacting with a thumb
  * @param onDragDone The callback for when the user stops interacting with a thumb
  * @param onChange The callback for when the value changes. Only changed thumb values will be passed.
@@ -220,6 +224,7 @@ fun KmpSlider(
         )
     },
 
+    onDoubleTap: () -> Unit = { },
     onDragStart: (Map<String, Float>) -> Unit = { },
     onDragDone: (Map<String, Float>) -> Unit = { },
     onChange: (Map<String, Float>) -> Unit,
@@ -254,6 +259,7 @@ fun KmpSlider(
         logarithmic = logarithmic,
         onDragStart = onDragStart,
         onDragDone = onDragDone,
+        onDoubleTap = onDoubleTap,
         onChange = onChange,
         density = LocalDensity.current,
         draggingValues = draggingValues,
@@ -381,24 +387,29 @@ fun KmpSliderScope.Track() {
             .then(if (direction.isHorizontal) Modifier.fillMaxWidth() else Modifier.fillMaxHeight())
             .pointerInput(range, step, isEnabled) {
                 if (!isEnabled) return@pointerInput
-
-                detectTapGestures {
-                    val key = findClosestKeyForPos(it, size, this)
-                    val change = calculatePointerChange(position = it, size = size, key = key)
-                    if (change.isNotEmpty()) onChange(change)
-                }
-            }
-            .pointerInput(range, step, isEnabled) {
-                if (!isEnabled) return@pointerInput
+                var lastTapTimeMs = 0L
+                var lastTapPosition = Offset.Zero
 
                 awaitEachGesture {
                     val down = awaitFirstDown()
+
+                    val isDoubleTap =
+                        (down.uptimeMillis - lastTapTimeMs) < viewConfiguration.doubleTapTimeoutMillis &&
+                                (down.position - lastTapPosition).getDistance() < viewConfiguration.touchSlop
+
+                    if (isDoubleTap) {
+                        down.consume()
+                        lastTapTimeMs = 0L
+                        onDoubleTap()
+                        return@awaitEachGesture
+                    }
+
                     val startingValues = userValues.value.toMap()
                     val valueRange = calculateValueRange(startingValues)
                     val isOnThumb = isGestureOnThumb(this@Track, down, valueRange)
                     val key = findClosestKeyForPos(down.position, size, this)
 
-                    val onDrag = fun (inputChange: PointerInputChange, callOnStart: Boolean): Map<String, Float> {
+                    val onDrag = fun(inputChange: PointerInputChange, callOnStart: Boolean): Map<String, Float> {
                         inputChange.consume()
                         val change = calculatePointerChange(
                             position = inputChange.position,
@@ -424,19 +435,32 @@ fun KmpSliderScope.Track() {
                     } else if (!isOnThumb) {
                         val dragChange = awaitTouchSlopOrCancellation(down.id) { change, offset ->
                             if (offset.mainAxis.absoluteValue > offset.crossAxis.absoluteValue) change.consume()
-                        } ?: return@awaitEachGesture
+                        } ?: run {
+                            val change = calculatePointerChange(position = down.position, size = size, key = key)
+                            if (change.isNotEmpty()) onChange(change)
+                            lastTapTimeMs = down.uptimeMillis
+                            lastTapPosition = down.position
+                            return@awaitEachGesture
+                        }
                         lastChange = onDrag(dragChange, true)
                     }
 
                     draggingKey.value = key
 
+                    var wasDragged = false
                     drag(down.id) {
+                        wasDragged = true
                         lastChange = onDrag(it, false)
                     }
 
                     onDragDone(lastChange)
                     draggingKey.value = null
                     draggingValues.value = emptyMap()
+
+                    if (!wasDragged) {
+                        lastTapTimeMs = down.uptimeMillis
+                        lastTapPosition = down.position
+                    }
                 }
             },
         measurePolicy = sliderMeasurePolicy(ticksSize, ticksOffset),
@@ -1123,6 +1147,7 @@ data class KmpSliderScope(
     val valueLabelSlot: @Composable (KmpSliderScope.() -> Unit)?,
     val trackDecoratorSlot: @Composable KmpSliderTrackScope.(@Composable KmpSliderTrackScope.() -> Unit) -> Unit,
     val logarithmic: Boolean,
+    val onDoubleTap: () -> Unit,
     val onDragStart: (Map<String, Float>) -> Unit,
     val onDragDone: (Map<String, Float>) -> Unit,
     val onChange: (Map<String, Float>) -> Unit,
