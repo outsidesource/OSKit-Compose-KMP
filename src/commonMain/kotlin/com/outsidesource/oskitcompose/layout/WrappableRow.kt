@@ -14,6 +14,7 @@ import kotlin.math.max
 /**
  * WrappableRow allows for content to wrap to multiple lines with the specified [verticalSpacing]
  */
+@Deprecated("As of Compose 1.11.0. `FlexBox` layout has been released.")
 @Composable
 fun WrappableRow(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,

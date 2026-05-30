@@ -28,6 +28,7 @@ import kotlin.math.roundToInt
  *
  * Any child with the mainAxisWidth modifier will be treated as a fixed width
  */
+@Deprecated("As of Compose 1.11.0. `FlexBox` layout has been released.")
 @Composable
 fun FlexRow(
     modifier: Modifier = Modifier,
