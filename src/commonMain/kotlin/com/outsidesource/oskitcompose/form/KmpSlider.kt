@@ -451,7 +451,7 @@ fun KmpSliderScope.Track() {
                             }
 
                         var lastChange = emptyMap<String, Float>()
-                        if (down.type == PointerType.Mouse) {
+                        if (isOnThumb || down.type == PointerType.Mouse) {
                             lastChange = onDrag(down, true)
                         } else {
                             var crossAxisDrag = false
@@ -463,20 +463,24 @@ fun KmpSliderScope.Track() {
                                         crossAxisDrag = true
                                     }
                                 }
-                                    ?: run {
-                                        if (!crossAxisDrag) {
-                                            val change =
-                                                calculatePointerChange(
-                                                    position = down.position,
-                                                    size = size,
-                                                    key = key,
-                                                )
-                                            if (change.isNotEmpty()) onChange(change)
-                                            lastTapTimeMs = down.uptimeMillis
-                                            lastTapPosition = down.position
-                                        }
-                                        return@awaitEachGesture
-                                    }
+
+
+                            if (dragChange == null) {
+                                if (crossAxisDrag) return@awaitEachGesture
+
+                                val change =
+                                    calculatePointerChange(
+                                        position = down.position,
+                                        size = size,
+                                        key = key,
+                                    )
+
+                                if (change.isNotEmpty()) onChange(change)
+                                lastTapTimeMs = down.uptimeMillis
+                                lastTapPosition = down.position
+                                return@awaitEachGesture
+                            }
+
                             lastChange = onDrag(dragChange, true)
                         }
 
