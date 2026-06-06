@@ -482,7 +482,7 @@ fun KmpSliderScope.Track() {
                           }
                         }
                             ?: run {
-                              if (!crossAxisDrag && !isOnThumb) {
+                              if (!crossAxisDrag) {
                                 val change =
                                     calculatePointerChange(
                                         position = down.position,
@@ -490,8 +490,6 @@ fun KmpSliderScope.Track() {
                                         key = key,
                                     )
                                 if (change.isNotEmpty()) onChange(change)
-                              }
-                              if (!crossAxisDrag) {
                                 lastTapTimeMs = down.uptimeMillis
                                 lastTapPosition = down.position
                               }
