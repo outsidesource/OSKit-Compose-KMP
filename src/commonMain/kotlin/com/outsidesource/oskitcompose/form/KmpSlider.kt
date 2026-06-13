@@ -301,7 +301,7 @@ private fun KmpSliderScope.ManualEntrySlot() {
         }
 
     val onManualEntryCommit =
-        remember(localManualValue) {
+        remember(localManualValue, onChange) {
             return@remember {
                 val values =
                     currentValues.value.mapValues {
@@ -396,6 +396,8 @@ fun KmpSliderScope.ValueLabel(
 fun KmpSliderScope.Track() {
     val textMeasurer = rememberTextMeasurer(ticks.size)
     val (ticksSize, ticksOffset, ticksLabels) = remember(ticks, textMeasurer) { measureTicks(ticks, textMeasurer) }
+    val currentOnChange = rememberUpdatedState(onChange)
+    val currentOnDoubleTap = rememberUpdatedState(onDoubleTap)
 
     Layout(
         modifier =
@@ -415,7 +417,7 @@ fun KmpSliderScope.Track() {
                         if (isDoubleTap) {
                             down.consume()
                             lastTapTimeMs = 0L
-                            onDoubleTap()
+                            currentOnDoubleTap.value()
                             return@awaitEachGesture
                         }
 
@@ -441,7 +443,7 @@ fun KmpSliderScope.Track() {
 
                                 if (callOnStart) onDragStart(change)
                                 if (change.isNotEmpty()) {
-                                    onChange(change)
+                                    currentOnChange.value(change)
                                     draggingValues.value =
                                         userValues.value.toMutableMap().apply {
                                             change.forEach { this[it.key] = it.value }
@@ -475,7 +477,7 @@ fun KmpSliderScope.Track() {
                                         key = key,
                                     )
 
-                                if (change.isNotEmpty()) onChange(change)
+                                if (change.isNotEmpty()) currentOnChange.value(change)
                                 lastTapTimeMs = down.uptimeMillis
                                 lastTapPosition = down.position
                                 return@awaitEachGesture
