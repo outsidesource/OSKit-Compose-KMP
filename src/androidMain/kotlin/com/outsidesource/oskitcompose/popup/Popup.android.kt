@@ -31,6 +31,7 @@ actual fun KmpPopup(
     content: @Composable () -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
+    val currentNavEventDispatcherOwner = currentNavEventDispatcherOwner()
 
     if (!isFullScreen) {
         Popup(
@@ -42,7 +43,7 @@ actual fun KmpPopup(
                 excludeFromSystemGesture = false,
                 dismissOnBackPress = dismissOnBackPress,
             ),
-            content = { LocalLayoutDirectionWrapper(layoutDirection, content) },
+            content = { PopupCompositionLocalProvider(layoutDirection, currentNavEventDispatcherOwner, content) },
         )
     } else {
         AndroidFullScreenPopup(
@@ -53,7 +54,7 @@ actual fun KmpPopup(
             ),
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = onKeyEvent,
-            content = { LocalLayoutDirectionWrapper(layoutDirection, content) },
+            content = { PopupCompositionLocalProvider(layoutDirection, currentNavEventDispatcherOwner, content) },
         )
     }
 }
@@ -70,6 +71,7 @@ actual fun KmpPopup(
     content: @Composable () -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
+    val currentNavEventDispatcherOwner = currentNavEventDispatcherOwner()
     val focusRequester = remember { FocusRequester() }
     val backPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
 
@@ -110,7 +112,7 @@ actual fun KmpPopup(
                     LaunchedEffect(Unit) {
                         focusRequester.requestFocus()
                     }
-                    LocalLayoutDirectionWrapper(layoutDirection, content)
+                    PopupCompositionLocalProvider(layoutDirection, currentNavEventDispatcherOwner, content)
                 }
             },
         )
@@ -123,7 +125,7 @@ actual fun KmpPopup(
             ),
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = onKeyEvent,
-            content = { LocalLayoutDirectionWrapper(layoutDirection, content) },
+            content = { PopupCompositionLocalProvider(layoutDirection, currentNavEventDispatcherOwner, content) },
         )
     }
 }

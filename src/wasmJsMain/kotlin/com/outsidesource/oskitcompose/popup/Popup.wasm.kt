@@ -25,6 +25,7 @@ actual fun KmpPopup(
     content: @Composable () -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
+    val currentNavEventDispatcherOwner = currentNavEventDispatcherOwner()
 
     Popup(
         alignment = alignment,
@@ -37,7 +38,7 @@ actual fun KmpPopup(
         ),
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent,
-        content = { LocalLayoutDirectionWrapper(layoutDirection, content) },
+        content = { PopupCompositionLocalProvider(layoutDirection, currentNavEventDispatcherOwner, content) },
     )
 }
 
@@ -54,6 +55,7 @@ actual fun KmpPopup(
     content: @Composable () -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
+    val currentNavEventDispatcherOwner = currentNavEventDispatcherOwner()
 
     Popup(
         popupPositionProvider = popupPositionProvider,
@@ -65,6 +67,6 @@ actual fun KmpPopup(
         ),
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent,
-        content = { LocalLayoutDirectionWrapper(layoutDirection, content) },
+        content = { PopupCompositionLocalProvider(layoutDirection, currentNavEventDispatcherOwner, content) },
     )
 }
