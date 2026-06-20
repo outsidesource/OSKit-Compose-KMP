@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.4.0"
-oskitKmp = "5.2.0-alpha1"
+oskitKmp = "5.2.0-rc1"
 composeMultiplatform = "1.11.1"
 activityCompose = "1.13.0"
 coreKtx = "1.18.0"
