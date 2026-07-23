@@ -9,10 +9,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -40,7 +40,6 @@ import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
 import kotlin.math.min
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 private val daySize = 40.dp
 val DATE_PICKER_MIN_WIDTH = daySize * 7
@@ -50,7 +49,6 @@ private enum class DatePickerViewType {
     Year,
 }
 
-@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpDatePickerModal(
     isVisible: Boolean,
@@ -101,20 +99,19 @@ fun KmpDatePickerModal(
                 TextButton({
                     onDismissRequest?.invoke()
                 }) {
-                    Text("CANCEL", style = datePickerStyles.buttonStyle)
+                    Text("CANCEL", style = datePickerStyles.buttonTextStyle)
                 }
                 TextButton({
                     onDismissRequest?.invoke()
                     onChange(selectedDate.value)
                 }) {
-                    Text("OK", style = datePickerStyles.buttonStyle)
+                    Text("OK", style = datePickerStyles.buttonTextStyle)
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpDatePickerPopover(
     isVisible: Boolean,
@@ -166,20 +163,19 @@ fun KmpDatePickerPopover(
                 TextButton({
                     onDismissRequest?.invoke()
                 }) {
-                    Text("CANCEL", style = datePickerStyles.buttonStyle)
+                    Text("CANCEL", style = datePickerStyles.buttonTextStyle)
                 }
                 TextButton({
                     onDismissRequest?.invoke()
                     onChange(selectedDate.value)
                 }) {
-                    Text("OK", style = datePickerStyles.buttonStyle)
+                    Text("OK", style = datePickerStyles.buttonTextStyle)
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpDatePickerInline(
     modifier: Modifier = Modifier,
@@ -226,7 +222,7 @@ fun KmpDatePickerInline(
                         style = TextStyle(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
-                            color = styles.fontColor,
+                            color = styles.textColor,
                         )
                     )
 
@@ -334,7 +330,7 @@ private fun DatePickerMonthView(
                         if (targetState.month > initialState.month || (initialState.month == Month.DECEMBER && targetState.month == Month.JANUARY)) -it else it
                     }
                 },
-            ) {currentDateValue ->
+            ) { currentDateValue ->
                 val dayOne = currentDateValue - DatePeriod(days = currentDateValue.day - 1)
                 val startIndex = dayOne.dayOfWeek.sundayFirstOrdinal() + 1
                 val maxIndex = (dayOne.month.lengthInDays(dayOne.year) + startIndex)
@@ -398,7 +394,7 @@ private fun DatePickerMonthView(
 private fun DayName(text: String) {
     val styles = LocalKmpDatePickerStyles.current
     val dayNameTextStyle = remember {
-        TextStyle(color = styles.fontColor.copy(alpha = .5f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        TextStyle(color = styles.textColor.copy(alpha = .5f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
     }
     Text(modifier = Modifier.width(daySize), text = text, style = dayNameTextStyle, textAlign = TextAlign.Center)
 }
@@ -491,7 +487,7 @@ private fun DatePickerYearView(
                     Text(
                         text = month.getDisplayName(DateTextFormat.Full),
                         style = TextStyle(
-                            color = if (isSelectedMonth) styles.accentColor else styles.fontColor,
+                            color = if (isSelectedMonth) styles.accentColor else styles.textColor,
                             fontSize = 18.sp,
                         ),
                     )
@@ -538,7 +534,7 @@ private fun DatePickerYearView(
                     Text(
                         text = year.toString(),
                         style = TextStyle(
-                            color = if (isSelectedYear) styles.accentColor else styles.fontColor,
+                            color = if (isSelectedYear) styles.accentColor else styles.textColor,
                             fontSize = 18.sp,
                         ),
                     )
@@ -563,10 +559,10 @@ private fun DatePickerDay(
             .graphicsLayer { alpha = if (isEnabled) 1f else .25f }
             .run { if (onClick != null) clickable(onClick = onClick, enabled = isEnabled) else this }
             .size(daySize)
-            .background(if (isSelected) MaterialTheme.colors.primary else Color.Transparent, CircleShape),
+            .background(if (isSelected) styles.accentColor  else Color.Transparent, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text = label, style = TextStyle(color = if (isSelected) styles.fontColorOnAccent else styles.fontColor))
+        Text(text = label, style = TextStyle(color = if (isSelected) styles.textColorOnAccent else styles.textColor))
     }
 }
 
@@ -578,24 +574,25 @@ private fun DayOfWeek.sundayFirstOrdinal(): Int = when (this.ordinal) {
 @Immutable
 data class KmpDatePickerStyles(
     val accentColor: Color,
-    val fontColor: Color,
+    val textColor: Color,
     val backgroundColor: Color,
-    val fontColorOnAccent: Color,
-    val buttonStyle: TextStyle,
+    val textColorOnAccent: Color,
+    val textStyle: TextStyle,
+    val buttonTextStyle: TextStyle,
 )
 
 @Composable
 fun rememberKmpDatePickerStyles(): KmpDatePickerStyles {
-    val colors = MaterialTheme.colors
-    val typography = MaterialTheme.typography
+    val textStyle = LocalTextStyle.current
 
-    return remember {
+    return remember(textStyle) {
         KmpDatePickerStyles(
-            accentColor = colors.primary,
-            fontColor = typography.body1.color,
-            fontColorOnAccent = colors.onPrimary,
+            accentColor = Color.Black,
+            textColor = Color.Black,
+            textColorOnAccent = Color.White,
             backgroundColor = Color.White,
-            buttonStyle = typography.button,
+            textStyle = textStyle,
+            buttonTextStyle = textStyle,
         )
     }
 }
@@ -603,9 +600,10 @@ fun rememberKmpDatePickerStyles(): KmpDatePickerStyles {
 val LocalKmpDatePickerStyles = staticCompositionLocalOf {
     KmpDatePickerStyles(
         accentColor = Color.Black,
-        fontColor = Color.Black,
+        textColor = Color.Black,
         backgroundColor = Color.White,
-        fontColorOnAccent = Color.Black,
-        buttonStyle = TextStyle(),
+        textColorOnAccent = Color.Black,
+        buttonTextStyle = TextStyle(),
+        textStyle = TextStyle(),
     )
 }

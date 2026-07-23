@@ -88,7 +88,7 @@ kotlin {
                 implementation(libs.oskit.kmp)
                 implementation(libs.compose.runtime)
                 implementation(libs.compose.foundation)
-                implementation(libs.compose.material)
+                implementation(libs.compose.material3)
                 implementation(libs.compose.ui)
                 implementation(libs.compose.ui.preview)
                 implementation(libs.compose.resources)

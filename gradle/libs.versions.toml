@@ -6,10 +6,10 @@ activityCompose = "1.13.0"
 coreKtx = "1.18.0"
 junit = "4.13.2"
 koin = "4.2.2"
-ktor-client-core = "3.5.0"
+ktor-client-core = "3.5.1"
 lifecycleProcess = "2.10.0"
-markdown = "0.7.5"
-okio = "3.17.0"
+markdown = "0.7.7"
+okio = "3.18.0"
 kotlinx-atomicfu = "0.33.0"
 kotlinx-datetime = "0.8.0"
 kotlinx-coroutines-core = "1.11.0"
@@ -21,6 +21,7 @@ android-minSdk = "28"
 androidGradlePlugin = "9.0.1"
 navigationEvent = "1.1.2"
 navigationEventCompose = "1.1.0"
+material3 = "1.11.0-alpha07"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -46,7 +47,7 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMul
 compose-ui-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
 compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
-compose-material = { module = "org.jetbrains.compose.material:material", version.ref = "composeMultiplatform" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
 material-icons = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "material-icons" }
 navigationEvent-compose = { module = "org.jetbrains.androidx.navigationevent:navigationevent-compose", version.ref = "navigationEventCompose" }
 navigationEvent = { module = "androidx.navigationevent:navigationevent", version.ref = "navigationEvent" }

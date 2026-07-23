@@ -1,12 +1,25 @@
 package com.outsidesource.oskitcompose.form
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.runtime.*
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -18,15 +31,17 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.outsidesource.oskitcompose.modifier.defaultMaxSize
-import com.outsidesource.oskitcompose.popup.*
+import com.outsidesource.oskitcompose.popup.Modal
+import com.outsidesource.oskitcompose.popup.ModalStyles
+import com.outsidesource.oskitcompose.popup.Popover
+import com.outsidesource.oskitcompose.popup.PopoverAnchors
+import com.outsidesource.oskitcompose.popup.PopupPositionProvider
 import com.outsidesource.oskitkmp.lib.snapTo
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone.Companion.currentSystemDefault
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpTimePickerModal(
     isVisible: Boolean,
@@ -75,20 +90,19 @@ fun KmpTimePickerModal(
                 TextButton({
                     onDismissRequest?.invoke()
                 }) {
-                    Text("CANCEL", style = timePickerStyles.buttonStyle)
+                    Text("CANCEL", style = timePickerStyles.buttonTextStyle)
                 }
                 TextButton({
                     onDismissRequest?.invoke()
                     onChange(selectedTime.value)
                 }) {
-                    Text("OK", style = timePickerStyles.buttonStyle)
+                    Text("OK", style = timePickerStyles.buttonTextStyle)
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpTimePickerPopover(
     isVisible: Boolean,
@@ -138,20 +152,19 @@ fun KmpTimePickerPopover(
                 TextButton({
                     onDismissRequest?.invoke()
                 }) {
-                    Text("CANCEL", style = timePickerStyles.buttonStyle)
+                    Text("CANCEL", style = timePickerStyles.buttonTextStyle)
                 }
                 TextButton({
                     onDismissRequest?.invoke()
                     onChange(selectedTime.value)
                 }) {
-                    Text("OK", style = timePickerStyles.buttonStyle)
+                    Text("OK", style = timePickerStyles.buttonTextStyle)
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalTime::class)
 @Composable
 fun KmpTimePickerInline(
     modifier: Modifier = Modifier,
@@ -227,7 +240,7 @@ fun KmpTimePickerInline(
                     Text(
                         text = hour.toString(),
                         style = TextStyle(
-                            color = if (isSelectedHour) styles.accentColor else styles.fontColor,
+                            color = if (isSelectedHour) styles.accentColor else styles.textColor,
                             fontSize = 18.sp,
                         ),
                     )
@@ -260,7 +273,7 @@ fun KmpTimePickerInline(
                     Text(
                         text = minute.toString().padStart(2, '0'),
                         style = TextStyle(
-                            color = if (isSelectedMinute) styles.accentColor else styles.fontColor,
+                            color = if (isSelectedMinute) styles.accentColor else styles.textColor,
                             fontSize = 18.sp,
                         ),
                     )
@@ -301,7 +314,7 @@ fun KmpTimePickerInline(
                     Text(
                         text = meridiem.toString(),
                         style = TextStyle(
-                            color = if (isSelectedMeridiem) styles.accentColor else styles.fontColor,
+                            color = if (isSelectedMeridiem) styles.accentColor else styles.textColor,
                             fontSize = 18.sp,
                         ),
                     )
@@ -314,24 +327,25 @@ fun KmpTimePickerInline(
 @Immutable
 data class KmpTimePickerStyles(
     val accentColor: Color,
-    val fontColor: Color,
+    val textColor: Color,
     val backgroundColor: Color,
-    val fontColorOnAccent: Color,
-    val buttonStyle: TextStyle,
+    val textColorOnAccent: Color,
+    val textStyle: TextStyle,
+    val buttonTextStyle: TextStyle,
 )
 
 @Composable
 fun rememberKmpTimePickerStyles(): KmpTimePickerStyles {
-    val colors = MaterialTheme.colors
-    val typography = MaterialTheme.typography
+    val textStyle = LocalTextStyle.current
 
-    return remember {
+    return remember(textStyle) {
         KmpTimePickerStyles(
-            accentColor = colors.primary,
-            fontColor = typography.body1.color,
-            fontColorOnAccent = colors.onPrimary,
+            accentColor = Color.Black,
+            textColor = Color.Black,
+            textColorOnAccent = Color.White,
             backgroundColor = Color.White,
-            buttonStyle = typography.button,
+            textStyle = textStyle,
+            buttonTextStyle = textStyle,
         )
     }
 }
@@ -339,10 +353,11 @@ fun rememberKmpTimePickerStyles(): KmpTimePickerStyles {
 val LocalKmpTimePickerStyles = staticCompositionLocalOf {
     KmpTimePickerStyles(
         accentColor = Color.Black,
-        fontColor = Color.Black,
+        textColor = Color.Black,
         backgroundColor = Color.White,
-        fontColorOnAccent = Color.Black,
-        buttonStyle = TextStyle(),
+        textColorOnAccent = Color.Black,
+        buttonTextStyle = TextStyle(),
+        textStyle = TextStyle(),
     )
 }
 
